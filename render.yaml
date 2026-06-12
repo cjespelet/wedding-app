@@ -1,0 +1,35 @@
+# Blueprint Render: https://render.com/docs/blueprint-spec
+# Conectar repo → New → Blueprint → seleccionar wedding-app
+
+databases:
+  - name: wedding-db
+    databaseName: wedding_app
+    user: wedding_user
+    plan: free
+
+services:
+  - type: web
+    name: wedding-api
+    runtime: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start:prod
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: wedding-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ORIGIN
+        value: https://jesiyjavier.com.ar,https://www.jesiyjavier.com.ar
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false

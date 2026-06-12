@@ -24,6 +24,9 @@ export async function createServer() {
     'http://localhost:4300',
     'http://localhost:8100', // Ionic dev server
     'http://192.168.0.107:8080', // PWA local (celu mismo Wi‑Fi)
+    ...(process.env.NODE_ENV === 'production'
+      ? ['https://jesiyjavier.com.ar', 'https://www.jesiyjavier.com.ar']
+      : []),
   ];
   const envCorsOrigins = process.env.CORS_ORIGIN
     ? process.env.CORS_ORIGIN.split(',').map((o) => o.trim()).filter(Boolean)
