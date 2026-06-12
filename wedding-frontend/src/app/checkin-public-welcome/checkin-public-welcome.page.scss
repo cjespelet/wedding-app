@@ -1,0 +1,28 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+  text-align: center;
+  margin-top: 36px;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.muted {
+  font-size: 14px;
+  color: #666;
+}
+
+ion-spinner {
+  margin-bottom: 8px;
+}
+
+/* Evitar que el botón gold se vea distinto entre plataformas */
+.gold {
+  --color: #000;
+}
+

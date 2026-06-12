@@ -1,0 +1,62 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Fotos</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content fullscreen>
+  <ion-segment
+    [value]="filter()"
+    (ionChange)="setFilter($event.detail.value)"
+  >
+    <ion-segment-button value="all">
+      <ion-label>Todas</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="pending">
+      <ion-label>Pendientes</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="highlighted">
+      <ion-label>Destacadas</ion-label>
+    </ion-segment-button>
+  </ion-segment>
+
+  <ion-grid>
+    <ion-row>
+      <ion-col
+        size="6"
+        *ngFor="let photo of filteredPhotos()"
+      >
+        <div class="photo-card">
+          <ion-img [src]="photo.squareUrl"></ion-img>
+          <div class="actions">
+            <ion-button
+              size="small"
+              fill="clear"
+              color="success"
+              (click)="approve(photo)"
+              *ngIf="!photo.approved"
+            >
+              Aprobar
+            </ion-button>
+            <ion-button
+              size="small"
+              fill="clear"
+              (click)="toggleHighlight(photo)"
+            >
+              {{ photo.highlighted ? 'Quitar destacado' : 'Destacar' }}
+            </ion-button>
+            <ion-button
+              size="small"
+              fill="clear"
+              color="danger"
+              (click)="remove(photo)"
+            >
+              Borrar
+            </ion-button>
+          </div>
+        </div>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>
+

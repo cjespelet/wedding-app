@@ -1,0 +1,33 @@
+<div *ngIf="steps.length === 0" class="text-muted">
+  No hay pasos definidos aún.
+</div>
+
+<div *ngIf="steps.length > 0" class="menu-list" cdkDropList (cdkDropListDropped)="drop($event)">
+  <div class="menu-item" *ngFor="let step of steps; let i = index" cdkDrag>
+    <div class="menu-item-drag-handle" cdkDragHandle>
+      <i class="fa fa-grip-vertical"></i>
+    </div>
+    <div class="menu-item-time">{{ step.time }}</div>
+    <div class="menu-item-main">
+      <div class="menu-item-title">{{ step.title }}</div>
+      <div class="menu-item-description">{{ step.description }}</div>
+    </div>
+    <div class="menu-item-actions">
+      <button
+        type="button"
+        class="btn btn-outline-primary btn-sm me-2"
+        (click)="editStep.emit(step)"
+      >
+        Editar
+      </button>
+      <button
+        type="button"
+        class="btn btn-outline-danger btn-sm"
+        (click)="deleteStep.emit(step)"
+      >
+        Eliminar
+      </button>
+    </div>
+  </div>
+</div>
+

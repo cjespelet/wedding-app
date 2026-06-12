@@ -1,0 +1,313 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      Role     @relation(fields: [roleId], references: [id])
+  roleId    String
+  weddings  Wedding[] @relation("WeddingAdmins")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Role {
+  id    String @id @default(cuid())
+  name  String @unique
+  users User[]
+}
+
+model Wedding {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  brideName   String
+  groomName   String
+  date        DateTime
+  time        String
+  location    String
+  description String?
+  story       String?
+  instructions String?
+
+  // Configuración de compartido de fotos en la app
+  allowPhotoSharing  Boolean @default(true)
+  maxSharesPerGuest  Int     @default(5)
+
+  coverImageUrl String?
+
+  admins    User[]   @relation("WeddingAdmins")
+  guests    Guest[]
+  invitations InvitationCode[]
+  rsvps      Rsvp[]
+  schedules EventSchedule[]
+  photos    Photo[]
+  songs     SongRequest[]
+  guestbook GuestbookMessage[]
+  menuSteps MenuStep[]
+  djMessages DjMessage[]
+  guestNotifications GuestNotification[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Guest {
+  id              String   @id @default(cuid())
+  wedding         Wedding  @relation(fields: [weddingId], references: [id])
+  weddingId       String
+  fullName        String   // Nombre: persona o ej. "Flia Rocha"
+  familyGroup     String?
+  email           String?
+
+  adultsCount     Int      @default(1)  // Cantidad invitados mayores de 17
+  minorsCount     Int      @default(0)  // Cantidad invitados menores de 17
+  username        String?  @unique // @handle único (login + feed)
+  accessCode      String?  // Código de acceso 4 dígitos
+
+  qrCode          String   @unique
+  checkedIn       Boolean  @default(false)
+  checkedInTime   DateTime?
+
+  invitationCodes InvitationCode[]
+  rsvps           Rsvp[]
+  photoTags       PhotoTag[]
+  songRequests    SongRequest[]
+  songVotes       SongVote[]
+  guestbook       GuestbookMessage[]
+
+  uploadedPhotos  Photo[]         @relation("PhotoUploadedBy")
+  photoLikes      PhotoLike[]
+  photoComments   PhotoComment[]
+  commentLikes    PhotoCommentLike[]
+  notificationsReceived GuestNotification[] @relation("NotificationRecipient")
+  notificationsSentAsActor GuestNotification[] @relation("NotificationActor")
+
+  // Reglas y tracking para compartir fotos desde la app
+  canSharePhotos    Boolean @default(true)
+  photoSharesCount  Int     @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model DjMessage {
+  id          String   @id @default(cuid())
+  wedding     Wedding  @relation(fields: [weddingId], references: [id])
+  weddingId   String
+
+  messageText String
+  priority    Int      @default(0)
+  createdAt   DateTime @default(now())
+}
+
+model InvitationCode {
+  id        String   @id @default(cuid())
+  code      String   @unique
+  wedding   Wedding  @relation(fields: [weddingId], references: [id])
+  weddingId String
+  guest     Guest?   @relation(fields: [guestId], references: [id])
+  guestId   String?
+
+  used      Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+  usedAt    DateTime?
+}
+
+model Rsvp {
+  id                 String   @id @default(cuid())
+  wedding            Wedding  @relation(fields: [weddingId], references: [id])
+  weddingId          String
+  guest              Guest    @relation(fields: [guestId], references: [id])
+  guestId            String
+
+  attending          Boolean
+  numberOfGuests     Int
+  dietaryRestrictions String?
+  comments           String?
+
+  createdAt DateTime @default(now())
+}
+
+model EventSchedule {
+  id        String   @id @default(cuid())
+  wedding   Wedding  @relation(fields: [weddingId], references: [id])
+  weddingId String
+
+  title     String
+  startTime DateTime
+  endTime   DateTime?
+  description String?
+
+  order     Int
+}
+
+model Photo {
+  id          String   @id @default(cuid())
+  wedding     Wedding  @relation(fields: [weddingId], references: [id])
+  weddingId   String
+
+  originalUrl String
+  largeUrl    String
+  mediumUrl   String
+  squareUrl   String
+
+  highlighted Boolean  @default(false)
+  approved    Boolean  @default(false)
+
+  uploadedByGuestId String?
+  uploadedBy        Guest?  @relation("PhotoUploadedBy", fields: [uploadedByGuestId], references: [id])
+
+  tags        PhotoTag[]
+  likes       Int      @default(0)
+  photoLikes  PhotoLike[]
+  comments    PhotoComment[]
+  notifications GuestNotification[]
+
+  createdAt   DateTime @default(now())
+
+  @@index([weddingId, createdAt(sort: Desc)])
+  @@index([uploadedByGuestId])
+}
+
+model PhotoLike {
+  id        String   @id @default(cuid())
+  photo     Photo    @relation(fields: [photoId], references: [id], onDelete: Cascade)
+  photoId   String
+  guest     Guest    @relation(fields: [guestId], references: [id], onDelete: Cascade)
+  guestId   String
+  createdAt DateTime @default(now())
+
+  @@unique([photoId, guestId])
+  @@index([photoId])
+  @@index([guestId])
+  @@map("photo_likes")
+}
+
+model PhotoComment {
+  id        String   @id @default(cuid())
+  photo     Photo    @relation(fields: [photoId], references: [id], onDelete: Cascade)
+  photoId   String
+  guest     Guest    @relation(fields: [guestId], references: [id], onDelete: Cascade)
+  guestId   String
+  content   String
+  createdAt DateTime @default(now())
+
+  likes     PhotoCommentLike[]
+  notifications GuestNotification[]
+
+  @@index([photoId, createdAt(sort: Desc)])
+  @@map("comments")
+}
+
+/// Notificaciones in-app (likes/comentarios en galería)
+model GuestNotification {
+  id        String   @id @default(cuid())
+  weddingId String
+  wedding   Wedding  @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  guestId   String
+  guest     Guest    @relation("NotificationRecipient", fields: [guestId], references: [id], onDelete: Cascade)
+  type      String
+  actorId   String
+  actor     Guest    @relation("NotificationActor", fields: [actorId], references: [id], onDelete: Cascade)
+  photoId   String?
+  photo     Photo?   @relation(fields: [photoId], references: [id], onDelete: Cascade)
+  commentId String?
+  comment   PhotoComment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  readAt    DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([guestId, createdAt(sort: Desc)])
+  @@index([guestId, readAt])
+  @@map("guest_notifications")
+}
+
+model PhotoCommentLike {
+  id        String   @id @default(cuid())
+  comment   PhotoComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  commentId String
+  guest     Guest    @relation(fields: [guestId], references: [id], onDelete: Cascade)
+  guestId   String
+  createdAt DateTime @default(now())
+
+  @@unique([commentId, guestId])
+  @@index([commentId])
+  @@map("comment_likes")
+}
+
+model PhotoTag {
+  id      String @id @default(cuid())
+  photo   Photo  @relation(fields: [photoId], references: [id])
+  photoId String
+
+  guest   Guest  @relation(fields: [guestId], references: [id])
+  guestId String
+}
+
+model SongRequest {
+  id        String   @id @default(cuid())
+  wedding   Wedding  @relation(fields: [weddingId], references: [id])
+  weddingId String
+
+  guest     Guest?   @relation(fields: [guestId], references: [id])
+  guestId   String?
+
+  title     String
+  artist    String
+  comment   String?
+  played    Boolean  @default(false)
+
+  votes     SongVote[]
+
+  createdAt DateTime @default(now())
+}
+
+model SongVote {
+  id            String      @id @default(cuid())
+  songRequest   SongRequest @relation(fields: [songRequestId], references: [id])
+  songRequestId String
+
+  guest         Guest?      @relation(fields: [guestId], references: [id])
+  guestId       String?
+
+  createdAt     DateTime    @default(now())
+}
+
+model GuestbookMessage {
+  id        String   @id @default(cuid())
+  wedding   Wedding  @relation(fields: [weddingId], references: [id])
+  weddingId String
+
+  guest     Guest?   @relation(fields: [guestId], references: [id])
+  guestId   String?
+
+  name      String
+  message   String
+  emoji     String?
+
+  createdAt DateTime @default(now())
+}
+
+model MenuStep {
+  id          String   @id @default(cuid())
+  wedding     Wedding  @relation(fields: [weddingId], references: [id])
+  weddingId   String
+
+  time        String
+  title       String
+  description String
+
+  position    Int
+
+  createdAt   DateTime @default(now())
+}
+

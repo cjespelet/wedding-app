@@ -1,0 +1,43 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Menú de la boda</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-refresher slot="fixed" (ionRefresh)="load($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div class="menu-container">
+    <div class="menu-preview-frame">
+      <div class="leaf leaf-top-left"></div>
+      <div class="leaf leaf-top-right"></div>
+      <div class="leaf leaf-bottom-center"></div>
+
+      <div class="menu-logo-wrap">
+        <img src="assets/img/lg-menu.png" alt="Logo boda" class="menu-logo" />
+      </div>
+
+      <div class="menu-preview-header">
+        <h2 class="menu-title">MENÚ</h2>
+        <p class="menu-subtitle-line"></p>
+      </div>
+
+      <div *ngIf="steps.length === 0 && !loading" class="empty">
+        Aún no se definieron pasos para el menú.
+      </div>
+
+      <div *ngIf="steps.length > 0" class="menu-preview">
+        <div *ngFor="let step of steps" class="menu-preview-item">
+          <div class="menu-preview-time" *ngIf="step.time">{{ step.time }}</div>
+          <div class="menu-preview-title">{{ step.title }}</div>
+          <div class="menu-preview-description">
+            {{ step.description }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</ion-content>
+

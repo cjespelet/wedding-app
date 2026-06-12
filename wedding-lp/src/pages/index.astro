@@ -1,0 +1,35 @@
+---
+import MainLayout from '../layouts/MainLayout.astro';
+import Hero from '../components/Hero.astro';
+import FiestaSection from '../components/FiestaSection.astro';
+import RegaloSection from '../components/RegaloSection.astro';
+import ConfirmacionSection from '../components/ConfirmacionSection.astro';
+import Footer from '../components/Footer.astro';
+import MusicPlayer from '../components/MusicPlayer.astro';
+import weddingData from '../data/wedding.json';
+import type { WeddingData } from '../types/wedding';
+
+const data = weddingData as WeddingData;
+---
+
+<MainLayout>
+  <main class="relative">
+    <Hero data={data} />
+    <FiestaSection data={data} />
+    <RegaloSection data={data} />
+    <ConfirmacionSection data={data} />
+  </main>
+  <Footer data={data} />
+  <MusicPlayer data={data} />
+
+  <button
+    type="button"
+    id="back-to-top"
+    class="fixed right-5 bottom-5 z-40 flex h-11 w-11 items-center justify-center rounded-full border border-gold/30 bg-ivory/90 text-gold opacity-0 shadow-lg backdrop-blur-sm transition-all pointer-events-none hover:border-gold dark:bg-[#252220]/90 sm:right-8 sm:bottom-8"
+    aria-label={data.ui['a11y.backToTop']}
+  >
+    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 15l7-7 7 7" />
+    </svg>
+  </button>
+</MainLayout>

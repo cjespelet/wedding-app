@@ -1,0 +1,127 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>{{ justCheckedIn ? 'Bienvenidos a la fiesta' : 'Bienvenidos' }}</ion-title>
+    <ion-buttons slot="end">
+      <app-notification-bell></app-notification-bell>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <div class="dashboard-container">
+    <div class="dashboard-logo-wrap">
+      <img src="assets/img/lg-menu.png" alt="Logo boda" class="dashboard-logo" />
+    </div>
+
+    
+
+    <!-- ✅ Confirmar presencia (sólo si NO hay RSVP confirmado) -->
+    <ion-card *ngIf="!hasRsvp">
+      <ion-card-content class="event-card text-center">
+
+        <p class="welcome-text">
+          Por favor confirmá tu presencia para que podamos preparar todo perfecto para vos.
+        </p>
+
+        <ion-button
+          expand="block"
+          (click)="goToRsvpConfirm()"
+        >
+          Confirmar presencia
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+
+
+    <!-- Check-in desde la puerta: el QR público ya registra el ingreso y redirige acá. -->
+
+    <!-- 💌 BIENVENIDA -->
+    <ion-card>
+      <ion-card-content class="welcome-card">
+
+        
+
+        <h2 class="welcome-title">
+          ¡Bienvenido{{ user?.name ? (', ' + user?.name) : '' }}!
+        </h2>
+
+        <p class="welcome-text">
+          Nos llena de alegría que formes parte de este momento tan especial.
+        </p>
+
+        <p class="welcome-text">
+          Te invitamos a celebrar la unión de <br>
+          <span class="names">
+            {{ wedding?.brideName }} & {{ wedding?.groomName }}
+          </span>
+        </p>
+
+        <p class="welcome-text">
+          En esta app vas a encontrar todos los detalles del gran día:
+          agenda, ubicación, momentos importantes y mucho más.
+        </p>
+
+        <p class="welcome-footer">
+          Con cariño,<br>
+          <strong>{{ wedding?.brideName }} & {{ wedding?.groomName }}</strong> 💛
+        </p>
+
+      </ion-card-content>
+    </ion-card>
+
+    <div class="divider">✦ ✦ ✦</div>
+
+    <!-- 📅 DETALLES DEL EVENTO -->
+    <ion-card *ngIf="wedding">
+      <ion-card-content class="event-card">
+
+        <h2 class="section-title">Detalles del evento</h2>
+
+        <div class="event-item">
+          <span class="label">Fecha:</span>
+          <span class="value">
+            {{ wedding.date | date: "EEEE d 'de' MMMM 'de' y" : 'UTC' }}
+          </span>
+        </div>
+
+        <div class="event-item">
+          <span class="label">Hora:</span>
+          <span class="value">{{ wedding.time }}</span>
+        </div>
+
+        <div class="event-item">
+          <span class="label">Lugar:</span>
+          <span class="value highlight">{{ wedding.location }}</span>
+        </div>
+
+      </ion-card-content>
+    </ion-card>
+
+    <div class="divider">✦ ✦ ✦</div>
+
+    <!-- 📍 UBICACIÓN -->
+    <ion-card *ngIf="wedding?.instructions">
+      <ion-card-content class="event-card">
+
+        <h2 class="section-title">Cómo llegar</h2>
+
+        <p class="welcome-text">
+          Podés ver la ubicación exacta del evento en el siguiente enlace:
+        </p>
+
+        <a [href]="wedding?.instructions || '#'" target="_blank" class="map-link">
+          Ver ubicación en Google Maps 📍
+        </a>
+
+      </ion-card-content>
+    </ion-card>
+
+
+    
+
+    
+
+  </div>
+
+</ion-content>

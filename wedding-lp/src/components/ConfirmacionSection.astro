@@ -1,0 +1,38 @@
+---
+import type { WeddingData } from '../types/wedding';
+
+interface Props {
+  data: WeddingData;
+}
+
+const { data } = Astro.props;
+const { confirmacion } = data;
+---
+
+<section
+  id="confirmacion"
+  class="section-stack section-padding bg-ivory text-center dark:bg-[#1a1816]"
+  aria-labelledby="confirmacion-title"
+>
+  <div class="mx-auto max-w-lg">
+    <h2
+      id="confirmacion-title"
+      class="font-sans text-sm font-semibold tracking-[0.35em] text-ink-muted uppercase dark:text-[#a89f94] sm:text-base"
+    >
+      {confirmacion.title}
+    </h2>
+
+    <p class="mx-auto mt-6 max-w-md text-base leading-relaxed text-ink dark:text-[#e8e0d4] sm:text-lg">
+      {confirmacion.subtitle}
+    </p>
+
+    <a
+      href={confirmacion.appUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="btn-primary mt-10"
+    >
+      {confirmacion.buttonLabel}
+    </a>
+  </div>
+</section>

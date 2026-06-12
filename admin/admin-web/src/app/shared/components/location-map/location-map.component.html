@@ -1,0 +1,44 @@
+@if (showMap() && embedUrl(); as url) {
+  <div class="location-map">
+    <div class="map-box">
+      <iframe
+        [src]="url"
+        title="Ubicación en el mapa"
+        width="200"
+        height="200"
+        style="border:0;"
+        allowfullscreen
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+      ></iframe>
+    </div>
+    <button type="button" class="btn btn-sm btn-outline-primary mt-2" (click)="openExpand()">
+      <i class="fa-solid fa-expand"></i> Ampliar mapa
+    </button>
+  </div>
+
+  @if (expanded()) {
+    <div class="map-overlay" (click)="closeExpand()" role="button" tabindex="0" (keydown.escape)="closeExpand()">
+      <div class="map-overlay-content" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" aria-label="Mapa ampliado">
+        <div class="map-overlay-header">
+          <span>Ubicación</span>
+          <button type="button" class="btn btn-sm btn-light" (click)="closeExpand()" aria-label="Cerrar">
+            <i class="fa-solid fa-times"></i> Cerrar
+          </button>
+        </div>
+        <div class="map-overlay-frame">
+          <iframe
+            [src]="url"
+            title="Mapa ampliado"
+            width="100%"
+            height="100%"
+            style="border:0;"
+            allowfullscreen
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+          ></iframe>
+        </div>
+      </div>
+    </div>
+  }
+}

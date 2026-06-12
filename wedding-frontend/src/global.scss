@@ -1,0 +1,213 @@
+/*
+ * App Global CSS
+ * ----------------------------------------------------------------------------
+ * Put style rules here that you want to apply globally. These styles are for
+ * the entire app and not just one component. Additionally, this file can be
+ * used as an entry point to import other CSS/Sass files to be included in the
+ * output CSS.
+ * For more information on global stylesheets, visit the documentation:
+ * https://ionicframework.com/docs/layout/global-stylesheets
+ */
+
+/* Core CSS required for Ionic components to work properly */
+@import "@ionic/angular/css/core.css";
+
+/* Basic CSS for apps built with Ionic */
+@import "@ionic/angular/css/normalize.css";
+@import "@ionic/angular/css/structure.css";
+@import "@ionic/angular/css/typography.css";
+@import "@ionic/angular/css/display.css";
+
+/* Optional CSS utils that can be commented out */
+@import "@ionic/angular/css/padding.css";
+@import "@ionic/angular/css/float-elements.css";
+@import "@ionic/angular/css/text-alignment.css";
+@import "@ionic/angular/css/text-transformation.css";
+@import "@ionic/angular/css/flex-utils.css";
+
+/**
+ * Ionic Dark Mode
+ * -----------------------------------------------------
+ * For more info, please see:
+ * https://ionicframework.com/docs/theming/dark-mode
+ */
+
+/* @import "@ionic/angular/css/palettes/dark.always.css"; */
+/* @import "@ionic/angular/css/palettes/dark.class.css"; */
+@import "@ionic/angular/css/palettes/dark.system.css";
+
+/* Fondo general de la app */
+body {
+  --ion-background-color: #ffffff;
+  background: #ffffff;
+}
+
+ion-content {
+  --background: transparent;
+}
+
+/* Fondo con imagen sólo para páginas internas */
+.internal-bg {
+  --background: transparent;
+  background: linear-gradient(
+      rgba(255,255,255,0.9),
+      rgba(255,255,255,0.9)
+    ),
+    url('/assets/img/bg.png') no-repeat center/cover;
+}
+
+/* Cabeceras de toda la app (tabs + auth) */
+ion-header ion-toolbar {
+  --background: linear-gradient(135deg, #d4af37, #f7d774); /* mismo fondo que botones */
+  --color: #000000; /* texto en negro */
+  text-align: center;
+}
+
+ion-header ion-title {
+  width: 100%;
+  text-align: center;
+}
+
+/**
+ * Galería: segment "Todas" / "Mis fotos"
+ * - Toolbar global pone --color negro; este toolbar anula para el segment.
+ * - Sin mode="md" forzado: PWA / iOS se ven como segment nativo (más limpio).
+ * - Android/Capacitor: color="medium" evita azul primary; variables + ion-label cubren WebView.
+ */
+ion-header ion-toolbar.gallery-toolbar-filter {
+  --color: #ffffff;
+}
+
+/* Modal comentarios (galería): fondo blanco aunque el sistema esté en oscuro */
+ion-modal.comments-modal {
+  --background: #ffffff;
+  --ion-background-color: #ffffff;
+}
+
+ion-modal.comments-modal ion-content {
+  --background: #ffffff;
+  --color: #111111;
+}
+
+ion-modal.comments-modal ion-header ion-toolbar {
+  --background: linear-gradient(135deg, #d4af37, #f7d774);
+  --color: #000000;
+}
+
+ion-modal.comments-modal .comments-modal-content p.ion-text-center {
+  color: #333333;
+}
+
+/* Forzar contraste sobre ion-label (tema oscuro del sistema) */
+ion-modal.comments-modal .comment-modal-author {
+  color: #000000 !important;
+}
+
+ion-modal.comments-modal .comment-modal-meta {
+  color: #555555 !important;
+}
+
+ion-modal.comments-modal .comment-modal-text {
+  color: #1a1a1a !important;
+}
+
+ion-segment.gallery-filter-segment {
+  /* Píldora suave sobre el dorado (antes era rgba negro; en PWA se veía tosca) */
+  --background: rgba(255, 255, 255, 0.28);
+  max-width: 100%;
+  min-height: 40px;
+  padding: 4px 8px;
+  border-radius: 10px;
+  /* Evitar que el tema use primary (azul) en estados internos */
+  --ion-color-primary: #1a1a1a;
+  --ion-color-primary-contrast: #ffffff;
+}
+
+ion-segment.gallery-filter-segment ion-segment-button {
+  --color: #ffffff;
+  --color-checked: #111111;
+  --color-focused: #111111;
+  --color-hover: #ffffff;
+  --background: transparent;
+  --background-checked: rgba(255, 255, 255, 0.95);
+  --background-hover: rgba(255, 255, 255, 0.18);
+  --background-focused: rgba(255, 255, 255, 0.2);
+  --indicator-color: transparent;
+  --border-width: 0;
+  --ripple-color: rgba(0, 0, 0, 0.08);
+  font-weight: 600;
+  min-height: 32px;
+  text-transform: none;
+  border-radius: 8px;
+}
+
+/* WebView Android a veces ignora variables y pinta el label en azul (primary) */
+ion-segment.gallery-filter-segment ion-segment-button:not(.segment-button-checked) ion-label {
+  color: #ffffff !important;
+}
+
+ion-segment.gallery-filter-segment ion-segment-button.segment-button-checked ion-label {
+  color: #111111 !important;
+}
+
+ion-segment.gallery-filter-segment ion-label {
+  color: inherit;
+}
+
+/* Estilo global de botones (mismo que login) */
+ion-button {
+  border-radius: 12px;
+  height: 48px;
+  font-weight: 600;
+  --background: linear-gradient(135deg, #d4af37, #f7d774);
+  --background-activated: linear-gradient(135deg, #c49c2f, #e8c764);
+  --background-focused: linear-gradient(135deg, #d4af37, #f7d774);
+  --color: #000000;
+  --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  text-transform: none;
+}
+
+/* Tabs del footer: color dorado cuando están activos */
+ion-tab-bar {
+  --background: #ffffff;
+  --color: #666666;
+  --color-selected: #d4af37;
+}
+
+/* Forzar tarjetas claras también en iOS/Safari (dark.system) */
+ion-card {
+  --background: #ffffff;
+  background: #ffffff;
+  color: #111111;
+}
+
+ion-card-title,
+ion-card-subtitle,
+ion-card-content {
+  color: #111111;
+}
+
+/* Inputs consistentes en Safari/Chrome (mismo look login/register) */
+ion-item.input-item {
+  --background: transparent;
+  border-radius: 12px;
+  background: #f7f7f7;
+  border: 1px solid #ddd;
+}
+
+ion-item.input-item::part(native) {
+  background: transparent;
+}
+
+ion-item.input-item ion-label {
+  color: #444 !important;
+}
+
+ion-item.input-item ion-input,
+ion-item.input-item ion-textarea,
+ion-item.input-item ion-select {
+  --background: transparent;
+  color: #000000 !important;
+  --color: #000000;
+  --placeholder-color: #777777;
+}

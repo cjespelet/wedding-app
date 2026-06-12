@@ -1,0 +1,61 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="cancel()">
+        <ion-icon name="arrow-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Escanear QR</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <p class="ion-text-center ion-padding" *ngIf="scanning">
+    Apuntá la cámara al código QR de la puerta del salón.
+  </p>
+
+  <div class="video-wrapper" *ngIf="scanning">
+    <video #video playsinline class="video"></video>
+  </div>
+
+  <p class="ion-text-center ion-padding error" *ngIf="error">{{ error }}</p>
+
+  <!-- Si iOS/Safari bloqueó permisos, dejamos un botón para reintentar con gesto del usuario -->
+  <div class="permission-actions" *ngIf="!scanning && permissionDenied">
+    <ion-button expand="block" (click)="requestPermissionAgain()">
+      Permitir cámara y reintentar
+    </ion-button>
+    <p class="help-text">
+      Si sigue sin funcionar, revisá permisos de Cámara en Safari/iPhone y volvé a intentar.
+    </p>
+  </div>
+
+  <!-- Explicación siempre que falle el acceso -->
+  <div class="permission-instructions" *ngIf="!scanning && error">
+    <p class="instructions-title">Cómo habilitar la cámara en iPhone (Safari)</p>
+    <p class="instructions-text">
+      1) Abrí <strong>Ajustes</strong> en el iPhone.
+      <br />
+      2) Entrá en <strong>Privacidad y seguridad</strong> → <strong>Cámara</strong>.
+      <br />
+      3) Activá el permiso para <strong>Safari</strong>.
+      <br />
+      <br />
+      <strong>Si no ves “Safari” en la lista:</strong>
+      <br />
+      - En iOS normalmente aparece recién después de que la web solicitó cámara.
+      <br />
+      - Si estás probando con <strong>HTTP</strong> (por ejemplo `http://192.168...`), iOS puede bloquear el acceso sin mostrar prompt.
+      <br />
+      - En ese caso, la solución más segura es probar la web con <strong>HTTPS</strong> (por ejemplo con `ngrok`) o usar la <strong>app nativa</strong> (Capacitor).
+      <br />
+      4) Volvé a abrir esta pantalla y recargá el sitio.
+      <br />
+      5) Tocá <strong>Permitir</strong> cuando aparezca el aviso (si ya lo bloqueaste, no siempre vuelve a salir el aviso automático).
+    </p>
+  </div>
+
+  <div class="ion-padding ion-text-center">
+    <ion-button fill="outline" (click)="cancel()">Cancelar</ion-button>
+  </div>
+</ion-content>

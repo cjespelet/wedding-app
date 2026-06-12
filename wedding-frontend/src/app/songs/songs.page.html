@@ -1,0 +1,80 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Solicitar tema</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="internal-bg ion-padding">
+  <ion-refresher slot="fixed" (ionRefresh)="load($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div class="songs-container">
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Pedile un tema al DJ</ion-card-title>
+        <ion-card-subtitle>
+          Contanos qué canción te gustaría escuchar durante la fiesta.
+        </ion-card-subtitle>
+      </ion-card-header>
+
+      <ion-card-content>
+        <form [formGroup]="form" (ngSubmit)="submit()">
+          <ion-item class="input-item">
+            <ion-label position="stacked">Título del tema *</ion-label>
+            <ion-input formControlName="title" type="text" placeholder="Ej: Perfect"></ion-input>
+          </ion-item>
+
+          <ion-item class="input-item">
+            <ion-label position="stacked">Artista</ion-label>
+            <ion-input formControlName="artist" type="text" placeholder="Ej: Ed Sheeran"></ion-input>
+          </ion-item>
+
+          <ion-item class="input-item">
+            <ion-label position="stacked">Mensaje para el DJ (opcional)</ion-label>
+            <ion-textarea
+              formControlName="comment"
+              autoGrow="true"
+              placeholder="Dedicatoria o indicaciones especiales"
+            ></ion-textarea>
+          </ion-item>
+
+          <ion-button
+            expand="block"
+            type="submit"
+            [disabled]="form.invalid || submitting"
+            class="mt-3"
+          >
+            Enviar pedido
+          </ion-button>
+        </form>
+      </ion-card-content>
+    </ion-card>
+
+    <div class="divider">✦ Tus pedidos ✦</div>
+
+    <div *ngIf="loading" class="loader">
+      <ion-spinner name="crescent"></ion-spinner>
+    </div>
+
+    <div *ngIf="!loading && requests.length === 0" class="empty">
+      Todavía no hiciste pedidos de temas.
+    </div>
+
+    <ion-list *ngIf="requests.length > 0">
+      <ion-item *ngFor="let req of requests">
+        <ion-label>
+          <h2>{{ req.title }}</h2>
+          <p *ngIf="req.artist">{{ req.artist }}</p>
+          <p *ngIf="req.comment" class="comment">“{{ req.comment }}”</p>
+          <p class="meta">
+            {{ req.createdAt | date: 'shortTime' }} ·
+            <span *ngIf="req.played; else pending" class="status-played">Reproducido</span>
+            <ng-template #pending><span class="status-pending">Pendiente</span></ng-template>
+          </p>
+        </ion-label>
+      </ion-item>
+    </ion-list>
+  </div>
+</ion-content>
+

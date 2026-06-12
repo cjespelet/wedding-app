@@ -1,0 +1,14 @@
+<h2 mat-dialog-title>Check-in por QR</h2>
+<div mat-dialog-content>
+  <form [formGroup]="form">
+    <mat-form-field appearance="outline" class="full">
+      <mat-label>QR code</mat-label>
+      <input matInput formControlName="qr_code" />
+    </mat-form-field>
+  </form>
+</div>
+<div mat-dialog-actions align="end">
+  <button type="button" class="btn btn-secondary" mat-dialog-close>Cancelar</button>
+  <button type="button" class="btn btn-primary" (click)="submit()">Registrar</button>
+</div>
+

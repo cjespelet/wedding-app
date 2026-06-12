@@ -1,0 +1,50 @@
+.pwa-install-banner {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 16px;
+  background: linear-gradient(135deg, #d4af37, #f7d774);
+  color: #000;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+  z-index: 9999;
+  text-align: center;
+}
+
+.pwa-install-banner-manual .pwa-install-sub {
+  margin: 0 0 12px;
+  font-size: 0.9rem;
+  opacity: 0.95;
+}
+
+.pwa-install-text {
+  margin: 0 0 12px;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.pwa-install-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.pwa-install-btn {
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.pwa-install-btn-primary {
+  background: #000;
+  color: #fff;
+}
+
+.pwa-install-btn-outline {
+  background: transparent;
+  color: #000;
+  border: 2px solid #000;
+}

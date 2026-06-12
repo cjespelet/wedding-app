@@ -1,0 +1,66 @@
+---
+import type { WeddingData } from '../types/wedding';
+import { formatShortDate } from '../utils/format';
+
+interface Props {
+  data: WeddingData;
+}
+
+const { data } = Astro.props;
+const { ceremony } = data;
+---
+
+<section
+  id="ceremony"
+  class="section-padding reveal bg-white/50 dark:bg-[#221f1c]"
+  aria-labelledby="ceremony-title"
+>
+  <div class="mx-auto max-w-2xl text-center">
+    <h2 id="ceremony-title" class="section-title">
+      {data.ui['ceremony.title']}
+    </h2>
+    <div class="gold-divider"></div>
+
+    <article class="card-elegant mt-8 text-left">
+      <h3 class="font-display text-2xl text-gold">
+        {ceremony.name}
+      </h3>
+
+      <dl class="mt-6 space-y-4 text-sm">
+        <div>
+          <dt class="text-[0.65rem] tracking-[0.2em] text-ink-muted uppercase">
+            {data.ui['ceremony.date']}
+          </dt>
+          <dd class="mt-1 font-medium capitalize">
+            <time datetime={ceremony.date}>{formatShortDate(ceremony.date)}</time>
+          </dd>
+        </div>
+        <div>
+          <dt class="text-[0.65rem] tracking-[0.2em] text-ink-muted uppercase">
+            {data.ui['ceremony.time']}
+          </dt>
+          <dd class="mt-1 font-medium">{ceremony.time}</dd>
+        </div>
+        <div>
+          <dt class="text-[0.65rem] tracking-[0.2em] text-ink-muted uppercase">
+            {data.ui['ceremony.address']}
+          </dt>
+          <dd class="mt-1 leading-relaxed">{ceremony.address}</dd>
+        </div>
+      </dl>
+
+      <a
+        href={ceremony.mapsUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="btn-primary mt-8 w-full sm:w-auto"
+      >
+        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+        {data.ui['ceremony.maps']}
+      </a>
+    </article>
+  </div>
+</section>

@@ -1,0 +1,32 @@
+<ion-app>
+  <ion-router-outlet></ion-router-outlet>
+
+  <!-- Banner nativo (HTTPS): el navegador ofrece instalar -->
+  <div class="pwa-install-banner" *ngIf="showInstallBanner">
+    <p class="pwa-install-text">¿Instalás la app para tenerla en tu celular?</p>
+    <div class="pwa-install-actions">
+      <button type="button" class="pwa-install-btn pwa-install-btn-primary" (click)="installPwa()">
+        Instalar
+      </button>
+      <button type="button" class="pwa-install-btn pwa-install-btn-outline" (click)="dismissInstallBanner()">
+        Ahora no
+      </button>
+    </div>
+  </div>
+
+  <!-- iOS (Safari) o Android en HTTP: instrucciones para instalar a mano -->
+  <div class="pwa-install-banner pwa-install-banner-manual" *ngIf="showManualInstallHint">
+    <p class="pwa-install-text">Para instalar la app en tu celular:</p>
+    <p class="pwa-install-sub" *ngIf="isIos">
+      Tocá el botón <strong>Compartir</strong> (□↑) abajo en Safari y elegí <strong>«Añadir a pantalla de inicio»</strong>.
+    </p>
+    <p class="pwa-install-sub" *ngIf="!isIos">
+      Chrome → menú (⋮) → <strong>Añadir a pantalla de inicio</strong>
+    </p>
+    <div class="pwa-install-actions">
+      <button type="button" class="pwa-install-btn pwa-install-btn-outline" (click)="dismissInstallBanner()">
+        Entendido
+      </button>
+    </div>
+  </div>
+</ion-app>

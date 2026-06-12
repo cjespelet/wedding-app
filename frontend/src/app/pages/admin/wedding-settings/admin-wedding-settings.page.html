@@ -1,0 +1,55 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Configuración de la boda</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content fullscreen>
+  <div class="container" *ngIf="wedding as w">
+    <ion-item>
+      <ion-label position="stacked">Nombre de la novia</ion-label>
+      <ion-input [(ngModel)]="wedding.brideName" [ngModelOptions]="{ standalone: true }"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Nombre del novio</ion-label>
+      <ion-input [(ngModel)]="wedding.groomName" [ngModelOptions]="{ standalone: true }"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Fecha</ion-label>
+      <ion-input type="date" [(ngModel)]="(w.date as any)" [ngModelOptions]="{ standalone: true }"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Hora</ion-label>
+      <ion-input [(ngModel)]="wedding.time" [ngModelOptions]="{ standalone: true }"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Lugar</ion-label>
+      <ion-input [(ngModel)]="wedding.location" [ngModelOptions]="{ standalone: true }"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Historia de la pareja</ion-label>
+      <ion-textarea autoGrow="true" [(ngModel)]="wedding.story" [ngModelOptions]="{ standalone: true }"></ion-textarea>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Instrucciones para los invitados</ion-label>
+      <ion-textarea
+        autoGrow="true"
+        [(ngModel)]="wedding.instructions"
+        [ngModelOptions]="{ standalone: true }"
+      ></ion-textarea>
+    </ion-item>
+
+    <ion-button expand="block" color="primary" (click)="save()" [disabled]="loading">
+      Guardar cambios
+    </ion-button>
+
+    <p class="saved" *ngIf="saved">Cambios guardados correctamente.</p>
+  </div>
+</ion-content>
+

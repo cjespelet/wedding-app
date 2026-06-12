@@ -1,0 +1,26 @@
+.container {
+  padding: 16px;
+}
+
+.form {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.message {
+  flex: 1 1 auto;
+}
+
+.priority {
+  width: 120px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+table td {
+  vertical-align: middle;
+}
+

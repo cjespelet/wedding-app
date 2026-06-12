@@ -1,0 +1,33 @@
+.hero {
+  text-align: center;
+  padding: 32px 16px;
+}
+
+.hero h1 {
+  font-size: 2.2rem;
+  margin-bottom: 8px;
+}
+
+.hero p {
+  margin: 4px 0;
+  color: var(--ion-color-medium);
+}
+
+.section {
+  padding: 16px;
+}
+
+.section h2 {
+  font-size: 1.3rem;
+  margin-bottom: 8px;
+}
+
+.actions ion-button {
+  margin-top: 8px;
+}
+
+.loading {
+  padding: 24px;
+  text-align: center;
+}
+

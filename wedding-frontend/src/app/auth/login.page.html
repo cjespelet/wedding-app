@@ -1,0 +1,71 @@
+<ion-header translucent class="auth-header">
+  <ion-toolbar>
+    <ion-title>Ingresar</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="login-bg">
+
+    <div class="login-container">
+      <div class="logo-wrapper">
+        <img src="../../assets/img/lg.png" alt="Logo" class="logo">
+      </div>
+
+      <div class="login-card">       
+
+        <h1 class="title">Jesi & Javier</h1>
+        <p class="subtitle">Nuestra boda</p>
+
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+          <!-- Usuario -->
+          <ion-item lines="none" class="input-item">
+            <ion-icon name="person-outline" slot="start"></ion-icon>
+            <ion-input placeholder="Usuario" formControlName="username" autocomplete="username" ></ion-input>
+          </ion-item>
+          
+
+          <ion-note color="danger"
+            *ngIf="form.get('username')?.touched && form.get('username')?.hasError('required')">
+            El usuario es obligatorio.
+          </ion-note>
+
+          <!-- Password -->
+          <ion-item lines="none" class="input-item">
+            <ion-icon name="lock-closed-outline" slot="start"></ion-icon>
+            <ion-input
+              type="password"
+              placeholder="Contraseña"
+              formControlName="password"
+              autocomplete="current-password"
+            ></ion-input>
+          </ion-item>
+
+          <ion-note color="danger"
+            *ngIf="form.get('password')?.touched && form.get('password')?.hasError('required')">
+            La contraseña es obligatoria.
+          </ion-note>
+
+          <!-- Botón -->
+          <ion-button
+            expand="block"
+            type="submit"
+            class="login-button"
+            [disabled]="form.invalid"
+          >
+            Ingresar
+          </ion-button>
+
+        </form>
+
+        <!-- Registro -->
+        <div class="register-text">
+          ¿No estás registrado?
+          <span (click)="goToRegister()">Crear cuenta</span>
+        </div>
+
+      </div>
+
+  </div>
+
+</ion-content>

@@ -1,0 +1,78 @@
+name: Deploy site to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+env:
+  SITE_DOMAIN: jesiyjavier.com.ar
+  SITE_URL: https://jesiyjavier.com.ar/invitacion/
+  ASTRO_BASE: /invitacion/
+  API_BASE_URL: https://api.jesiyjavier.com.ar/api
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Build app (wedding-frontend)
+        working-directory: wedding-frontend
+        run: |
+          npm ci
+          npm run build:pages
+        env:
+          NODE_OPTIONS: --max_old_space_size=4096
+
+      - name: Build invitación (wedding-lp)
+        working-directory: wedding-lp
+        run: |
+          npm ci
+          npm run build
+        env:
+          SITE_URL: ${{ env.SITE_URL }}
+          ASTRO_BASE: ${{ env.ASTRO_BASE }}
+
+      - name: Assemble site
+        run: |
+          mkdir -p site/invitacion
+          cp -r wedding-frontend/www/. site/
+          cp site/index.html site/404.html
+          cp -r wedding-lp/dist/. site/invitacion/
+          echo "${{ env.SITE_DOMAIN }}" > site/CNAME
+          touch site/.nojekyll site/invitacion/.nojekyll
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

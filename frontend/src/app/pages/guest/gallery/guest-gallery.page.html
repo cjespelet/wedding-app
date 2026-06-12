@@ -1,0 +1,19 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Gallery</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content fullscreen>
+  <ion-grid>
+    <ion-row>
+      <ion-col
+        size="6"
+        *ngFor="let photo of photos()"
+      >
+        <ion-img [src]="photo.squareUrl"></ion-img>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>
+

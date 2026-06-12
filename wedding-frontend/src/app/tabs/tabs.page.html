@@ -1,0 +1,38 @@
+<ion-tabs>
+  <ion-tab-bar slot="bottom">
+    <ion-tab-button tab="dashboard" href="/dashboard/dashboard">
+      <ion-icon aria-hidden="true" name="home"></ion-icon>
+      <ion-label>Inicio</ion-label>
+    </ion-tab-button>
+
+    <ion-tab-button tab="menu" href="/dashboard/menu">
+      <ion-icon aria-hidden="true" name="restaurant"></ion-icon>
+      <ion-label>Menú de la boda</ion-label>
+    </ion-tab-button>
+
+    <ion-tab-button tab="gallery" href="/dashboard/gallery">
+      <ion-icon aria-hidden="true" name="images"></ion-icon>
+      <ion-label>Galería</ion-label>
+    </ion-tab-button>
+
+    <ion-tab-button tab="songs" href="/dashboard/songs">
+      <ion-icon aria-hidden="true" name="musical-notes"></ion-icon>
+      <ion-label>Solicitar tema</ion-label>
+    </ion-tab-button>
+
+    <!-- <ion-tab-button tab="agenda" href="/dashboard/agenda">
+      <ion-icon aria-hidden="true" name="calendar"></ion-icon>
+      <ion-label>Agenda</ion-label>
+    </ion-tab-button>
+
+    <ion-tab-button tab="mensajes" href="/dashboard/mensajes">
+      <ion-icon aria-hidden="true" name="chatbubbles"></ion-icon>
+      <ion-label>Mensajes</ion-label>
+    </ion-tab-button> -->
+
+    <ion-tab-button (click)="logout()" tab="logout">
+      <ion-icon aria-hidden="true" name="log-out"></ion-icon>
+      <ion-label>Salir</ion-label>
+    </ion-tab-button>
+  </ion-tab-bar>
+</ion-tabs>

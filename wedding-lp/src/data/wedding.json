@@ -1,0 +1,176 @@
+{
+  "site": {
+    "title": "Jesica y Javier — Nuestra boda",
+    "description": "Los invitamos con mucho cariño a celebrar nuestra boda. Reservá la fecha y acompañanos en un día que no vamos a olvidar.",
+    "url": "https://jesiyjavier.com.ar/invitacion/",
+    "ogImage": "/images/hero.png"
+  },
+  "couple": {
+    "groom": "Javier",
+    "bride": "Jesica"
+  },
+  "weddingDate": "2026-09-26T21:00:00",
+  "hero": {
+    "image": "/images/hero.png",
+    "imageAlt": "Jesica y Javier — foto de su boda",
+    "tagline": "Junto a nuestras familias, los invitamos a celebrar nuestro amor"
+  },
+  "story": [
+    {
+      "date": "2018-06-14",
+      "title": "Cómo nos conocimos",
+      "description": "Una tarde de verano nos unió en la terraza de un amigo en común. Una charla se extendió hasta la madrugada y supimos que algo especial había empezado.",
+      "image": "/images/story-1.svg",
+      "alt": "Primer encuentro de Jesica y Javier"
+    },
+    {
+      "date": "2020-02-22",
+      "title": "Nuestro primer viaje",
+      "description": "Recorrimos la costa portuguesa, perdiéndonos entre calles empedradas y descubriendo que la aventura es mejor a dos.",
+      "image": "/images/story-2.svg",
+      "alt": "Viaje juntos por Portugal"
+    },
+    {
+      "date": "2025-09-26",
+      "title": "La pedida",
+      "description": "Al atardecer, Javier hizo la pregunta. Jesica dijo que sí, y nuestras familias festejaron desde el jardín.",
+      "image": "/images/story-3.svg",
+      "alt": "Momento del compromiso"
+    }
+  ],
+  "fiesta": {
+    "icon": "/images/icono-fiesta.svg",
+    "title": "FIESTA",
+    "dateLabel": "26 de Septiembre de 2026",
+    "time": "21:00 hs",
+    "venue": "Sueño verde",
+    "message": "¡Te esperamos!",
+    "address": "Av. Estrada, B7000 Tandil, Provincia de Buenos Aires",
+    "mapsUrl": "https://www.google.com/maps/search/?api=1&query=Av.+Estrada,+B7000+Tandil,+Provincia+de+Buenos+Aires"
+  },
+  "ceremony": {
+    "name": "Ceremonia civil",
+    "address": "Iglesia de San Miguel, Plaza Mayor 1, Sevilla, España",
+    "time": "18:00 hs",
+    "date": "2026-09-26",
+    "mapsUrl": "https://maps.google.com/?q=Iglesia+de+San+Miguel+Sevilla"
+  },
+  "reception": {
+    "name": "Sueño verde",
+    "address": "Av. Estrada, B7000 Tandil, Provincia de Buenos Aires",
+    "time": "21:00 hs",
+    "date": "2026-09-26",
+    "mapsUrl": "https://www.google.com/maps/search/?api=1&query=Av.+Estrada,+B7000+Tandil,+Provincia+de+Buenos+Aires"
+  },
+  "dressCode": {
+    "title": "Código de vestimenta",
+    "description": "Elegancia formal en tonos champagne e ivory. Mujeres: vestido de cocktail o largo. Hombres: traje o saco. Por favor, evitá blanco y negro.",
+    "images": ["/images/dress-1.svg", "/images/dress-2.svg", "/images/dress-3.svg"]
+  },
+  "gifts": {
+    "icon": "/images/icono-regalo.svg",
+    "description": "Su presencia es nuestro mejor regalo, pero si desean colaborar con nuestra luna de miel, pueden hacerlo con un click en el siguiente link.",
+    "buttonLabel": "VER MAS",
+    "bank": {
+      "title": "Datos Bancarios",
+      "alias": "CISNE.PRISMA.CARGO",
+      "holder": "CLAUDIO JAVIER ESPELET",
+      "dni": "27827222"
+    }
+  },
+  "confirmacion": {
+    "title": "CONFIRMACIÓN DE ASISTENCIA",
+    "subtitle": "Esperamos que seas parte de esta gran celebración.",
+    "buttonLabel": "CONFIRMAR ASISTENCIA",
+    "appUrl": "https://tu-app-de-confirmacion.com"
+  },
+  "socials": {
+    "instagram": "https://instagram.com/",
+    "facebook": "https://facebook.com/"
+  },
+  "gallery": [
+    { "src": "/images/gallery-1.svg", "alt": "Retrato de compromiso", "width": 800, "height": 1200 },
+    { "src": "/images/gallery-2.svg", "alt": "Paseo al atardecer", "width": 1200, "height": 800 },
+    { "src": "/images/gallery-3.svg", "alt": "Juntos en el jardín", "width": 800, "height": 800 },
+    { "src": "/images/gallery-4.svg", "alt": "Celebrando con amigos", "width": 800, "height": 1000 },
+    { "src": "/images/gallery-5.svg", "alt": "Detalle del anillo", "width": 1000, "height": 800 },
+    { "src": "/images/gallery-6.svg", "alt": "Horizonte de la ciudad", "width": 1200, "height": 900 }
+  ],
+  "music": {
+    "enabled": true,
+    "autoplay": true,
+    "src": "/audio/the_mountain-wedding-522480.mp3",
+    "title": "Nuestra canción — Jesica & Javier"
+  },
+  "whatsapp": {
+    "enabled": false,
+    "phone": "34600000000",
+    "message": "¡Hola! Tengo una consulta sobre la boda de Jesica y Javier."
+  },
+  "ui": {
+    "nav.home": "Inicio",
+    "nav.story": "Historia",
+    "nav.ceremony": "Ceremonia",
+    "nav.reception": "Fiesta",
+    "nav.dressCode": "Vestimenta",
+    "nav.gifts": "Regalos",
+    "nav.gallery": "Galería",
+    "nav.rsvp": "Confirmar",
+    "hero.scroll": "Deslizá",
+    "hero.saveTheDate": "Reservá la fecha",
+    "countdown.title": "Falta cada vez menos",
+    "countdown.subtitle": "Para decir que sí, quiero",
+    "countdown.days": "Días",
+    "countdown.hours": "Horas",
+    "countdown.minutes": "Minutos",
+    "countdown.seconds": "Segundos",
+    "story.title": "Nuestra historia",
+    "story.subtitle": "Cada historia de amor es hermosa, pero la nuestra es la que más nos gusta",
+    "ceremony.title": "La ceremonia",
+    "ceremony.date": "Fecha",
+    "ceremony.time": "Horario",
+    "ceremony.address": "Dirección",
+    "ceremony.maps": "Ver en Google Maps",
+    "reception.title": "La fiesta",
+    "reception.venue": "Lugar",
+    "reception.time": "Horario",
+    "reception.address": "Dirección",
+    "reception.maps": "Ver en Google Maps",
+    "fiesta.maps": "Llegar a la fiesta",
+    "dressCode.inspiration": "Inspiración",
+    "gifts.button": "VER MAS",
+    "gifts.modalClose": "Cerrar",
+    "gifts.alias": "Alias",
+    "gifts.holder": "Titular",
+    "gifts.dni": "DNI",
+    "gifts.copyAlias": "Copiar alias",
+    "gifts.copied": "¡Copiado!",
+    "gallery.title": "Galería",
+    "gallery.subtitle": "Momentos que guardamos con cariño",
+    "gallery.close": "Cerrar",
+    "rsvp.title": "Confirmá tu asistencia",
+    "rsvp.subtitle": "Por favor, avisanos si nos acompañás",
+    "rsvp.name": "Nombre y apellido",
+    "rsvp.email": "Correo electrónico",
+    "rsvp.guests": "Cantidad de invitados",
+    "rsvp.attending": "¿Nos acompañás?",
+    "rsvp.yes": "¡Sí, ahí estaré!",
+    "rsvp.no": "No podré asistir",
+    "rsvp.notes": "Notas (alergias, menú, etc.)",
+    "rsvp.submit": "Enviar confirmación",
+    "rsvp.success": "¡Gracias! Tu respuesta quedó guardada.",
+    "rsvp.required": "Completá los campos obligatorios",
+    "footer.thankYou": "¡Gracias por acompañarnos en este momento tan importante!",
+    "footer.madeWith": "Hecho con amor",
+    "actions.share": "Compartir invitación",
+    "actions.calendar": "Agendar en Google Calendar",
+    "actions.shareCopied": "Enlace copiado",
+    "music.play": "Reproducir música",
+    "music.pause": "Pausar música",
+    "theme.light": "Modo claro",
+    "theme.dark": "Modo oscuro",
+    "a11y.backToTop": "Volver arriba",
+    "a11y.whatsapp": "Escribinos por WhatsApp",
+    "a11y.menu": "Abrir menú"
+  }
+}

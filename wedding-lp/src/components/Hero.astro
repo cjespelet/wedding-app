@@ -1,0 +1,44 @@
+---
+import type { WeddingData } from '../types/wedding';
+
+interface Props {
+  data: WeddingData;
+}
+
+const { data } = Astro.props;
+const { couple, hero } = data;
+const base = import.meta.env.BASE_URL;
+const heroSrc = `${base}${hero.image.replace(/^\//, '')}`;
+---
+
+<section id="hero" class="hero" aria-label="Bienvenida">
+  <div class="hero-fixed-bg" aria-hidden="true">
+    <img
+      src={heroSrc}
+      alt=""
+      class="hero-fixed-bg__photo"
+      width="1080"
+      height="1920"
+      fetchpriority="high"
+      decoding="async"
+    />
+    <div class="hero-fixed-bg__overlay"></div>
+  </div>
+
+  <div class="hero-scroll-content">
+    <h1 class="hero-names" aria-label={`${couple.bride} y ${couple.groom}`}>
+      <span class="hero-names__line">{couple.bride}</span>
+      <span class="hero-names__amp" aria-hidden="true">&</span>
+      <span class="hero-names__line">{couple.groom}</span>
+    </h1>
+
+    <a
+      href="#fiesta"
+      class="hero-scroll-arrow"
+      aria-label={data.ui['hero.scroll']}
+    >
+      <span class="hero-scroll-chevron" aria-hidden="true"></span>
+      <span class="sr-only">{data.ui['hero.scroll']}</span>
+    </a>
+  </div>
+</section>

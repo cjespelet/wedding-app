@@ -1,0 +1,57 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Guestbook</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content fullscreen>
+  <div class="container">
+    <h2>Leave a message</h2>
+
+    <ion-item>
+      <ion-label position="stacked">Your name</ion-label>
+      <ion-input
+        [(ngModel)]="name"
+        [ngModelOptions]="{ standalone: true }"
+      ></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Message</ion-label>
+      <ion-textarea
+        autoGrow="true"
+        [(ngModel)]="message"
+        [ngModelOptions]="{ standalone: true }"
+      ></ion-textarea>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Emoji</ion-label>
+      <ion-input
+        [(ngModel)]="emoji"
+        [ngModelOptions]="{ standalone: true }"
+      ></ion-input>
+    </ion-item>
+
+    <ion-button
+      expand="block"
+      color="primary"
+      (click)="submit()"
+    >
+      Sign guestbook
+    </ion-button>
+
+    <h2>Messages</h2>
+
+    <ion-list>
+      <ion-item *ngFor="let msg of messages()">
+        <ion-label>
+          <strong>{{ msg.name }}</strong>
+          <div>{{ msg.message }}</div>
+          <div class="meta">{{ msg.emoji }} · {{ msg.createdAt | date: 'short' }}</div>
+        </ion-label>
+      </ion-item>
+    </ion-list>
+  </div>
+</ion-content>
+

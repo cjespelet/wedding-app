@@ -1,0 +1,90 @@
+<ion-header translucent class="auth-header">
+  <ion-toolbar>
+    <ion-title>Crear cuenta</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="login-bg">
+
+  <div class="login-container">
+
+    <div class="logo-wrapper">
+      <img src="../../assets/img/lg.png" alt="Logo" class="logo">
+    </div>
+
+    <div class="login-card">
+
+      <h1 class="title">Jesi & Javier</h1>
+      <p class="subtitle">Sumate a nuestra boda</p>
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+        <!-- Nombre -->
+        <ion-item lines="none" class="input-item">
+          <ion-icon name="person-outline" slot="start"></ion-icon>
+          <ion-input placeholder="Nombre" formControlName="name"></ion-input>
+        </ion-item>
+
+        <ion-note color="danger"
+          *ngIf="form.get('name')?.touched && form.get('name')?.hasError('required')">
+          El nombre es obligatorio.
+        </ion-note>
+
+        <!-- Usuario (opcional: si lo dejás vacío, generamos uno desde tu nombre) -->
+        <ion-item lines="none" class="input-item">
+          <ion-icon name="at-outline" slot="start"></ion-icon>
+          <ion-input placeholder="Usuario (opcional)" formControlName="username"></ion-input>
+        </ion-item>
+
+        <!-- Password -->
+        <ion-item lines="none" class="input-item">
+          <ion-icon name="lock-closed-outline" slot="start"></ion-icon>
+          <ion-input type="password" placeholder="Contraseña" formControlName="password"></ion-input>
+        </ion-item>
+
+        <!-- Grupo -->
+        <div class="group-section">
+
+          <p class="group-title">Grupo de invitado</p>
+
+          <ion-radio-group formControlName="groupId">
+
+            <div class="group-list">
+
+              <div
+                class="group-card"
+                *ngFor="let group of groups"
+                (click)="form.patchValue({ groupId: group.id })"
+                [class.selected]="form.value.groupId === group.id"
+              >
+                {{ group.name }}
+              </div>
+
+            </div>
+
+          </ion-radio-group>
+
+        </div>
+
+        <ion-note color="danger"
+          *ngIf="form.get('groupId')?.touched && form.get('groupId')?.hasError('required')">
+          Debes seleccionar un grupo.
+        </ion-note>
+
+        <!-- Botón -->
+        <ion-button expand="block" type="submit" class="login-button">
+          Registrarse
+        </ion-button>
+
+      </form>
+
+      <div class="register-text">
+        ¿Ya tenés cuenta?
+        <span (click)="goToLogin()">Ingresar</span>
+      </div>
+
+    </div>
+
+  </div>
+
+</ion-content>

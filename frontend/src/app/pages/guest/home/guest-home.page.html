@@ -1,0 +1,37 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Welcome to the Wedding</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content fullscreen>
+  <ng-container *ngIf="wedding(); else loading">
+    <div class="hero">
+      <h1>{{ wedding()!.brideName }} &amp; {{ wedding()!.groomName }}</h1>
+      <p>{{ wedding()!.date | date: 'fullDate' }} · {{ wedding()!.time }}</p>
+      <p>{{ wedding()!.location }}</p>
+    </div>
+
+    <section class="section">
+      <h2>Our Story</h2>
+      <p>{{ wedding()!.story || 'The couple story will appear here.' }}</p>
+    </section>
+
+    <section class="section">
+      <h2>Instructions</h2>
+      <p>{{ wedding()!.instructions || 'Wedding day instructions will appear here.' }}</p>
+    </section>
+
+    <section class="section actions">
+      <ion-button routerLink="/guest/rsvp" expand="block" color="primary">RSVP</ion-button>
+      <ion-button routerLink="/guest/gallery" expand="block" fill="outline">Gallery</ion-button>
+      <ion-button routerLink="/guest/dj-requests" expand="block" fill="outline">DJ Requests</ion-button>
+      <ion-button routerLink="/guest/guestbook" expand="block" fill="outline">Guestbook</ion-button>
+    </section>
+  </ng-container>
+
+  <ng-template #loading>
+    <div class="loading">Loading wedding details...</div>
+  </ng-template>
+</ion-content>
+

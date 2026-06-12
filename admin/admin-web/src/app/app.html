@@ -1,0 +1,19 @@
+<ng-container *ngIf="isLoginRoute(); else adminLayout">
+  <router-outlet></router-outlet>
+</ng-container>
+
+<ng-template #adminLayout>
+  <div class="admin-layout">
+    <app-admin-header
+      [sectionName]="currentSectionName"
+      [user]="currentUser()"
+      (logoutClick)="logout()"
+    />
+    <div class="admin-body">
+      <app-admin-menu [user]="currentUser()" />
+      <main class="admin-content">
+        <router-outlet></router-outlet>
+      </main>
+    </div>
+  </div>
+</ng-template>

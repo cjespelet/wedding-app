@@ -1,0 +1,83 @@
+<!-- <ion-header>
+  <ion-toolbar color="dark">
+    <ion-title>Pantalla en vivo</ion-title>
+  </ion-toolbar>
+</ion-header> -->
+
+<ion-content class="display-bg">
+  <div class="display-root" *ngIf="ready; else loadingTpl">
+    <!-- Mensaje central cuando no hay hero activo -->
+    <div class="idle-message" *ngIf="!currentPhoto">
+      <div class="idle-bubble">
+        <div class="idle-title">📸 Subí tus fotos y viví la fiesta</div>
+        <div class="idle-subtitle">Tus momentos aparecen en la pantalla en vivo al instante.</div>
+      </div>
+    </div>
+
+    <!-- Hero de nueva foto / modo fiesta (overlay fijo) -->
+    <div class="hero-layer" *ngIf="currentPhoto as hero">
+      <div class="hero-photo-wrapper" [class.party-mode]="partyMode">
+        <img [src]="hero.largeUrl || hero.originalUrl" class="hero-photo" />
+        <div class="hero-overlay">
+          <div class="hero-user" *ngIf="hero.uploadedBy">
+            📸 {{ hero.uploadedBy }}
+          </div>
+          <div class="hero-likes">
+            ❤️ {{ hero.likes || 0 }}
+          </div>
+        </div>
+        <!-- lluvia de corazones también sobre la foto destacada -->
+        <div class="like-hearts" *ngIf="likeBursts[hero.id]">
+          <span
+            class="heart"
+            *ngFor="let _ of createArray(likeBursts[hero.id])"
+          >
+            ❤️
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Grid de mosaico con últimas fotos (ordenadas por fecha desc y likes desc) -->
+    <div class="grid-container">
+      <div
+        class="grid-item"
+        *ngFor="let photo of visiblePhotos; trackBy: trackByPhotoId"
+      >
+        <div class="grid-img-wrapper">
+          <img [src]="photo.squareUrl || photo.mediumUrl || photo.largeUrl" />
+          <div class="grid-overlay">
+            <div class="grid-user" *ngIf="photo.uploadedBy">
+              {{ photo.uploadedBy }}
+            </div>
+            <div class="grid-likes">
+              ❤️ {{ photo.likes || 0 }}
+            </div>
+          </div>
+
+          <!-- Corazones flotantes cuando suben los likes -->
+          <div class="like-hearts" *ngIf="likeBursts[photo.id]">
+            <span
+              class="heart"
+              *ngFor="let _ of createArray(likeBursts[photo.id])"
+            >
+              ❤️
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="status-bar" *ngIf="lastError">
+      {{ lastError }}
+    </div>
+  </div>
+
+  <ng-template #loadingTpl>
+    <div class="loading-state">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Cargando galería en vivo...</p>
+    </div>
+  </ng-template>
+</ion-content>
+

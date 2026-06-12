@@ -1,0 +1,17 @@
+.photo-card {
+  position: relative;
+  margin: 4px;
+}
+
+ion-img {
+  width: 100%;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.actions {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 4px;
+}
+

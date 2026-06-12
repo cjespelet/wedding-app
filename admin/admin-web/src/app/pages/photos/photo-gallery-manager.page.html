@@ -1,0 +1,49 @@
+
+<div class="gallery-container">
+  <div class="toolbar">
+    <button type="button" class="btn btn-primary" (click)="fileInput.click()">
+      Subir fotos
+    </button>
+    <input
+      #fileInput
+      type="file"
+      accept="image/*"
+      multiple
+      (change)="onUpload($event)"
+      hidden
+    />
+    <button type="button" class="btn btn-outline-primary" (click)="load()">
+      Actualizar
+    </button>
+  </div>
+  
+  <div class="loader" *ngIf="loading">
+    <mat-spinner diameter="40"></mat-spinner>
+  </div>
+  
+  <div class="empty" *ngIf="!loading && photos.length === 0">
+    No hay fotos todavía.
+  </div>
+  
+  <mat-grid-list cols="5" rowHeight="1:1" gutterSize="12px">
+    <mat-grid-tile *ngFor="let photo of photos">
+      <mat-card class="photo-card">
+        <button
+          type="button"
+          class="btn btn-danger btn-delete"
+          (click)="remove(photo); $event.stopPropagation()"
+        >
+          <i class="fa fa-trash"></i>
+        </button>
+        <div class="likes-chip" title="Cantidad de likes">
+          ❤️ {{ photo.likes || 0 }}
+        </div>
+        <div class="photo-click-area" (click)="openPreview(photo)">
+          <img [src]="photo.squareUrl" loading="lazy" />
+        </div>
+      </mat-card>
+    </mat-grid-tile>
+  </mat-grid-list>
+</div>
+
+

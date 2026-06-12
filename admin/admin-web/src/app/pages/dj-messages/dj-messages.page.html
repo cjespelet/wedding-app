@@ -1,0 +1,102 @@
+<div class="container">
+  <h1 class="mb-3">Mensajes / pedidos al DJ</h1>
+
+  <!-- Formulario para que el admin pida un tema -->
+  <form *ngIf="canCreateRequests" [formGroup]="form" (ngSubmit)="submit()" class="row g-2 mb-3">
+    <div class="col-md-3">
+      <input
+        type="text"
+        class="form-control"
+        formControlName="title"
+        placeholder="Tema"
+      />
+    </div>
+    <div class="col-md-3">
+      <input
+        type="text"
+        class="form-control"
+        formControlName="artist"
+        placeholder="Artista"
+      />
+    </div>
+    <div class="col-md-4">
+      <input
+        type="text"
+        class="form-control"
+        formControlName="comment"
+        placeholder="Comentario / URL / dedicatoria"
+      />
+    </div>
+    <div class="col-md-2 d-flex justify-content-end">
+      <button type="submit" class="btn btn-primary w-100">Pedir tema</button>
+    </div>
+  </form>
+
+  <p class="text-muted" *ngIf="!canCreateRequests">
+    Vista DJ: aquí podés seguir en vivo los pedidos de temas de los invitados.
+  </p>
+
+  <table class="table table-striped table-hover" *ngIf="data.length > 0; else emptyState">
+    <thead>
+      <tr>
+        <th>Invitado</th>
+        <th>Tema</th>
+        <th>Detalle</th>
+        <th>Estado</th>
+        <th>Acción</th>
+        <th>Votos</th>
+        <th>Hora</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let row of data">
+        <td>
+          <div>
+            {{ row.guestName || (row.guestUsername ? 'Invitado' : 'Admin') }}
+          </div>
+          <div *ngIf="row.guestUsername" class="text-muted small">
+            @{{ row.guestUsername }}
+          </div>
+        </td>
+        <td>
+          <div><strong>{{ row.title }}</strong></div>
+          <div class="text-muted small">{{ row.artist }}</div>
+        </td>
+        <td>
+          <span *ngIf="row.comment; else noComment">{{ row.comment }}</span>
+        </td>
+        <td>
+          <span class="badge" [ngClass]="row.played ? 'bg-success' : 'bg-secondary'">
+            {{ row.played ? 'Reproducido' : 'Pendiente' }}
+          </span>
+        </td>
+        <td>
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-success"
+            *ngIf="canManageStatus"
+            [disabled]="row.played"
+            (click)="markAsPlayed(row)"
+          >
+            {{ row.played ? 'OK' : 'Marcar reproducido' }}
+          </button>
+        </td>
+        <td>
+          {{ row.voteCount }}
+        </td>
+        <td>
+          {{ row.createdAt | date: 'shortTime' }}
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <ng-template #emptyState>
+    <p class="text-muted">Todavía no hay pedidos de temas.</p>
+  </ng-template>
+
+  <ng-template #noComment>
+    <span class="text-muted small">Sin comentario</span>
+  </ng-template>
+</div>
+

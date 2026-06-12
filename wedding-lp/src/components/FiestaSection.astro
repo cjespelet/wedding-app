@@ -1,0 +1,65 @@
+---
+import type { WeddingData } from '../types/wedding';
+
+interface Props {
+  data: WeddingData;
+}
+
+const { data } = Astro.props;
+const { fiesta } = data;
+const base = import.meta.env.BASE_URL;
+const iconSrc = `${base}${fiesta.icon.replace(/^\//, '')}`;
+---
+
+<section
+  id="fiesta"
+  class="section-stack section-padding bg-ivory text-center dark:bg-[#1a1816]"
+  aria-labelledby="fiesta-title"
+>
+  <div class="mx-auto max-w-lg">
+    <img
+      src={iconSrc}
+      alt=""
+      class="fiesta-icon mx-auto h-32 w-32 object-contain sm:h-36 sm:w-36 md:h-40 md:w-40"
+      width="160"
+      height="160"
+      loading="eager"
+      decoding="async"
+    />
+
+    <h2 id="fiesta-title" class="mt-8 font-sans text-sm font-semibold tracking-[0.45em] text-ink-muted uppercase dark:text-[#a89f94]">
+      {fiesta.title}
+    </h2>
+
+    <p class="mt-6 font-display text-2xl capitalize leading-snug text-ink dark:text-[#f5f0e8] sm:text-3xl">
+      {fiesta.dateLabel}
+    </p>
+
+    <p class="mt-4 text-xl font-medium text-ink-muted dark:text-[#c4bbb0]">
+      {fiesta.time}
+    </p>
+
+    <p class="mt-8 font-display text-4xl text-gold sm:text-5xl">
+      {fiesta.venue}
+    </p>
+
+    <p class="mt-6 text-lg italic text-ink dark:text-[#e8e0d4]">
+      {fiesta.message}
+    </p>
+
+    <a
+      href={fiesta.mapsUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="btn-primary mt-10"
+    >
+      <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z" />
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+      </svg>
+      {data.ui['fiesta.maps']}
+    </a>
+
+    <p class="sr-only">{fiesta.address}</p>
+  </div>
+</section>

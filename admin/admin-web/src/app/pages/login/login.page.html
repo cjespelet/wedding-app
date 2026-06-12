@@ -1,0 +1,40 @@
+<div class="login-shell">
+  <mat-card class="login-card mat-elevation-z6">
+    <h1 class="title">Wedding Admin</h1>
+    <p class="subtitle">Inicia sesión para gestionar tu evento.</p>
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Email</mat-label>
+        <input matInput type="email" formControlName="email" />
+        <mat-error *ngIf="form.get('email')?.hasError('required')">
+          El email es obligatorio.
+        </mat-error>
+        <mat-error *ngIf="form.get('email')?.hasError('email')">
+          Debe ser un email válido.
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Contraseña</mat-label>
+        <input matInput type="password" formControlName="password" />
+        <mat-error *ngIf="form.get('password')?.hasError('required')">
+          La contraseña es obligatoria.
+        </mat-error>
+      </mat-form-field>
+
+      <div class="error-text" *ngIf="backendError">
+        {{ backendError }}
+      </div>
+
+      <button
+        type="submit"
+        class="full-width btn btn-primary"
+        [disabled]="loading || form.invalid"
+      >
+        Entrar
+      </button>
+    </form>
+  </mat-card>
+</div>
+

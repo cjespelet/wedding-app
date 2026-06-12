@@ -1,0 +1,67 @@
+.menu-preview-header {
+  margin-top: 12px;
+  margin-bottom: 8px;
+}
+
+.menu-preview-title-main {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.menu-preview-subtitle {
+  font-size: 13px;
+  color: #777;
+}
+
+.menu-preview-card {
+  background: #f8f5f0;
+  border-radius: 16px;
+}
+
+.menu-preview-frame {
+  border: 1px solid #000;
+  padding: 20px;
+  margin: 0 20px 10px 20px;
+  background: #fff;
+}
+
+.menu-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.menu-preview-item {
+  text-align: center;
+  padding: 12px 8px;
+  border-bottom: 1px dashed rgba(0, 0, 0, 0.1);
+}
+
+.menu-preview-item:last-child {
+  border-bottom: none;
+}
+
+.menu-preview-time {
+  font-weight: 700;
+  font-size: 18px;
+  margin-bottom: 4px;
+}
+
+.menu-preview-title {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.menu-preview-description {
+  font-size: 14px;
+  color: #555;
+}
+
+.empty {
+  text-align: center;
+  color: #888;
+  font-size: 14px;
+  padding: 8px 0;
+}
+

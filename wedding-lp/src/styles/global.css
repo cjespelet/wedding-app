@@ -1,0 +1,307 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Playfair Display", Georgia, serif;
+  --font-script: "Great Vibes", "Segoe Script", cursive;
+  --font-sans: "Montserrat", system-ui, sans-serif;
+  --color-ivory: #faf8f5;
+  --color-champagne: #f5ebe0;
+  --color-gold: #c9a962;
+  --color-gold-light: #e8d5a8;
+  --color-gold-dark: #9a7b3c;
+  --color-ink: #2c2825;
+  --color-ink-muted: #5c5650;
+}
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    @apply bg-ivory font-sans text-ink antialiased transition-colors duration-500;
+  }
+
+  .dark body {
+    @apply bg-[#1a1816] text-[#f5f0e8];
+  }
+
+  ::selection {
+    @apply bg-gold/30 text-ink;
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-gold;
+  }
+}
+
+@layer components {
+  .section-padding {
+    @apply px-5 py-14 sm:px-8 md:py-16 lg:px-12;
+  }
+
+  .section-title {
+    @apply font-display text-3xl font-light tracking-wide sm:text-4xl md:text-5xl;
+  }
+
+  .section-subtitle {
+    @apply mt-3 max-w-xl text-sm leading-relaxed text-ink-muted sm:text-base;
+  }
+
+  .dark .section-subtitle {
+    @apply text-[#a89f94];
+  }
+
+  .gold-divider {
+    @apply mx-auto my-6 h-px w-16 bg-gradient-to-r from-transparent via-gold to-transparent;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-gold/40 bg-gold/10 px-6 py-3 text-xs font-medium tracking-[0.15em] text-ink uppercase transition-all duration-300 hover:border-gold hover:bg-gold/20 hover:shadow-lg hover:shadow-gold/10;
+  }
+
+  .dark .btn-primary {
+    @apply border-gold/50 text-[#f5f0e8] hover:bg-gold/25;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-ink/10 px-5 py-2.5 text-xs tracking-[0.12em] uppercase transition-all duration-300 hover:border-gold/50 hover:text-gold;
+  }
+
+  .dark .btn-ghost {
+    @apply border-white/15 text-[#f5f0e8] hover:border-gold;
+  }
+
+  .card-elegant {
+    @apply rounded-2xl border border-gold/15 bg-white/60 p-6 shadow-sm backdrop-blur-sm transition-shadow duration-300 hover:shadow-md sm:p-8;
+  }
+
+  .dark .card-elegant {
+    @apply border-gold/20 bg-[#252220]/80;
+  }
+
+  .reveal {
+    @apply translate-y-0 opacity-100 transition-all duration-700 ease-out;
+  }
+
+  html.js-reveal .reveal {
+    @apply translate-y-8 opacity-0;
+  }
+
+  html.js-reveal .reveal.is-visible {
+    @apply translate-y-0 opacity-100;
+  }
+
+  .input-elegant {
+    @apply w-full rounded-xl border border-gold/20 bg-white/80 px-4 py-3 text-sm transition-colors placeholder:text-ink-muted/50 focus:border-gold focus:outline-none;
+  }
+
+  .dark .input-elegant {
+    @apply border-gold/25 bg-[#2a2724] text-[#f5f0e8] placeholder:text-[#8a8278];
+  }
+
+  .gallery-masonry {
+    column-gap: 1rem;
+  }
+
+  .gallery-masonry {
+    columns: 1;
+  }
+
+  @media (min-width: 640px) {
+    .gallery-masonry {
+      columns: 2;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .gallery-masonry {
+      columns: 3;
+    }
+  }
+
+  .gallery-item {
+    break-inside: avoid;
+    margin-bottom: 1rem;
+  }
+
+  .scroll-progress {
+    @apply fixed top-0 left-0 z-[60] h-0.5 origin-left bg-gradient-to-r from-gold-light via-gold to-gold-dark;
+    transform: scaleX(0);
+  }
+
+  /* Hero: imagen fija de fondo; el texto sube al scrollear y las secciones la tapen */
+  .hero {
+    @apply relative isolate;
+  }
+
+  .hero-fixed-bg {
+    @apply fixed inset-0 z-0 h-[100dvh] w-full overflow-hidden bg-[#1c1814] pointer-events-none;
+  }
+
+  .hero-fixed-bg__photo {
+    @apply h-full w-full min-w-full object-cover object-[center_42%];
+  }
+
+  .hero-fixed-bg__overlay {
+    @apply absolute inset-0;
+    background: radial-gradient(
+      ellipse 70% 50% at 50% 45%,
+      rgba(15, 12, 10, 0.45) 0%,
+      transparent 70%
+    );
+  }
+
+  .dark .hero-fixed-bg__overlay {
+    background: radial-gradient(
+      ellipse 70% 50% at 50% 45%,
+      rgba(10, 8, 6, 0.55) 0%,
+      transparent 70%
+    );
+  }
+
+  .hero-scroll-content {
+    @apply relative z-10 flex min-h-[100dvh] w-full flex-col items-center justify-center;
+  }
+
+  .section-stack {
+    @apply relative z-20;
+  }
+
+  .hero-names {
+    @apply flex flex-col items-center px-6 text-center text-white;
+    font-family: var(--font-script);
+    text-shadow: 0 2px 32px rgba(0, 0, 0, 0.8);
+  }
+
+  .hero-names__line {
+    @apply block leading-[1.1] text-[4.5rem] sm:text-[5.5rem] md:text-[6.5rem] lg:text-[7.5rem];
+  }
+
+  .hero-names__amp {
+    @apply my-1 block pl-8 text-[2.75rem] leading-none text-gold-light sm:pl-12 sm:text-[3.25rem] md:pl-14 md:text-[3.75rem];
+    text-shadow: 0 2px 24px rgba(0, 0, 0, 0.7);
+  }
+
+  .hero-scroll-arrow {
+    @apply absolute bottom-[70px] left-1/2 z-10 block -translate-x-1/2 cursor-pointer;
+    width: 30px;
+    height: 30px;
+  }
+
+  .hero-scroll-chevron {
+    @apply block box-border;
+    width: 30px;
+    height: 30px;
+    border-right: 4px solid #fff;
+    border-bottom: 4px solid #fff;
+    transform: rotate(45deg);
+    animation: fade_move_down 2s ease-in-out infinite;
+    opacity: 0.85;
+  }
+
+  .hero-scroll-arrow:hover .hero-scroll-chevron {
+    @apply border-gold-light;
+    opacity: 1;
+  }
+
+  .fiesta-icon,
+  .regalo-icon {
+    @apply opacity-100;
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: var(--font-display);
+  }
+
+  .font-script {
+    font-family: var(--font-script);
+  }
+
+  .font-sans {
+    font-family: var(--font-sans);
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 1.2s ease-out forwards;
+  }
+
+  .animate-fade-in-delay {
+    animation: fadeIn 1.2s ease-out 0.4s forwards;
+    opacity: 0;
+  }
+
+  .animate-bounce-soft {
+    animation: bounceSoft 2s ease-in-out infinite;
+  }
+
+  .sr-only {
+    @apply absolute m-[-1px] h-px w-px overflow-hidden border-0 p-0 whitespace-nowrap;
+    clip: rect(0, 0, 0, 0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bounceSoft {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(6px);
+  }
+}
+
+@keyframes fade_move_down {
+  0% {
+    opacity: 0;
+    transform: rotate(45deg) translate(-4px, -12px);
+  }
+  50% {
+    opacity: 0.85;
+    transform: rotate(45deg) translate(-4px, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(45deg) translate(-4px, 12px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  html.js-reveal .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .animate-fade-in,
+  .animate-fade-in-delay,
+  .animate-bounce-soft,
+  .hero-scroll-chevron {
+    animation: none !important;
+    opacity: 0.85 !important;
+    transform: rotate(45deg) translate(-4px, 0) !important;
+  }
+}

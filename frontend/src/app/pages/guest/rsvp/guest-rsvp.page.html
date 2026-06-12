@@ -1,0 +1,61 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>RSVP</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content fullscreen>
+  <div class="container">
+    <ion-item>
+      <ion-label>Attending</ion-label>
+      <ion-toggle
+        [(ngModel)]="form.attending"
+        [ngModelOptions]="{ standalone: true }"
+      ></ion-toggle>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Number of guests</ion-label>
+      <ion-input
+        type="number"
+        [(ngModel)]="form.numberOfGuests"
+        [ngModelOptions]="{ standalone: true }"
+      ></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Dietary restrictions</ion-label>
+      <ion-textarea
+        autoGrow="true"
+        [(ngModel)]="form.dietaryRestrictions"
+        [ngModelOptions]="{ standalone: true }"
+      ></ion-textarea>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Comments</ion-label>
+      <ion-textarea
+        autoGrow="true"
+        [(ngModel)]="form.comments"
+        [ngModelOptions]="{ standalone: true }"
+      ></ion-textarea>
+    </ion-item>
+
+    <ion-button
+      expand="block"
+      color="primary"
+      (click)="submit()"
+      [disabled]="submitting"
+    >
+      Confirm RSVP
+    </ion-button>
+
+    <p
+      class="confirmation"
+      *ngIf="submitted"
+    >
+      Thank you! Your RSVP has been recorded.
+    </p>
+  </div>
+</ion-content>
+

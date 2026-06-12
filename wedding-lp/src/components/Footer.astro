@@ -1,0 +1,31 @@
+---
+import type { WeddingData } from '../types/wedding';
+import { formatWeddingDate } from '../utils/format';
+
+interface Props {
+  data: WeddingData;
+}
+
+const { data } = Astro.props;
+const { couple, weddingDate } = data;
+---
+
+<footer class="section-stack border-t border-gold/15 bg-champagne px-5 py-10 text-center dark:border-gold/20 dark:bg-[#151311] sm:px-8">
+  <p class="font-display text-2xl tracking-wide">
+    {couple.bride}
+    <span class="text-gold"> y </span>
+    {couple.groom}
+  </p>
+
+  <time datetime={weddingDate} class="mt-3 block text-sm capitalize tracking-wide text-ink-muted dark:text-[#a89f94]">
+    {formatWeddingDate(weddingDate)}
+  </time>
+
+  <p class="mx-auto mt-6 max-w-md text-base leading-relaxed text-ink dark:text-[#e8e0d4] sm:text-lg">
+    {data.ui['footer.thankYou']}
+  </p>
+
+  <p class="mt-8 text-[0.65rem] tracking-[0.2em] text-ink-muted/70 uppercase">
+    {data.ui['footer.madeWith']} · {new Date().getFullYear()}
+  </p>
+</footer>

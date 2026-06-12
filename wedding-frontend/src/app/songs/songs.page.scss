@@ -1,0 +1,57 @@
+.songs-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.input-item {
+  margin-bottom: 8px;
+  border-radius: 12px;
+  background: #f7f7f7;
+  padding-left: 8px;
+}
+
+.input-item ion-input,
+.input-item ion-textarea {
+  --background: transparent;
+  color: #000;
+}
+
+.divider {
+  text-align: center;
+  margin: 8px 0 4px;
+  color: #777;
+}
+
+.loader {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+.empty {
+  text-align: center;
+  margin-top: 16px;
+  color: #666;
+}
+
+.comment {
+  margin-top: 4px;
+  font-style: italic;
+}
+
+.meta {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #888;
+}
+
+.status-played {
+  color: #1b8f3a;
+  font-weight: 600;
+}
+
+.status-pending {
+  color: #888;
+}
+

@@ -1,0 +1,7 @@
+<nav class="admin-sidebar">
+  <a routerLink="/dashboard" routerLinkActive="active" *ngIf="!isDjOnly">Dashboard</a>
+  <a routerLink="/guests" routerLinkActive="active" *ngIf="!isDjOnly">Invitados</a>
+  <a routerLink="/gallery" routerLinkActive="active" *ngIf="!isDjOnly">Galería</a>
+  <a routerLink="/dj-messages" routerLinkActive="active">Mensajes DJ</a>
+  <a routerLink="/menu" routerLinkActive="active" *ngIf="!isDjOnly">Menú del evento</a>
+</nav>

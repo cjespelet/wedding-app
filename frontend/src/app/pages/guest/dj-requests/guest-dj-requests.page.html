@@ -1,0 +1,65 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>DJ Requests</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content fullscreen>
+  <div class="container">
+    <h2>Request a song</h2>
+
+    <ion-item>
+      <ion-label position="stacked">Song title</ion-label>
+      <ion-input
+        [(ngModel)]="title"
+        [ngModelOptions]="{ standalone: true }"
+      ></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Artist</ion-label>
+      <ion-input
+        [(ngModel)]="artist"
+        [ngModelOptions]="{ standalone: true }"
+      ></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Comment (optional)</ion-label>
+      <ion-textarea
+        autoGrow="true"
+        [(ngModel)]="comment"
+        [ngModelOptions]="{ standalone: true }"
+      ></ion-textarea>
+    </ion-item>
+
+    <ion-button
+      expand="block"
+      color="primary"
+      (click)="submit()"
+      [disabled]="submitting"
+    >
+      Send to DJ
+    </ion-button>
+
+    <h2>Trending songs</h2>
+
+    <ion-list>
+      <ion-item *ngFor="let song of trending">
+        <ion-label>
+          <strong>{{ song.title }}</strong>
+          <div>{{ song.artist }}</div>
+          <div class="votes">Votes: {{ song.voteCount || 0 }}</div>
+        </ion-label>
+        <ion-button
+          slot="end"
+          size="small"
+          (click)="upvote(song)"
+        >
+          Upvote
+        </ion-button>
+      </ion-item>
+    </ion-list>
+  </div>
+</ion-content>
+

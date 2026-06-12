@@ -1,0 +1,134 @@
+.dashboard-grid {
+  display: grid;
+  gap: 16px;
+  padding: 16px;
+}
+
+.qr-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 24px;
+}
+
+.qr-col {
+  text-align: center;
+}
+
+.qr-col img {
+  display: block;
+  margin: 0 auto 8px;
+}
+
+.qr-caption {
+  margin-top: 4px;
+}
+
+.wedding-card {
+  grid-column: 1 / -1;
+}
+
+.invitation-card {
+  width: 50%;
+  max-width: 640px;
+  margin: 0 auto 16px;
+  padding: 24px 32px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+  text-align: center;
+  font-family: 'Georgia', 'Times New Roman', serif;
+}
+
+.invitation-card.empty {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.invitation-names .name {
+  font-size: 2.4rem;
+  letter-spacing: 0.12rem;
+}
+
+.invitation-names .ampersand {
+  font-size: 2.2rem;
+  margin: 4px 0;
+}
+
+.invitation-subtitle {
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08rem;
+}
+
+.invitation-date .weekday {
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12rem;
+}
+
+.invitation-date .date {
+  font-size: 1.4rem;
+  margin-top: 4px;
+}
+
+.invitation-location .place {
+  font-weight: 500;
+}
+
+.map-link {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: 0.85rem;
+}
+
+.summary-card {
+  min-width: 260px;
+  max-width: 320px;
+  width: 100%;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.summary-blue {
+  background: #e3f2fd;
+}
+
+.summary-green {
+  background: #e8f5e9;
+}
+
+.summary-red {
+  background: #ffebee;
+}
+
+.summary-title {
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+}
+
+.summary-subtitle {
+  font-size: 0.9rem;
+  margin: 4px 0 0;
+  text-transform: uppercase;
+  letter-spacing: 0.06rem;
+}
+
+.summary-subvalue {
+  font-size: 32px;
+  margin: 0 0 4px;
+}
+
+.summary-value {
+  font-size: 72px;
+}
+
+.summary-row {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+
+

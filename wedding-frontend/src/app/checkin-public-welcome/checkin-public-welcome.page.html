@@ -1,0 +1,34 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Bienvenido a la fiesta</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="container">
+    <ng-container *ngIf="loading; else loaded">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p class="muted">Registrando tu ingreso...</p>
+    </ng-container>
+
+    <ng-template #loaded>
+      <ng-container *ngIf="!error; else errorTpl">
+        <h2 class="title">
+          {{ alreadyCheckedIn ? 'Ya estabas registrado ✅' : 'Ingreso registrado ✅' }}
+        </h2>
+        <p class="muted">
+          {{ alreadyCheckedIn ? 'Gracias por sumarte nuevamente. ¡A disfrutar!' : 'Tu llegada quedó anotada. ¡Ahora sí, a disfrutar!' }}
+        </p>
+
+        <ion-button expand="block" class="gold" (click)="goToLive()">Ver pantalla en vivo</ion-button>
+      </ng-container>
+
+      <ng-template #errorTpl>
+        <h2 class="title">No se pudo registrar</h2>
+        <p class="muted">{{ error }}</p>
+        <ion-button expand="block" fill="outline" (click)="retry()">Reintentar</ion-button>
+      </ng-template>
+    </ng-template>
+  </div>
+</ion-content>
+

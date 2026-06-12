@@ -1,0 +1,39 @@
+<div class="menu-preview-header d-flex justify-content-between align-items-center mb-2">
+  <div>
+    <h2 class="menu-preview-title-main mb-0">Menú Boda</h2>
+    <div class="menu-preview-subtitle">
+      {{ brideName }} &amp; {{ groomName }}
+    </div>
+    <div class="menu-preview-subtitle">Timeline gastronómico</div>
+  </div>
+  <button
+    type="button"
+    class="btn btn-outline-secondary btn-sm"
+    (click)="printPdf()"
+    [disabled]="steps.length === 0"
+  >
+    <i class="fa fa-share-alt me-1"></i>
+    Compartir / PDF
+  </button>
+</div>
+
+<mat-card class="menu-preview-card">
+  <mat-card-content>
+    <div #printArea class="menu-preview-frame">
+      <div *ngIf="steps.length === 0" class="empty">
+        Aún no se definieron pasos para el menú.
+      </div>
+
+      <div *ngIf="steps.length > 0" class="menu-preview">
+        <div *ngFor="let step of steps" class="menu-preview-item">
+          <div class="menu-preview-time">{{ step.time }}</div>
+          <div class="menu-preview-title">{{ step.title }}</div>
+          <div class="menu-preview-description">
+            {{ step.description }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </mat-card-content>
+</mat-card>
+

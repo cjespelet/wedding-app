@@ -1,0 +1,9 @@
+{
+  "name": "wedding-frontend",
+  "integrations": {
+    "cordova": {
+      "enabled": false
+    }
+  },
+  "type": "angular"
+}

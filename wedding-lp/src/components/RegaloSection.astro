@@ -1,0 +1,157 @@
+---
+import type { WeddingData } from '../types/wedding';
+
+interface Props {
+  data: WeddingData;
+}
+
+const { data } = Astro.props;
+const { gifts } = data;
+const { bank } = gifts;
+const base = import.meta.env.BASE_URL;
+const iconSrc = `${base}${gifts.icon.replace(/^\//, '')}`;
+---
+
+<section
+  id="regalo"
+  class="section-stack section-padding bg-champagne text-center dark:bg-[#2a2622]"
+  aria-labelledby="regalo-desc"
+>
+  <div class="mx-auto max-w-lg">
+    <img
+      src={iconSrc}
+      alt=""
+      class="regalo-icon mx-auto h-32 w-32 object-contain sm:h-36 sm:w-36 md:h-40 md:w-40"
+      width="160"
+      height="160"
+      loading="lazy"
+      decoding="async"
+    />
+
+    <p
+      id="regalo-desc"
+      class="mx-auto mt-8 max-w-md text-base leading-relaxed text-ink dark:text-[#e8e0d4] sm:text-lg"
+    >
+      {gifts.description}
+    </p>
+
+    <button type="button" id="bank-modal-open" class="btn-primary mt-10">
+      {gifts.buttonLabel}
+    </button>
+  </div>
+</section>
+
+<div
+  id="bank-modal"
+  class="bank-modal fixed inset-0 z-[80] flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="bank-modal-title"
+  hidden
+>
+  <div class="bank-modal__backdrop absolute inset-0 bg-black/50" data-bank-close></div>
+
+  <div class="bank-modal__panel relative z-10 w-full max-w-md rounded-2xl bg-white p-8 text-left text-ink shadow-2xl">
+    <button
+      type="button"
+      class="bank-modal__close absolute top-4 right-4 rounded-full p-2 text-ink-muted transition-colors hover:text-gold"
+      data-bank-close
+      aria-label={data.ui['gifts.modalClose']}
+    >
+      <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+
+    <h2 id="bank-modal-title" class="font-display text-2xl text-ink">
+      {bank.title}
+    </h2>
+
+    <dl class="mt-8 space-y-5 text-sm">
+      <div>
+        <dt class="text-[0.65rem] font-semibold tracking-[0.2em] text-ink-muted uppercase">
+          {data.ui['gifts.alias']}
+        </dt>
+        <dd class="mt-1 font-mono text-base tracking-wide" id="bank-alias-value">
+          {bank.alias}
+        </dd>
+      </div>
+      <div>
+        <dt class="text-[0.65rem] font-semibold tracking-[0.2em] text-ink-muted uppercase">
+          {data.ui['gifts.holder']}
+        </dt>
+        <dd class="mt-1 text-base font-medium uppercase">{bank.holder}</dd>
+      </div>
+      <div>
+        <dt class="text-[0.65rem] font-semibold tracking-[0.2em] text-ink-muted uppercase">
+          {data.ui['gifts.dni']}
+        </dt>
+        <dd class="mt-1 text-base font-medium">{bank.dni}</dd>
+      </div>
+    </dl>
+
+    <button
+      type="button"
+      id="bank-copy-alias"
+      class="btn-primary mt-8 w-full"
+      data-alias={bank.alias}
+    >
+      <span id="bank-copy-label">{data.ui['gifts.copyAlias']}</span>
+      <span id="bank-copy-done" class="hidden">{data.ui['gifts.copied']}</span>
+    </button>
+  </div>
+</div>
+
+<script>
+  function initBankModal() {
+    const modal = document.getElementById('bank-modal');
+    const openBtn = document.getElementById('bank-modal-open');
+    if (!modal || !openBtn) return;
+
+    const closeTriggers = modal.querySelectorAll('[data-bank-close]');
+
+    function open() {
+      modal.hidden = false;
+      modal.classList.remove('opacity-0', 'pointer-events-none');
+      modal.classList.add('opacity-100', 'pointer-events-auto');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function close() {
+      modal.classList.add('opacity-0', 'pointer-events-none');
+      modal.classList.remove('opacity-100', 'pointer-events-auto');
+      modal.hidden = true;
+      document.body.style.overflow = '';
+    }
+
+    openBtn.addEventListener('click', open);
+    closeTriggers.forEach((el) => el.addEventListener('click', close));
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !modal.hidden) close();
+    });
+
+    const copyBtn = document.getElementById('bank-copy-alias');
+    const copyLabel = document.getElementById('bank-copy-label');
+    const copyDone = document.getElementById('bank-copy-done');
+
+    copyBtn?.addEventListener('click', async () => {
+      const alias = copyBtn.getAttribute('data-alias');
+      if (!alias) return;
+      try {
+        await navigator.clipboard.writeText(alias);
+        copyLabel?.classList.add('hidden');
+        copyDone?.classList.remove('hidden');
+        window.setTimeout(() => {
+          copyLabel?.classList.remove('hidden');
+          copyDone?.classList.add('hidden');
+        }, 2500);
+      } catch {
+        /* ignore */
+      }
+    });
+  }
+
+  initBankModal();
+  document.addEventListener('astro:page-load', initBankModal);
+</script>

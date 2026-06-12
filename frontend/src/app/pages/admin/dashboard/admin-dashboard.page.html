@@ -1,0 +1,55 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Panel de administración</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content fullscreen>
+  <div class="grid">
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Asistentes</ion-card-title>
+      </ion-card-header>
+      <ion-card-content *ngIf="rsvpStats(); else loadingRsvp">
+        <p>Confirmados: {{ rsvpStats()!.confirmedGuests }}</p>
+        <p>Total invitados: {{ rsvpStats()!.totalGuests }}</p>
+      </ion-card-content>
+      <ng-template #loadingRsvp>
+        <ion-card-content>Cargando datos de RSVP...</ion-card-content>
+      </ng-template>
+    </ion-card>
+
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Actividad</ion-card-title>
+      </ion-card-header>
+      <ion-card-content *ngIf="analytics(); else loadingAnalytics">
+        <p>Solicitudes de canciones: {{ analytics()!.songRequests }}</p>
+        <p>Fotos subidas: {{ analytics()!.photos }}</p>
+      </ion-card-content>
+      <ng-template #loadingAnalytics>
+        <ion-card-content>Cargando analíticas...</ion-card-content>
+      </ng-template>
+    </ion-card>
+  </div>
+
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Últimos RSVP</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-list>
+        <ion-item *ngFor="let guest of recentGuests()">
+          <ion-label>
+            <strong>{{ guest.fullName }}</strong>
+            <div *ngIf="guest.rsvps[0] as rsvp">
+              <span *ngIf="rsvp.attending; else notAttending">Asiste ({{ rsvp.numberOfGuests }} personas)</span>
+              <ng-template #notAttending>No asiste</ng-template>
+            </div>
+          </ion-label>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
+</ion-content>
+

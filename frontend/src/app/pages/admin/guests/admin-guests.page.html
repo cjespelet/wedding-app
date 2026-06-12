@@ -1,0 +1,63 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Invitados</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content fullscreen>
+  <div class="filters">
+    <ion-item>
+      <ion-label>Familia</ion-label>
+      <ion-select
+        [(ngModel)]="familyFilter()"
+        (ngModelChange)="familyFilter.set($event)"
+      >
+        <ion-select-option value="all">Todas</ion-select-option>
+        <ion-select-option
+          *ngFor="let fam of familyGroups()"
+          [value]="fam"
+        >
+          {{ fam }}
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
+
+    <ion-item>
+      <ion-label>Asistencia</ion-label>
+      <ion-select
+        [(ngModel)]="attendanceFilter()"
+        (ngModelChange)="attendanceFilter.set($event)"
+      >
+        <ion-select-option value="all">Todos</ion-select-option>
+        <ion-select-option value="yes">Asisten</ion-select-option>
+        <ion-select-option value="no">No asisten</ion-select-option>
+      </ion-select>
+    </ion-item>
+  </div>
+
+  <ion-list>
+    <ion-item *ngFor="let guest of filteredGuests()">
+      <ion-label>
+        <strong>{{ guest.fullName }}</strong>
+        <div *ngIf="guest.familyGroup">Familia: {{ guest.familyGroup }}</div>
+        <div *ngIf="guest.email">Email: {{ guest.email }}</div>
+      </ion-label>
+      <ion-chip
+        slot="end"
+        color="success"
+        *ngIf="guest.rsvps[0]?.attending; else notAttending"
+      >
+        Asiste ({{ guest.rsvps[0]?.numberOfGuests }})
+      </ion-chip>
+      <ng-template #notAttending>
+        <ion-chip
+          slot="end"
+          color="medium"
+        >
+          Sin confirmar / No asiste
+        </ion-chip>
+      </ng-template>
+    </ion-item>
+  </ion-list>
+</ion-content>
+

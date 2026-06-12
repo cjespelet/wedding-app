@@ -1,0 +1,68 @@
+.admin-header {
+  height: 56px;
+  padding: 0 20px;
+  background: linear-gradient(90deg, #1976d2, #42a5f5);
+  color: #fff;
+  font-size: 0.95rem;
+}
+
+.logo {
+  font-weight: 600;
+}
+
+.section-name {
+  margin-left: 12px;
+  padding-left: 12px;
+  border-left: 1px solid rgba(255, 255, 255, 0.4);
+  font-size: 0.9rem;
+}
+
+.user-name {
+  font-size: 0.85rem;
+  opacity: 0.9;
+}
+
+.header-settings-link {
+  color: rgba(255, 255, 255, 0.9);
+  text-decoration: none;
+  padding: 6px 10px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+  }
+
+  &.active {
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+  }
+
+  i {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .admin-header {
+    height: auto;
+    min-height: 56px;
+    padding: 8px 12px;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .section-name {
+    display: none;
+  }
+
+  .user-name {
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}

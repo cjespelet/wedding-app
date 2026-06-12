@@ -1,0 +1,55 @@
+---
+import type { WeddingData } from '../types/wedding';
+
+interface Props {
+  data: WeddingData;
+}
+
+const { data } = Astro.props;
+const units = [
+  { id: 'days', key: 'countdown.days' },
+  { id: 'hours', key: 'countdown.hours' },
+  { id: 'minutes', key: 'countdown.minutes' },
+  { id: 'seconds', key: 'countdown.seconds' },
+] as const;
+---
+
+<section
+  id="countdown"
+  class="section-padding reveal bg-champagne/50 text-center dark:bg-[#221f1c]"
+  aria-labelledby="countdown-title"
+>
+  <div class="mx-auto max-w-4xl">
+    <h2 id="countdown-title" class="section-title">
+      {data.ui['countdown.title']}
+    </h2>
+    <p class="section-subtitle mx-auto normal-case tracking-normal">
+      {data.ui['countdown.subtitle']}
+    </p>
+    <div class="gold-divider"></div>
+
+    <div
+      id="countdown-timer"
+      class="mt-12 grid grid-cols-2 gap-4 sm:grid-cols-4 sm:gap-6"
+      data-wedding-date={data.weddingDate}
+      role="timer"
+      aria-live="polite"
+    >
+      {
+        units.map((unit) => (
+          <div class="card-elegant flex flex-col items-center py-8">
+            <span
+              id={`countdown-${unit.id}`}
+              class="font-display text-4xl text-gold tabular-nums sm:text-5xl md:text-6xl"
+            >
+              00
+            </span>
+            <span class="mt-2 text-[0.65rem] tracking-[0.25em] text-ink-muted uppercase">
+              {data.ui[unit.key]}
+            </span>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>

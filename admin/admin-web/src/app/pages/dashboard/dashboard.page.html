@@ -1,0 +1,127 @@
+<div class="dashboard-grid">
+  <ng-container *ngIf="wedding$ | async as wedding; else noWedding">
+    <div class="invitation-card wedding-card">
+      <div class="qr-row mb-3">
+        <div class="qr-col">
+          <img
+            [src]="'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeUri(pwaAppInstallHintUrl) + '&q=' + qrRefreshTick"
+            alt="QR app invitados"
+          />
+          <div class="qr-caption small text-muted">
+            QR app / PWA (abrir en el celular)
+          </div>
+        </div>
+        <div class="qr-col">
+          <img
+            [src]="'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeUri(checkinDoorLoginUrl) + '&q=' + qrRefreshTick"
+            alt="QR ingreso a la fiesta"
+          />
+          <div class="qr-caption small text-muted">
+            QR ingreso (check-in con login)
+          </div>
+        </div>
+      </div>
+
+      <div class="invitation-header text-muted text-uppercase small mb-2">
+        Nos casamos
+      </div>
+      <div class="invitation-names mb-3">
+        <div class="name">{{ wedding.brideName }}</div>
+        <div class="ampersand">&amp;</div>
+        <div class="name">{{ wedding.groomName }}</div>
+      </div>
+
+      <div class="invitation-date mb-2">
+        <div class="weekday">
+          {{ (wedding.date | localDate | date: 'EEEE' : undefined : 'es-ES') | titlecase }} {{ wedding.time }}
+        </div>
+        <div class="date">{{ wedding.date | localDate | date: 'dd/MM/yyyy' : undefined : 'es-ES' }}</div>
+      </div>
+      <div class="invitation-location mb-3">
+        <div class="place">{{ wedding.location }}</div>
+        <a
+          *ngIf="wedding.instructions"
+          [href]="wedding.instructions"
+          target="_blank"
+          class="map-link"
+          >Ver en Google Maps</a
+        >
+      </div>
+    </div>
+  </ng-container>
+
+  <ng-template #noWedding>
+    <div class="invitation-card wedding-card empty">
+      <div class="invitation-header text-muted text-uppercase small mb-2">
+        Aún no has configurado tu boda
+      </div>
+      <div class="invitation-subtitle mb-4">
+        Empieza creando la ficha principal del evento: nombres, fecha, hora y lugar.
+      </div>
+      <button
+        type="button"
+        class="btn btn-primary"
+        routerLink="/wedding"
+      >
+        Crear tu boda
+      </button>
+    </div>
+  </ng-template>
+
+
+  <div class="summary-row">
+    <mat-card class="summary-card summary-blue">
+      <mat-card-content>
+        <h2 class="summary-title">Invitados</h2>
+        <p class="summary-subtitle">Adultos</p>
+        <p><strong class="summary-subvalue">{{ invitedAdults }}</strong></p>
+        <p class="summary-subtitle">Menores</p>
+        <p><strong class="summary-subvalue">{{ invitedMinors }}</strong></p>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="summary-card summary-green">
+      <mat-card-content>
+        <h2 class="summary-title">Confirmados</h2>
+        <p class="summary-subtitle">Adultos</p>
+        <p><strong class="summary-subvalue">{{ confirmedAdults }}</strong></p>
+        <p class="summary-subtitle">Menores</p>
+        <p><strong class="summary-subvalue">{{ confirmedMinors }}</strong></p>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="summary-card summary-red">
+      <mat-card-content>
+        <h2 class="summary-title">Presentes</h2>
+        <p class="summary-subtitle">Adultos</p>
+        <p><strong class="summary-subvalue">{{ presentAdults }}</strong></p>
+        <p class="summary-subtitle">Menores</p>
+        <p><strong class="summary-subvalue">{{ presentMinors }}</strong></p>
+      </mat-card-content>
+    </mat-card>
+  </div>
+  
+  <div class="summary-row">
+    <mat-card class="summary-card summary-blue">
+      <mat-card-content>
+        <h2 class="summary-title">Total invitados</h2>
+        <p><strong class="summary-value">{{ totalInvited }}</strong></p>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="summary-card summary-green">
+      <mat-card-content>
+        <h2 class="summary-title">Total confirmados</h2>
+        <p><strong class="summary-value">{{ totalConfirmed }}</strong></p>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="summary-card summary-red">
+      <mat-card-content>
+        <h2 class="summary-title">Presentes ahora</h2>
+        <p><strong class="summary-value">{{ totalPresent }}</strong></p>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>
+

@@ -1,0 +1,22 @@
+<div class="menu-manager-container">
+  <h1 class="mb-3">Menú del evento</h1>
+
+  <app-menu-form
+    [editingStep]="editingStep"
+    (saveStep)="onSaveStep($event)"
+  ></app-menu-form>
+
+  <app-menu-list
+    [steps]="steps"
+    (editStep)="onEdit($event)"
+    (deleteStep)="onDelete($event)"
+    (reorderSteps)="onReorder($event)"
+  ></app-menu-list>
+
+  <app-menu-preview
+    [steps]="steps"
+    [brideName]="wedding?.brideName"
+    [groomName]="wedding?.groomName"
+  ></app-menu-preview>
+</div>
+

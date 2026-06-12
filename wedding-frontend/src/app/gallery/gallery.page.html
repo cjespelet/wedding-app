@@ -1,0 +1,288 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Galería</ion-title>
+    <ion-buttons slot="end">
+      <app-notification-bell></app-notification-bell>
+    </ion-buttons>
+  </ion-toolbar>
+  <ion-toolbar class="gallery-toolbar-filter">
+    <ion-segment class="gallery-filter-segment" [(ngModel)]="filterMode" (ionChange)="onFilterChange()">
+      <ion-segment-button value="all">
+        <ion-label>Todas</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="mine">
+        <ion-label>Mis fotos</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="internal-bg">
+  <ion-refresher slot="fixed" (ionRefresh)="load($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- FAB fijo al scrollear; opciones: cámara o archivo / galería -->
+  <ion-fab slot="fixed" vertical="bottom" horizontal="end" class="gallery-upload-fab">
+    <ion-fab-button (click)="presentUploadOptions(cameraInput, galleryInput)" aria-label="Subir foto">
+      <ion-icon name="camera"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
+  <input
+    #cameraInput
+    type="file"
+    accept="image/*"
+    capture="environment"
+    hidden
+    (change)="onFileSelected($event)"
+  />
+  <input #galleryInput type="file" accept="image/*" hidden (change)="onFileSelected($event)" />
+
+  <div class="feed-wrap ion-padding">
+    <div *ngIf="loading && feedItems.length === 0" class="loader">
+      <ion-spinner name="crescent"></ion-spinner>
+    </div>
+
+    <div *ngIf="!loading && feedItems.length === 0" class="empty">
+      Todavía no hay fotos en la galería.
+    </div>
+
+    <article class="feed-card" *ngFor="let photo of feedItems" [id]="'feed-photo-' + photo.id">
+      <header class="feed-card__header">
+        <span class="feed-card__user">{{ displayHandle(photo) }}</span>
+        <span class="feed-card__name" *ngIf="photo.author?.fullName">{{ photo.author?.fullName }}</span>
+        <time class="feed-card__time">{{ photo.createdAt | date : 'short' }}</time>
+      </header>
+
+      <div class="feed-card__media" (click)="openPhoto(photo)">
+        <img [src]="photo.largeUrl || photo.mediumUrl" [alt]="displayHandle(photo)" loading="lazy" />
+        <div class="new-badge" *ngIf="isNew(photo)">Nuevo</div>
+      </div>
+
+      <div class="feed-card__actions">
+        <button
+          type="button"
+          class="icon-btn"
+          [class.icon-btn--active]="photo.likedByMe"
+          (click)="onHeartClick(photo, $event)"
+          [attr.aria-label]="isMyPhoto(photo) ? 'Ver quién dio me gusta' : 'Me gusta'"
+        >
+          <span class="heart">{{ photo.likedByMe ? '❤️' : '🤍' }}</span>
+        </button>
+        <button
+          *ngIf="isMyPhoto(photo)"
+          type="button"
+          class="count-btn"
+          (click)="openLikesModal(photo, $event)"
+        >
+          {{ photo.likesCount }} me gusta
+        </button>
+        <span *ngIf="!isMyPhoto(photo)" class="likes-count-readonly">{{ photo.likesCount }} me gusta</span>
+        <button type="button" class="icon-btn" (click)="openCommentsModal(photo, $event)" aria-label="Comentarios">
+          💬
+        </button>
+        <button type="button" class="comments-count-btn" (click)="openCommentsModal(photo, $event)">
+          {{ photo.commentsCount }} comentarios
+        </button>
+      </div>
+    </article>
+
+    <ion-infinite-scroll threshold="200px" (ionInfinite)="loadMore($event)" [disabled]="!hasMore">
+      <ion-infinite-scroll-content loadingSpinner="crescent" loadingText="Cargando más..."></ion-infinite-scroll-content>
+    </ion-infinite-scroll>
+  </div>
+
+  <!-- Modal likes -->
+  <ion-modal [isOpen]="likesModalOpen" (didDismiss)="closeLikesModal()">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>Me gusta</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="closeLikesModal()">Cerrar</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content class="ion-padding">
+        <ion-list>
+          <ion-item *ngFor="let u of likesModalUsers">
+            <ion-label>
+              <h3>{{ u.username ? '@' + u.username : u.fullName }}</h3>
+              <p *ngIf="u.username">{{ u.fullName }}</p>
+            </ion-label>
+          </ion-item>
+        </ion-list>
+        <p *ngIf="likesModalUsers.length === 0" class="ion-text-center ion-padding">Nadie todavía</p>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
+  <!-- Modal comentarios (autores + texto) -->
+  <ion-modal class="comments-modal" [isOpen]="commentsModalOpen" (didDismiss)="closeCommentsModal()">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>Comentarios</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="closeCommentsModal()">Cerrar</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content class="comments-modal-content">
+        <div *ngIf="commentsModalLoading && commentsModalItems.length === 0" class="ion-padding ion-text-center">
+          <ion-spinner name="crescent"></ion-spinner>
+        </div>
+
+        <ion-list *ngIf="commentsModalItems.length > 0">
+          <ion-item *ngFor="let c of commentsModalItems" lines="full" class="comment-modal-item">
+            <ion-label>
+              <h3 class="comment-modal-author">
+                {{ c.author.username ? '@' + c.author.username : c.author.fullName }}
+              </h3>
+              <p class="comment-modal-meta">{{ c.createdAt | date : 'short' }}</p>
+              <p class="comment-modal-text">{{ c.content }}</p>
+            </ion-label>
+            <ion-button
+              slot="end"
+              fill="clear"
+              size="small"
+              class="comment-modal-like-btn"
+              [class.comment-modal-like-btn--on]="c.likedByMe"
+              (click)="toggleCommentLikeModal(c, $event)"
+            >
+              {{ c.likedByMe ? '❤️' : '🤍' }} {{ c.likesCount }}
+            </ion-button>
+          </ion-item>
+        </ion-list>
+
+        <p
+          *ngIf="!commentsModalLoading && commentsModalItems.length === 0"
+          class="ion-text-center ion-padding comments-modal-empty"
+        >
+          Todavía no hay comentarios. ¡Sé el primero!
+        </p>
+
+        <ion-infinite-scroll
+          *ngIf="commentsModalHasMore && commentsModalItems.length > 0"
+          threshold="120px"
+          (ionInfinite)="loadMoreCommentsModal($event)"
+        >
+          <ion-infinite-scroll-content loadingSpinner="crescent" loadingText="Cargando más..."></ion-infinite-scroll-content>
+        </ion-infinite-scroll>
+
+        <div class="comment-modal-input ion-padding" *ngIf="commentsModalPhoto">
+          <ion-textarea
+            [(ngModel)]="commentsModalDraft"
+            placeholder="Escribí un comentario..."
+            rows="2"
+            autoGrow="true"
+          ></ion-textarea>
+          <ion-button
+            expand="block"
+            [disabled]="postingCommentModal || !commentsModalDraft.trim()"
+            (click)="submitCommentFromModal()"
+          >
+            Publicar
+          </ion-button>
+        </div>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
+  <!-- Modal foto fullscreen + compartir -->
+  <ion-modal [isOpen]="!!selectedPhoto" (didDismiss)="closePhoto()" class="photo-modal">
+    <ng-template>
+      <ion-header translucent>
+        <ion-toolbar>
+          <ion-title>Foto</ion-title>
+          <ion-buttons slot="end">
+            <ion-button fill="clear" color="light" (click)="closePhoto()">
+              <ion-icon slot="icon-only" name="close"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+
+      <ion-content class="ion-padding photo-detail-modal-content">
+        <div class="photo-wrapper" *ngIf="selectedPhoto">
+          <img [src]="selectedPhoto.originalUrl" alt="" />
+        </div>
+
+        <div class="photo-actions" *ngIf="selectedPhoto">
+          <button type="button" class="like-circle" (click)="onHeartClick(selectedPhoto)">
+            {{ selectedPhoto.likedByMe ? '❤️' : '🤍' }}
+            <span>{{ selectedPhoto.likesCount }}</span>
+          </button>
+
+          <div class="share-actions" *ngIf="allowPhotoSharing && guestCanSharePhotos">
+            <button class="share-circle" type="button" (click)="shareCurrentPhoto()">
+              <ion-icon name="share-social"></ion-icon>
+            </button>
+          </div>
+        </div>
+
+        <section class="photo-detail-comments" *ngIf="selectedPhoto">
+          <h3 class="photo-detail-comments__title">Comentarios</h3>
+
+          <div *ngIf="photoDetailLoading && photoDetailComments.length === 0" class="ion-padding ion-text-center">
+            <ion-spinner name="crescent"></ion-spinner>
+          </div>
+
+          <ion-list *ngIf="photoDetailComments.length > 0" lines="full">
+            <ion-item *ngFor="let c of photoDetailComments" class="comment-modal-item">
+              <ion-label>
+                <h3 class="comment-modal-author">
+                  {{ c.author.username ? '@' + c.author.username : c.author.fullName }}
+                </h3>
+                <p class="comment-modal-meta">{{ c.createdAt | date : 'short' }}</p>
+                <p class="comment-modal-text">{{ c.content }}</p>
+              </ion-label>
+              <ion-button
+                slot="end"
+                fill="clear"
+                size="small"
+                class="comment-modal-like-btn"
+                [class.comment-modal-like-btn--on]="c.likedByMe"
+                (click)="toggleCommentLikeDetail(c, $event)"
+              >
+                {{ c.likedByMe ? '❤️' : '🤍' }} {{ c.likesCount }}
+              </ion-button>
+            </ion-item>
+          </ion-list>
+
+          <p
+            *ngIf="!photoDetailLoading && photoDetailComments.length === 0"
+            class="ion-text-center ion-padding comments-modal-empty"
+          >
+            Todavía no hay comentarios. ¡Sé el primero!
+          </p>
+
+          <ion-infinite-scroll
+            *ngIf="photoDetailHasMore && photoDetailComments.length > 0"
+            threshold="120px"
+            (ionInfinite)="loadMorePhotoDetailComments($event)"
+          >
+            <ion-infinite-scroll-content loadingSpinner="crescent" loadingText="Cargando más..."></ion-infinite-scroll-content>
+          </ion-infinite-scroll>
+
+          <div class="comment-modal-input ion-padding">
+            <ion-textarea
+              [(ngModel)]="photoDetailDraft"
+              placeholder="Escribí un comentario..."
+              rows="2"
+              autoGrow="true"
+            ></ion-textarea>
+            <ion-button
+              expand="block"
+              [disabled]="postingDetailComment || !photoDetailDraft.trim()"
+              (click)="submitCommentFromDetail()"
+            >
+              Publicar
+            </ion-button>
+          </div>
+        </section>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+</ion-content>

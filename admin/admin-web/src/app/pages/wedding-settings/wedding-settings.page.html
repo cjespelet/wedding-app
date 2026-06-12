@@ -1,0 +1,92 @@
+<div class="container">
+  <mat-card>
+    <mat-card-title>
+      <h1 class="h5 mb-4">Configuración de la boda</h1>
+    </mat-card-title>
+    <mat-card-content>
+      <div
+        *ngIf="saveSuccess"
+        class="alert alert-success alert-dismissible fade show mb-3"
+        role="alert"
+      >
+        {{ saveSuccess }}
+        <button type="button" class="btn-close" aria-label="Close" (click)="clearAlerts()"></button>
+      </div>
+      <div
+        *ngIf="saveError"
+        class="alert alert-danger alert-dismissible fade show mb-3"
+        role="alert"
+      >
+        {{ saveError }}
+        <button type="button" class="btn-close" aria-label="Close" (click)="clearAlerts()"></button>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="save()">
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>Nombre de la novia</mat-label>
+          <input matInput formControlName="brideName" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>Nombre del novio</mat-label>
+          <input matInput formControlName="groomName" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="half">
+          <mat-label>Fecha</mat-label>
+          <input matInput type="date" formControlName="date" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="half">
+          <mat-label>Hora</mat-label>
+          <input matInput formControlName="time" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>Lugar</mat-label>
+          <input matInput formControlName="location" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>URL de Google Maps</mat-label>
+          <input matInput formControlName="instructions" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>Descripción / instrucciones</mat-label>
+          <textarea matInput rows="4" formControlName="description"></textarea>
+        </mat-form-field>
+
+        <!-- Configuración de compartido de fotos -->
+        <div class="full">
+          <div class="form-check mb-2">
+            <input
+              id="allowPhotoSharing"
+              type="checkbox"
+              class="form-check-input"
+              formControlName="allowPhotoSharing"
+            />
+            <label class="form-check-label" for="allowPhotoSharing">
+              Permitir compartir fotos desde la app
+            </label>
+          </div>
+
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>Máximo de veces que cada invitado puede compartir</mat-label>
+            <input matInput type="number" min="0" formControlName="maxSharesPerGuest" />
+          </mat-form-field>
+        </div>
+
+        <div class="full mt-2">
+          <button
+            type="submit"
+            class="btn btn-primary"
+          >
+            Guardar cambios
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>
+

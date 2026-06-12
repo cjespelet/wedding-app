@@ -1,0 +1,115 @@
+---
+import '../styles/global.css';
+import type { WeddingData } from '../types/wedding';
+import weddingData from '../data/wedding.json';
+
+const data = weddingData as WeddingData;
+const { site, couple, weddingDate, ceremony, reception } = data;
+
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site).href;
+const ogImageUrl = new URL(`${import.meta.env.BASE_URL}${site.ogImage.replace(/^\//, '')}`, Astro.site).href;
+
+const calendarTitle = `Boda de ${couple.bride} y ${couple.groom}`;
+
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'Event',
+  name: calendarTitle,
+  startDate: weddingDate,
+  endDate: weddingDate,
+  eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+  eventStatus: 'https://schema.org/EventScheduled',
+  location: [
+    {
+      '@type': 'Place',
+      name: ceremony.name,
+      address: ceremony.address,
+    },
+    {
+      '@type': 'Place',
+      name: reception.name,
+      address: reception.address,
+    },
+  ],
+  image: [ogImageUrl],
+  description: site.description,
+  inLanguage: 'es-AR',
+  organizer: {
+    '@type': 'Person',
+    name: `${couple.bride} y ${couple.groom}`,
+  },
+};
+---
+
+<!doctype html>
+<html lang="es-AR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href={`${import.meta.env.BASE_URL}favicon.svg`} />
+    <meta name="generator" content={Astro.generator} />
+
+    <title>{site.title}</title>
+    <meta name="description" content={site.description} />
+    <link rel="canonical" href={canonicalUrl} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:title" content={site.title} />
+    <meta property="og:description" content={site.description} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:locale" content="es_AR" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={site.title} />
+    <meta name="twitter:description" content={site.description} />
+    <meta name="twitter:image" content={ogImageUrl} />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap"
+      rel="stylesheet"
+    />
+
+    <script is:inline>
+      (function () {
+        document.documentElement.classList.add('js-reveal');
+        try {
+          if (localStorage.getItem('wedding-theme') === 'dark') {
+            document.documentElement.classList.add('dark');
+          }
+        } catch (e) {}
+      })();
+    </script>
+
+    <script
+      type="application/ld+json"
+      set:html={JSON.stringify(structuredData)}
+    />
+  </head>
+  <body>
+    <div
+      id="scroll-progress"
+      class="scroll-progress"
+      role="presentation"
+      aria-hidden="true"
+    ></div>
+    <slot />
+    <script
+      is:inline
+      define:vars={{
+        whatsapp: data.whatsapp,
+        coupleName: `${data.couple.bride} y ${data.couple.groom}`,
+        shareCopied: data.ui['actions.shareCopied'],
+      }}
+    >
+      window.whatsapp = whatsapp;
+      window.coupleName = coupleName;
+      window.shareCopied = shareCopied;
+    </script>
+    <script>
+      import '../scripts/client.ts';
+    </script>
+  </body>
+</html>

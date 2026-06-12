@@ -1,0 +1,35 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Invitación</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content fullscreen>
+  <div class="container">
+    <ion-item>
+      <ion-label position="stacked">Código de invitación</ion-label>
+      <ion-input
+        [(ngModel)]="code"
+        [ngModelOptions]="{ standalone: true }"
+      ></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Tu nombre</ion-label>
+      <ion-input
+        [(ngModel)]="name"
+        [ngModelOptions]="{ standalone: true }"
+      ></ion-input>
+    </ion-item>
+
+    <ion-button
+      expand="block"
+      color="primary"
+      (click)="login()"
+      [disabled]="loading"
+    >
+      Entrar al evento
+    </ion-button>
+  </div>
+</ion-content>
+

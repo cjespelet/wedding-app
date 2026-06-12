@@ -1,0 +1,49 @@
+.video-wrapper {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #000;
+}
+
+.video {
+  width: 100%;
+  display: block;
+}
+
+.error {
+  color: var(--ion-color-danger);
+}
+
+.permission-actions {
+  margin-top: 12px;
+}
+
+.help-text {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: #666;
+  text-align: center;
+}
+
+.permission-instructions {
+  margin-top: 14px;
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.instructions-title {
+  margin: 0 0 8px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.instructions-text {
+  margin: 0;
+  font-size: 12px;
+  color: #555;
+  line-height: 1.45;
+  text-align: left;
+}
