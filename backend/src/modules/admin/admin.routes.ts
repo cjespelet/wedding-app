@@ -58,7 +58,19 @@ adminRouter.get('/guests', requireAuth(['super_admin', 'wedding_admin']), async 
 
 // Public guest groups for mobile app (no auth, single-wedding setup)
 adminRouter.get('/guests-public', async (_req, res) => {
+  const wedding = await prisma.wedding.findFirst({
+    orderBy: { createdAt: 'asc' },
+  });
+
+  if (!wedding) {
+    return res.json([]);
+  }
+
   const guests = await prisma.guest.findMany({
+    where: {
+      weddingId: wedding.id,
+      username: null,
+    },
     orderBy: { fullName: 'asc' },
   });
 
