@@ -10,6 +10,12 @@ export interface GuestGroup {
   name: string;
 }
 
+export interface InvitePreview {
+  id: string;
+  fullName: string;
+  displayName: string;
+}
+
 export interface GuestUser {
   id: string;
   name: string;
@@ -119,6 +125,12 @@ export class AuthService {
       { id: '3', name: 'Mesa 5' },
     ];
     return of(mockGroups);
+  }
+
+  getInvitePreview(guestId: string): Observable<InvitePreview> {
+    return this.http.get<InvitePreview>(
+      `${(environment as any).apiBaseUrl}/auth/invite/${encodeURIComponent(guestId)}`,
+    );
   }
 
   private normalizeLoginResponse(raw: AuthLoginRaw): LoginResponse {

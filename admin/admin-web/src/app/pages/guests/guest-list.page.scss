@@ -64,6 +64,66 @@
   width: 100%;
 }
 
+.guests-table-wrap {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.guests-table {
+  width: 100%;
+  min-width: 960px;
+  table-layout: fixed;
+}
+
+.guests-table .mat-mdc-header-cell,
+.guests-table .mat-mdc-cell {
+  padding-left: 8px;
+  padding-right: 8px;
+  font-size: 0.875rem;
+}
+
+.guests-table .mat-column-fullName {
+  width: 18%;
+}
+
+.guests-table .mat-column-adultsCount,
+.guests-table .mat-column-minorsCount,
+.guests-table .mat-column-confirmaPresencia,
+.guests-table .mat-column-checkedIn,
+.guests-table .mat-column-cantidadConfirma,
+.guests-table .mat-column-photoSharesCount {
+  width: 6%;
+  text-align: center;
+}
+
+.guests-table .mat-column-username {
+  width: 10%;
+}
+
+.guests-table .mat-column-accessCode {
+  width: 7%;
+  text-align: center;
+}
+
+.guests-table .mat-column-canSharePhotos {
+  width: 6%;
+  text-align: center;
+}
+
+.guests-table .col-actions {
+  width: 96px;
+  max-width: 96px;
+  padding-left: 4px !important;
+  padding-right: 4px !important;
+}
+
+.actions-cell {
+  white-space: nowrap;
+  text-align: right;
+}
+
 table,
 .mat-mdc-table {
   width: 100%;
@@ -74,8 +134,8 @@ table,
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 28px;
+  height: 28px;
   padding: 0;
   border: none;
   border-radius: 4px;
@@ -83,9 +143,20 @@ table,
   color: #666;
   cursor: pointer;
   transition: background-color 0.15s, color 0.15s;
+  vertical-align: middle;
 
   i {
-    font-size: 1rem;
+    font-size: 0.875rem;
+  }
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+
+  &.btn-icon-link:hover:not(:disabled) {
+    background: #f3e5f5;
+    color: #7b1fa2;
   }
 
   &.btn-icon-edit:hover {

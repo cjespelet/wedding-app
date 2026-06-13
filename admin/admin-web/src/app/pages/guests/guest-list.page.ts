@@ -8,6 +8,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { GuestsService, Guest, CreateGuestPayload, UpdateGuestPayload } from '../../core/services/guests.service';
 import { GuestDialogComponent } from './guest-dialog.component';
 import { CheckinDialogComponent } from './checkin-dialog.component';
+import { environment } from '../../../environments/environment';
 
 @Component({
   standalone: true,
@@ -70,6 +71,19 @@ export class GuestListPage implements OnInit, AfterViewInit {
         this.snackBar.open('Error al cargar invitados: ' + (err?.error?.error || err?.message || 'Revisa la consola'), 'Cerrar', { duration: 5000 });
       },
     });
+  }
+
+  inviteLink(guest: Guest): string {
+    const base = environment.invitationBaseUrl.replace(/\/?$/, '/');
+    return `${base}?invite=${encodeURIComponent(guest.id)}`;
+  }
+
+  copyInviteLink(guest: Guest): void {
+    const link = this.inviteLink(guest);
+    navigator.clipboard.writeText(link).then(
+      () => this.snackBar.open('Link de invitación copiado', 'Cerrar', { duration: 2500 }),
+      () => this.snackBar.open('No se pudo copiar el link', 'Cerrar', { duration: 3000 }),
+    );
   }
 
   addGuest() {

@@ -45,18 +45,24 @@ async function main() {
     });
   }
 
-  // Example wedding
+  // Wedding (slug demo-wedding kept for compatibility with existing data)
+  const weddingData = {
+    brideName: 'Jesica',
+    groomName: 'Javier',
+    date: new Date('2026-09-26T21:00:00.000Z'),
+    time: '21:00',
+    location: 'Sueño verde — Tandil',
+    description: 'Celebración de la boda de Jesica y Javier',
+    instructions:
+      'https://www.google.com/maps/search/?api=1&query=Av.+Estrada,+B7000+Tandil,+Provincia+de+Buenos+Aires',
+  };
+
   const wedding = await prisma.wedding.upsert({
     where: { slug: 'demo-wedding' },
-    update: {},
+    update: weddingData,
     create: {
       slug: 'demo-wedding',
-      brideName: 'Alice',
-      groomName: 'Bob',
-      date: new Date(),
-      time: '17:00',
-      location: 'Demo Venue',
-      description: 'Demo wedding for development',
+      ...weddingData,
     },
   });
 

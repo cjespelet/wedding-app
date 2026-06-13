@@ -24,7 +24,8 @@
   </div>
 </div>
 
-<table mat-table [dataSource]="dataSource" class="mat-elevation-z1 full-width">
+<div class="guests-table-wrap">
+<table mat-table [dataSource]="dataSource" class="mat-elevation-z1 guests-table">
   <ng-container matColumnDef="fullName">
     <th mat-header-cell *matHeaderCellDef>Nombre</th>
     <td mat-cell *matCellDef="let row">{{ row.fullName }}</td>
@@ -51,14 +52,14 @@
   </ng-container>
 
   <ng-container matColumnDef="confirmaPresencia">
-    <th mat-header-cell *matHeaderCellDef>Confirma presencia</th>
+    <th mat-header-cell *matHeaderCellDef title="Confirma presencia">Confirma</th>
     <td mat-cell *matCellDef="let row">
       {{ (row.rsvps?.[0]?.attending) ? 'Sí' : 'No' }}
     </td>
   </ng-container>
 
   <ng-container matColumnDef="cantidadConfirma">
-    <th mat-header-cell *matHeaderCellDef>Cant. confirmada</th>
+    <th mat-header-cell *matHeaderCellDef title="Cantidad confirmada">Cant.</th>
     <td mat-cell *matCellDef="let row">
       {{ row.rsvps?.[0] != null ? row.rsvps[0].numberOfGuests : '—' }}
     </td>
@@ -72,7 +73,7 @@
   </ng-container>
 
   <ng-container matColumnDef="canSharePhotos">
-    <th mat-header-cell *matHeaderCellDef>Puede compartir fotos</th>
+    <th mat-header-cell *matHeaderCellDef title="Puede compartir fotos">Fotos</th>
     <td mat-cell *matCellDef="let row">
       <input
         type="checkbox"
@@ -83,15 +84,24 @@
   </ng-container>
 
   <ng-container matColumnDef="photoSharesCount">
-    <th mat-header-cell *matHeaderCellDef>Shares usados</th>
+    <th mat-header-cell *matHeaderCellDef title="Shares usados">Shares</th>
     <td mat-cell *matCellDef="let row">
       {{ row.photoSharesCount }}
     </td>
   </ng-container>
 
   <ng-container matColumnDef="actions">
-    <th mat-header-cell *matHeaderCellDef></th>
-    <td mat-cell *matCellDef="let row">
+    <th mat-header-cell *matHeaderCellDef class="col-actions"></th>
+    <td mat-cell *matCellDef="let row" class="col-actions actions-cell">
+      <button
+        type="button"
+        class="btn-icon btn-icon-link"
+        (click)="copyInviteLink(row)"
+        title="Copiar link de invitación"
+        [disabled]="!!row.username"
+      >
+        <i class="fa-solid fa-link"></i>
+      </button>
       <button type="button" class="btn-icon btn-icon-edit" (click)="editGuest(row)" title="Editar">
         <i class="fa-solid fa-pen"></i>
       </button>
@@ -104,6 +114,7 @@
   <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
   <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
 </table>
+</div>
 <mat-paginator
   [pageSizeOptions]="[10, 20, 50]"
   [pageSize]="10"

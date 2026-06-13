@@ -165,6 +165,11 @@ ion-item {
   border-radius: 4px;
 }
 
+.group-card.locked {
+  cursor: default;
+  pointer-events: none;
+}
+
 /* Animación igual que login */
 @keyframes fadeInUp {
   from {
@@ -237,4 +242,9 @@ ion-item {
 .group-list::-webkit-scrollbar-thumb {
   background: rgba(0,0,0,0.2);
   border-radius: 4px;
+}
+
+.group-card.locked {
+  cursor: default;
+  pointer-events: none;
 }

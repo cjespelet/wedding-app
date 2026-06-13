@@ -33,7 +33,7 @@ export class DashboardPage implements OnInit, OnDestroy {
   guests: Guest[] = [];
 
   /** URL de la app PWA para invitados (QR para abrir la app en el celular) */
-  pwaAppUrl = 'http://192.168.0.107:8080';
+  pwaAppUrl = environment.guestAppUrl;
   /** QR para instalar: fuerza el hint de "Añadir a pantalla de inicio" */
   pwaAppInstallHintUrl = `${this.pwaAppUrl}?install=1`;
   /** Código del QR de ingreso a la fiesta (lo escanea el invitado en la puerta) */

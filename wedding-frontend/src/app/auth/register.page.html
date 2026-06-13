@@ -14,7 +14,7 @@
 
     <div class="login-card">
 
-      <h1 class="title">Jesi & Javier</h1>
+      <h1 class="title">Jesica & Javier</h1>
       <p class="subtitle">Sumate a nuestra boda</p>
 
       <form [formGroup]="form" (ngSubmit)="onSubmit()">
@@ -42,8 +42,22 @@
           <ion-input type="password" placeholder="Contraseña" formControlName="password"></ion-input>
         </ion-item>
 
-        <!-- Grupo -->
-        <div class="group-section">
+        <!-- Grupo (solo si no viene invitación personalizada) -->
+        <div class="group-section" *ngIf="inviteError">
+          <ion-note color="danger">{{ inviteError }}</ion-note>
+          <p class="register-text">
+            <span (click)="goToLogin()">Ir a ingresar</span>
+          </p>
+        </div>
+
+        <div class="group-section" *ngIf="lockedGroupName && !inviteError">
+          <p class="group-title">Tu invitación</p>
+          <div class="group-card selected locked">
+            {{ lockedGroupName }}
+          </div>
+        </div>
+
+        <div class="group-section" *ngIf="!lockedGroupName && !inviteError">
 
           <p class="group-title">Grupo de invitado</p>
 
@@ -67,12 +81,12 @@
         </div>
 
         <ion-note color="danger"
-          *ngIf="form.get('groupId')?.touched && form.get('groupId')?.hasError('required')">
+          *ngIf="!inviteError && form.get('groupId')?.touched && form.get('groupId')?.hasError('required')">
           Debes seleccionar un grupo.
         </ion-note>
 
         <!-- Botón -->
-        <ion-button expand="block" type="submit" class="login-button">
+        <ion-button expand="block" type="submit" class="login-button" [disabled]="!!inviteError">
           Registrarse
         </ion-button>
 

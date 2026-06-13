@@ -1,8 +1,8 @@
 {
   "/api": {
-    "target": "http://localhost:4000",
-    "secure": false,
-    "changeOrigin": false
+    "target": "https://api.jesiyjavier.com.ar",
+    "secure": true,
+    "changeOrigin": true
   }
 }
 

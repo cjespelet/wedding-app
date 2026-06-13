@@ -169,6 +169,39 @@ authRouter.post('/invitation', async (req, res) => {
   });
 });
 
+// Vista previa de invitación personalizada (sin auth)
+authRouter.get('/invite/:guestId', async (req, res) => {
+  const { guestId } = req.params;
+
+  const guest = await prisma.guest.findUnique({
+    where: { id: guestId },
+    select: {
+      id: true,
+      fullName: true,
+      familyGroup: true,
+      username: true,
+    },
+  });
+
+  if (!guest) {
+    return res.status(404).json({ error: 'Invitación no encontrada' });
+  }
+
+  if (guest.username) {
+    return res.status(409).json({
+      error: 'Este invitado ya tiene cuenta registrada',
+      registered: true,
+      fullName: guest.fullName,
+    });
+  }
+
+  return res.json({
+    id: guest.id,
+    fullName: guest.fullName,
+    displayName: guest.familyGroup || guest.fullName,
+  });
+});
+
 // Register guest credentials for existing guest (picked from admin list via groupId)
 authRouter.post('/register', async (req, res) => {
   const { name, username: rawUsername, password, groupId } = req.body as {
@@ -188,6 +221,10 @@ authRouter.post('/register', async (req, res) => {
 
   if (!guest) {
     return res.status(404).json({ error: 'Guest group not found' });
+  }
+
+  if (guest.username) {
+    return res.status(409).json({ error: 'Este invitado ya tiene cuenta registrada' });
   }
 
   let username: string;

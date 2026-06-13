@@ -82,7 +82,9 @@
     "title": "CONFIRMACIÓN DE ASISTENCIA",
     "subtitle": "Esperamos que seas parte de esta gran celebración.",
     "buttonLabel": "CONFIRMAR ASISTENCIA",
-    "appUrl": "https://jesiyjavier.com.ar"
+    "appUrl": "https://jesiyjavier.com.ar",
+    "appRegisterUrl": "https://jesiyjavier.com.ar/auth/register",
+    "invitationBaseUrl": "https://jesiyjavier.com.ar/invitacion/"
   },
   "socials": {
     "instagram": "https://instagram.com/",

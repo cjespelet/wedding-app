@@ -3,10 +3,15 @@ import type { WeddingData } from '../types/wedding';
 
 interface Props {
   data: WeddingData;
+  invite?: string | null;
 }
 
-const { data } = Astro.props;
+const { data, invite = null } = Astro.props;
 const { confirmacion } = data;
+
+const registerUrl = invite
+  ? `${confirmacion.appRegisterUrl}?invite=${encodeURIComponent(invite)}`
+  : confirmacion.appRegisterUrl;
 ---
 
 <section
@@ -27,7 +32,7 @@ const { confirmacion } = data;
     </p>
 
     <a
-      href={confirmacion.appUrl}
+      href={registerUrl}
       class="btn-primary mt-10"
     >
       {confirmacion.buttonLabel}

@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { ToastController, LoadingController, IonicModule } from '@ionic/angular';
 import { AuthService, GuestGroup } from '../services/auth.service';
 import { CommonModule } from '@angular/common';
@@ -13,7 +13,17 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule, IonicModule, ReactiveFormsModule],
 })
 export class RegisterPage implements OnInit {
+  private readonly fb = inject(FormBuilder);
+  private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly toastCtrl = inject(ToastController);
+  private readonly loadingCtrl = inject(LoadingController);
+
   groups: GuestGroup[] = [];
+  /** Invitación personalizada: grupo fijado desde la URL */
+  lockedGroupName: string | null = null;
+  inviteError: string | null = null;
 
   form = this.fb.group({
     name: ['', [Validators.required]],
@@ -22,15 +32,27 @@ export class RegisterPage implements OnInit {
     groupId: ['', [Validators.required]],
   });
 
-  constructor(
-    private fb: FormBuilder,
-    private auth: AuthService,
-    private router: Router,
-    private toastCtrl: ToastController,
-    private loadingCtrl: LoadingController
-  ) {}
-
   ngOnInit(): void {
+    const inviteId = this.route.snapshot.queryParamMap.get('invite');
+
+    if (inviteId) {
+      this.auth.getInvitePreview(inviteId).subscribe({
+        next: (invite) => {
+          this.lockedGroupName = invite.displayName;
+          this.form.patchValue({ groupId: invite.id });
+          this.form.controls.groupId.disable();
+        },
+        error: (err) => {
+          if (err?.status === 409) {
+            this.inviteError = 'Esta invitación ya fue usada. Ingresá con tu usuario y contraseña.';
+          } else {
+            this.inviteError = 'El link de invitación no es válido.';
+          }
+        },
+      });
+      return;
+    }
+
     this.auth.getGuestGroups().subscribe((groups) => {
       this.groups = groups;
     });
@@ -65,13 +87,16 @@ export class RegisterPage implements OnInit {
           color: 'success',
         });
         await toast.present();
-        // Auto login ya ocurrió en el servicio; vamos directo al dashboard
         this.router.navigateByUrl('/dashboard', { replaceUrl: true });
       },
-      error: async () => {
+      error: async (err) => {
         await loading.dismiss();
+        const message =
+          err?.status === 409
+            ? 'Este invitado ya tiene cuenta. Probá ingresar.'
+            : 'No se pudo crear la cuenta. Intenta nuevamente.';
         const toast = await this.toastCtrl.create({
-          message: 'No se pudo crear la cuenta. Intenta nuevamente.',
+          message,
           duration: 2500,
           color: 'danger',
         });
@@ -84,4 +109,3 @@ export class RegisterPage implements OnInit {
     this.router.navigateByUrl('/auth/login');
   }
 }
-

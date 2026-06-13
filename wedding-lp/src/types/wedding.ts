@@ -54,7 +54,12 @@ export interface Confirmacion {
   title: string;
   subtitle: string;
   buttonLabel: string;
+  /** URL base de la app de invitados */
   appUrl: string;
+  /** Registro (confirmar asistencia) */
+  appRegisterUrl: string;
+  /** Landing con parámetro invite, ej. /invitacion/?invite=... */
+  invitationBaseUrl: string;
 }
 
 export interface Socials {

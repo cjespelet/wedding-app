@@ -10,6 +10,7 @@ import weddingData from '../data/wedding.json';
 import type { WeddingData } from '../types/wedding';
 
 const data = weddingData as WeddingData;
+const inviteCode = Astro.url.searchParams.get('invite');
 ---
 
 <MainLayout>
@@ -17,7 +18,7 @@ const data = weddingData as WeddingData;
     <Hero data={data} />
     <FiestaSection data={data} />
     <RegaloSection data={data} />
-    <ConfirmacionSection data={data} />
+    <ConfirmacionSection data={data} invite={inviteCode} />
   </main>
   <Footer data={data} />
   <MusicPlayer data={data} />
