@@ -170,6 +170,12 @@ ion-item {
   pointer-events: none;
 }
 
+.invite-loading {
+  font-size: 14px;
+  color: #888;
+  margin: 0;
+}
+
 /* Animación igual que login */
 @keyframes fadeInUp {
   from {
@@ -247,4 +253,10 @@ ion-item {
 .group-card.locked {
   cursor: default;
   pointer-events: none;
+}
+
+.invite-loading {
+  font-size: 14px;
+  color: #888;
+  margin: 0;
 }

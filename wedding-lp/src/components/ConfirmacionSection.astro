@@ -3,15 +3,10 @@ import type { WeddingData } from '../types/wedding';
 
 interface Props {
   data: WeddingData;
-  invite?: string | null;
 }
 
-const { data, invite = null } = Astro.props;
+const { data } = Astro.props;
 const { confirmacion } = data;
-
-const registerUrl = invite
-  ? `${confirmacion.appRegisterUrl}?invite=${encodeURIComponent(invite)}`
-  : confirmacion.appRegisterUrl;
 ---
 
 <section
@@ -32,10 +27,25 @@ const registerUrl = invite
     </p>
 
     <a
-      href={registerUrl}
+      id="confirmacion-register-link"
+      href={confirmacion.appRegisterUrl}
       class="btn-primary mt-10"
+      data-register-base={confirmacion.appRegisterUrl}
     >
       {confirmacion.buttonLabel}
     </a>
   </div>
 </section>
+
+<script>
+  (function applyInviteToRegisterLink() {
+    const link = document.getElementById('confirmacion-register-link');
+    if (!(link instanceof HTMLAnchorElement)) return;
+
+    const base = link.dataset.registerBase || link.href;
+    const invite = new URLSearchParams(window.location.search).get('invite');
+    if (!invite) return;
+
+    link.href = `${base}?invite=${encodeURIComponent(invite)}`;
+  })();
+</script>

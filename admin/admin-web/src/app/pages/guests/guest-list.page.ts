@@ -74,6 +74,11 @@ export class GuestListPage implements OnInit, AfterViewInit {
   }
 
   inviteLink(guest: Guest): string {
+    return `${environment.guestAppUrl}/auth/register?invite=${encodeURIComponent(guest.id)}`;
+  }
+
+  /** Link a la landing personalizada (opcional) */
+  invitationLandingLink(guest: Guest): string {
     const base = environment.invitationBaseUrl.replace(/\/?$/, '/');
     return `${base}?invite=${encodeURIComponent(guest.id)}`;
   }

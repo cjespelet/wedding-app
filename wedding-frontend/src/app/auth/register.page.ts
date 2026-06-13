@@ -24,6 +24,8 @@ export class RegisterPage implements OnInit {
   /** Invitación personalizada: grupo fijado desde la URL */
   lockedGroupName: string | null = null;
   inviteError: string | null = null;
+  inviteLoading = false;
+  hasInviteParam = false;
 
   form = this.fb.group({
     name: ['', [Validators.required]],
@@ -34,15 +36,19 @@ export class RegisterPage implements OnInit {
 
   ngOnInit(): void {
     const inviteId = this.route.snapshot.queryParamMap.get('invite');
+    this.hasInviteParam = !!inviteId;
 
     if (inviteId) {
+      this.inviteLoading = true;
       this.auth.getInvitePreview(inviteId).subscribe({
         next: (invite) => {
+          this.inviteLoading = false;
           this.lockedGroupName = invite.displayName;
           this.form.patchValue({ groupId: invite.id });
           this.form.controls.groupId.disable();
         },
         error: (err) => {
+          this.inviteLoading = false;
           if (err?.status === 409) {
             this.inviteError = 'Esta invitación ya fue usada. Ingresá con tu usuario y contraseña.';
           } else {

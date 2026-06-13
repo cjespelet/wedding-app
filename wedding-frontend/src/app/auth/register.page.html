@@ -43,6 +43,11 @@
         </ion-item>
 
         <!-- Grupo (solo si no viene invitación personalizada) -->
+        <div class="group-section" *ngIf="inviteLoading">
+          <p class="group-title">Tu invitación</p>
+          <p class="invite-loading">Cargando…</p>
+        </div>
+
         <div class="group-section" *ngIf="inviteError">
           <ion-note color="danger">{{ inviteError }}</ion-note>
           <p class="register-text">
@@ -50,14 +55,14 @@
           </p>
         </div>
 
-        <div class="group-section" *ngIf="lockedGroupName && !inviteError">
+        <div class="group-section" *ngIf="!inviteLoading && lockedGroupName && !inviteError">
           <p class="group-title">Tu invitación</p>
           <div class="group-card selected locked">
             {{ lockedGroupName }}
           </div>
         </div>
 
-        <div class="group-section" *ngIf="!lockedGroupName && !inviteError">
+        <div class="group-section" *ngIf="!hasInviteParam && !inviteError">
 
           <p class="group-title">Grupo de invitado</p>
 
@@ -86,7 +91,7 @@
         </ion-note>
 
         <!-- Botón -->
-        <ion-button expand="block" type="submit" class="login-button" [disabled]="!!inviteError">
+        <ion-button expand="block" type="submit" class="login-button" [disabled]="!!inviteError || inviteLoading">
           Registrarse
         </ion-button>
 
