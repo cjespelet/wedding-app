@@ -37,7 +37,7 @@ const { confirmacion } = data;
   </div>
 </section>
 
-<script>
+<script is:inline>
   (function applyInviteToRegisterLink() {
     const link = document.getElementById('confirmacion-register-link');
     if (!(link instanceof HTMLAnchorElement)) return;
@@ -46,6 +46,6 @@ const { confirmacion } = data;
     const invite = new URLSearchParams(window.location.search).get('invite');
     if (!invite) return;
 
-    link.href = `${base}?invite=${encodeURIComponent(invite)}`;
+    link.href = base + (base.includes('?') ? '&' : '?') + 'invite=' + encodeURIComponent(invite);
   })();
 </script>
