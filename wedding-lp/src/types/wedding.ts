@@ -40,7 +40,6 @@ export interface BankDetails {
   title: string;
   alias: string;
   holder: string;
-  dni: string;
 }
 
 export interface Gifts {

@@ -84,6 +84,45 @@ ion-card {
   text-decoration: none;
 }
 
+.gift-button {
+  margin-top: 12px;
+  --background: #b08d57;
+  --background-activated: #9a7848;
+  --background-hover: #9a7848;
+}
+
+.gift-modal-content {
+  --background: #fff;
+}
+
+.gift-details {
+  margin: 8px 0 24px;
+}
+
+.gift-details div + div {
+  margin-top: 20px;
+}
+
+.gift-details dt {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #888;
+}
+
+.gift-details dd {
+  margin: 6px 0 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.gift-alias {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  letter-spacing: 0.04em;
+}
+
 .divider {
   text-align: center;
   margin: 8px 0;

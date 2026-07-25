@@ -6,6 +6,7 @@ import { WeddingService, WeddingInfo } from '../services/wedding.service';
 import { RsvpService } from '../services/rsvp.service';
 import { CheckinService } from '../services/checkin.service';
 import { ActivatedRoute } from '@angular/router';
+import { giftBankConfig } from '../config/gift-bank.config';
 
 @Component({
   selector: 'app-dashboard',
@@ -19,6 +20,9 @@ export class DashboardPage implements OnInit, OnDestroy {
   hasRsvp = false;
   isCheckedIn = false;
   justCheckedIn = false;
+  readonly giftBank = giftBankConfig;
+  giftModalOpen = false;
+  aliasCopied = false;
 
   private readonly rsvpConfirmedPendingKey = 'rsvp-confirmed-pending';
   private readonly rsvpConfirmedPendingTsKey = 'rsvp-confirmed-pending-ts';
@@ -152,6 +156,28 @@ export class DashboardPage implements OnInit, OnDestroy {
 
   goToRsvpConfirm(): void {
     this.router.navigateByUrl('/rsvp/confirm');
+  }
+
+  openGiftModal(): void {
+    this.aliasCopied = false;
+    this.giftModalOpen = true;
+  }
+
+  closeGiftModal(): void {
+    this.giftModalOpen = false;
+    this.aliasCopied = false;
+  }
+
+  async copyGiftAlias(): Promise<void> {
+    try {
+      await navigator.clipboard.writeText(this.giftBank.alias);
+      this.aliasCopied = true;
+      window.setTimeout(() => {
+        this.aliasCopied = false;
+      }, 2500);
+    } catch {
+      /* ignore */
+    }
   }
 
   async startCheckin(): Promise<void> {
