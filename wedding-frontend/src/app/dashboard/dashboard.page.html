@@ -123,7 +123,15 @@
     <ion-card>
       <ion-card-content class="event-card">
 
-        <h2 class="section-title">{{ giftBank.sectionTitle }}</h2>
+        <div class="gift-icon-wrap">
+          <img
+            src="assets/img/icono-regalo.svg"
+            [alt]="giftBank.iconAlt"
+            class="gift-section-icon"
+            width="128"
+            height="128"
+          />
+        </div>
 
         <p class="welcome-text">
           {{ giftBank.description }}

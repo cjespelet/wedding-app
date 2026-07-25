@@ -84,6 +84,18 @@ ion-card {
   text-decoration: none;
 }
 
+.gift-icon-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.gift-section-icon {
+  width: 112px;
+  height: 112px;
+  object-fit: contain;
+}
+
 .gift-button {
   margin-top: 12px;
   --background: #b08d57;
