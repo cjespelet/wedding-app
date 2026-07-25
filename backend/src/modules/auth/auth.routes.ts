@@ -55,13 +55,14 @@ authRouter.post('/login', async (req, res) => {
     });
   }
 
-  // Guest login via username + accessCode (4 dígitos usados como password en la app)
+  // Guest login via username + accessCode
   if (!username) {
     return res.status(400).json({ error: 'Username is required for guest login' });
   }
 
+  const normalizedUsername = username.trim();
   const guest = await prisma.guest.findFirst({
-    where: { username },
+    where: { username: { equals: normalizedUsername, mode: 'insensitive' } },
   });
 
   // accessCode puede estar almacenado en texto plano (4 dígitos) o hasheado.

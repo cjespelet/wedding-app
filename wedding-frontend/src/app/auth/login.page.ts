@@ -59,7 +59,7 @@ export class LoginPage implements OnInit {
 
     const { username, password } = this.form.getRawValue();
 
-    this.auth.login(username!, password!).subscribe({
+    this.auth.login(username!.trim(), password!).subscribe({
       next: async () => {
         await loading.dismiss();
         const pending = localStorage.getItem(this.pendingDoorCheckinKey) === '1';
