@@ -29,7 +29,7 @@ export class RegisterPage implements OnInit {
 
   form = this.fb.group({
     name: ['', [Validators.required]],
-    username: [''],
+    username: ['', [Validators.required, Validators.minLength(2)]],
     password: ['', [Validators.required]],
     groupId: ['', [Validators.required]],
   });
@@ -79,9 +79,9 @@ export class RegisterPage implements OnInit {
     const v = this.form.getRawValue();
     const payload = {
       name: v.name!,
+      username: v.username!.trim(),
       password: v.password!,
       groupId: v.groupId!,
-      ...(v.username?.trim() ? { username: v.username.trim() } : {}),
     };
 
     this.auth.register(payload).subscribe({
