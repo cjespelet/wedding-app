@@ -84,8 +84,12 @@
   font-size: 0.875rem;
 }
 
+.guests-table .mat-column-nameGuest {
+  width: 14%;
+}
+
 .guests-table .mat-column-fullName {
-  width: 18%;
+  width: 12%;
 }
 
 .guests-table .mat-column-adultsCount,
@@ -159,6 +163,11 @@ table,
     color: #7b1fa2;
   }
 
+  &.btn-icon-reset:hover {
+    background: #fff3e0;
+    color: #e65100;
+  }
+
   &.btn-icon-edit:hover {
     background: #e3f2fd;
     color: #1976d2;
@@ -172,5 +181,41 @@ table,
 
 mat-paginator {
   background: #fff;
+}
+
+.guest-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px 12px;
+}
+
+.guest-filter-btn {
+  border: 1px solid #ced4da;
+  background: #fff;
+  color: #333;
+}
+
+.guest-filter-btn.active {
+  background: #0d6efd;
+  border-color: #0d6efd;
+  color: #fff;
+}
+
+.guest-filter-btn.guest-filter-confirmed.active {
+  background: #2e7d32;
+  border-color: #2e7d32;
+}
+
+.guest-filter-btn.guest-filter-present.active {
+  background: #c62828;
+  border-color: #c62828;
+}
+
+.guest-filter-count {
+  margin-left: auto;
+  font-size: 0.9rem;
+  color: #666;
 }
 

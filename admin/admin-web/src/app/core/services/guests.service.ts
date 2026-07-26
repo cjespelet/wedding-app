@@ -10,6 +10,7 @@ export interface GuestRsvp {
 export interface Guest {
   id: string;
   fullName: string;
+  nameGuest?: string;
   familyGroup?: string;
   email?: string;
   adultsCount: number;
@@ -47,6 +48,10 @@ export class GuestsService {
 
   update(id: string, payload: UpdateGuestPayload) {
     return this.http.put<Guest>(`${environment.apiBaseUrl}/admin/guests/${id}`, payload);
+  }
+
+  resetRegistration(id: string) {
+    return this.http.post<Guest>(`${environment.apiBaseUrl}/admin/guests/${id}/reset-registration`, {});
   }
 
   remove(id: string) {

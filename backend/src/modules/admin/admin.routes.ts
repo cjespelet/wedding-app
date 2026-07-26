@@ -200,6 +200,42 @@ adminRouter.put('/guests/:id', requireAuth(['super_admin', 'wedding_admin']), as
   return res.json(updated);
 });
 
+// Clear guest app credentials so the invitation link can be used again
+adminRouter.post(
+  '/guests/:id/reset-registration',
+  requireAuth(['super_admin', 'wedding_admin']),
+  async (req: AuthenticatedRequest, res) => {
+    const { id } = req.params;
+    const weddingId = req.user?.weddingId;
+    if (!weddingId) {
+      return res.status(400).json({ error: 'No weddingId on token' });
+    }
+
+    const guest = await prisma.guest.findFirst({
+      where: { id, weddingId },
+    });
+
+    if (!guest) {
+      return res.status(404).json({ error: 'Guest not found' });
+    }
+
+    if (!guest.username) {
+      return res.status(400).json({ error: 'Este invitado no tiene cuenta registrada' });
+    }
+
+    const updated = await prisma.guest.update({
+      where: { id },
+      data: {
+        username: null,
+        accessCode: null,
+        nameGuest: null,
+      },
+    });
+
+    return res.json(updated);
+  },
+);
+
 // Delete guest
 adminRouter.delete('/guests/:id', requireAuth(['super_admin', 'wedding_admin']), async (req, res) => {
   const { id } = req.params;

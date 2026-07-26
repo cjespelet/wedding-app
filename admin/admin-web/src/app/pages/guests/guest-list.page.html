@@ -24,8 +24,49 @@
   </div>
 </div>
 
+<div class="guest-filter-row">
+  <button
+    type="button"
+    class="btn btn-sm guest-filter-btn"
+    [class.active]="guestFilter === 'all'"
+    (click)="setGuestFilter('all')"
+  >
+    Todos
+  </button>
+  <button
+    type="button"
+    class="btn btn-sm guest-filter-btn guest-filter-confirmed"
+    [class.active]="guestFilter === 'confirmed'"
+    (click)="setGuestFilter('confirmed')"
+  >
+    Confirmados
+  </button>
+  <button
+    type="button"
+    class="btn btn-sm guest-filter-btn"
+    [class.active]="guestFilter === 'not_confirmed'"
+    (click)="setGuestFilter('not_confirmed')"
+  >
+    Sin confirmar
+  </button>
+  <button
+    type="button"
+    class="btn btn-sm guest-filter-btn guest-filter-present"
+    [class.active]="guestFilter === 'present'"
+    (click)="setGuestFilter('present')"
+  >
+    Presentes
+  </button>
+  <span class="guest-filter-count">{{ dataSource.data.length }} grupo(s)</span>
+</div>
+
 <div class="guests-table-wrap">
 <table mat-table [dataSource]="dataSource" class="mat-elevation-z1 guests-table">
+  <ng-container matColumnDef="nameGuest">
+    <th mat-header-cell *matHeaderCellDef title="Nombre al registrarse">Registrado</th>
+    <td mat-cell *matCellDef="let row">{{ row.nameGuest || '—' }}</td>
+  </ng-container>
+
   <ng-container matColumnDef="fullName">
     <th mat-header-cell *matHeaderCellDef>Nombre</th>
     <td mat-cell *matCellDef="let row">{{ row.fullName }}</td>
@@ -97,10 +138,18 @@
         type="button"
         class="btn-icon btn-icon-link"
         (click)="copyInviteLink(row)"
-        title="Copiar link de invitación"
-        [disabled]="!!row.username"
+        [title]="row.username ? 'Copiar link (ya registrado — resetear cuenta para reutilizar)' : 'Copiar link de invitación'"
       >
         <i class="fa-solid fa-link"></i>
+      </button>
+      <button
+        *ngIf="row.username"
+        type="button"
+        class="btn-icon btn-icon-reset"
+        (click)="resetRegistration(row)"
+        title="Resetear registro (reenviar invitación)"
+      >
+        <i class="fa-solid fa-rotate-left"></i>
       </button>
       <button type="button" class="btn-icon btn-icon-edit" (click)="editGuest(row)" title="Editar">
         <i class="fa-solid fa-pen"></i>

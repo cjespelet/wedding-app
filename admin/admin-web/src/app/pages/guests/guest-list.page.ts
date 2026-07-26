@@ -5,10 +5,12 @@ import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { GuestsService, Guest, CreateGuestPayload, UpdateGuestPayload } from '../../core/services/guests.service';
+import { GuestsService, Guest, CreateGuestPayload, UpdateGuestPayload, lastRsvp } from '../../core/services/guests.service';
 import { GuestDialogComponent } from './guest-dialog.component';
 import { CheckinDialogComponent } from './checkin-dialog.component';
 import { environment } from '../../../environments/environment';
+
+type GuestFilter = 'all' | 'confirmed' | 'not_confirmed' | 'present';
 
 @Component({
   standalone: true,
@@ -26,6 +28,7 @@ export class GuestListPage implements OnInit, AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   displayedColumns = [
+    'nameGuest',
     'fullName',
     'adultsCount',
     'minorsCount',
@@ -39,6 +42,8 @@ export class GuestListPage implements OnInit, AfterViewInit {
     'actions',
   ];
   dataSource = new MatTableDataSource<Guest>([]);
+  guestFilter: GuestFilter = 'all';
+  private allGuests: Guest[] = [];
 
   get totalAdults(): number {
     return this.dataSource.data.reduce((sum, g) => sum + (g.adultsCount ?? 0), 0);
@@ -61,7 +66,8 @@ export class GuestListPage implements OnInit, AfterViewInit {
   load() {
     this.guestsService.list().subscribe({
       next: (guests) => {
-        this.dataSource.data = guests ?? [];
+        this.allGuests = guests ?? [];
+        this.applyFilter();
         setTimeout(() => {
           this.dataSource.paginator = this.paginator;
           this.cdr.detectChanges();
@@ -71,6 +77,33 @@ export class GuestListPage implements OnInit, AfterViewInit {
         this.snackBar.open('Error al cargar invitados: ' + (err?.error?.error || err?.message || 'Revisa la consola'), 'Cerrar', { duration: 5000 });
       },
     });
+  }
+
+  setGuestFilter(filter: GuestFilter): void {
+    this.guestFilter = filter;
+    this.applyFilter();
+    this.cdr.detectChanges();
+  }
+
+  private applyFilter(): void {
+    let filtered = this.allGuests;
+    switch (this.guestFilter) {
+      case 'confirmed':
+        filtered = this.allGuests.filter((g) => this.isConfirmed(g));
+        break;
+      case 'not_confirmed':
+        filtered = this.allGuests.filter((g) => !this.isConfirmed(g));
+        break;
+      case 'present':
+        filtered = this.allGuests.filter((g) => g.checkedIn);
+        break;
+    }
+    this.dataSource.data = filtered;
+    this.paginator?.firstPage();
+  }
+
+  private isConfirmed(guest: Guest): boolean {
+    return !!lastRsvp(guest)?.attending;
   }
 
   inviteLink(guest: Guest): string {
@@ -84,6 +117,26 @@ export class GuestListPage implements OnInit, AfterViewInit {
       () => this.snackBar.open('Link de invitación copiado', 'Cerrar', { duration: 2500 }),
       () => this.snackBar.open('No se pudo copiar el link', 'Cerrar', { duration: 3000 }),
     );
+  }
+
+  resetRegistration(guest: Guest): void {
+    if (!guest.username) return;
+    const label = guest.nameGuest || guest.fullName;
+    if (
+      !confirm(
+        `¿Resetear la cuenta de "${label}"?\n\nPodrá volver a registrarse con el link de invitación. RSVP y fotos se mantienen.`,
+      )
+    ) {
+      return;
+    }
+    this.guestsService.resetRegistration(guest.id).subscribe({
+      next: () => {
+        this.snackBar.open('Registro reseteado — podés reenviar el link', 'Cerrar', { duration: 3500 });
+        this.load();
+      },
+      error: (err) =>
+        this.snackBar.open(err?.error?.error || 'Error al resetear registro', 'Cerrar', { duration: 4000 }),
+    });
   }
 
   addGuest() {
