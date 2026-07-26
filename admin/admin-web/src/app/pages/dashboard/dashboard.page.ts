@@ -1,13 +1,16 @@
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { RouterModule } from '@angular/router';
 import { WeddingService } from '../../core/services/wedding.service';
-import { GuestsService, Guest, lastRsvp } from '../../core/services/guests.service';
+import { GuestsService, Guest, confirmedCounts } from '../../core/services/guests.service';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { LocalDatePipe } from '../../shared/pipes/local-date.pipe';
+import { Subscription } from 'rxjs';
 
 interface AdminAnalytics {
   confirmedGuests: number;
@@ -21,16 +24,23 @@ interface AdminAnalytics {
   selector: 'app-dashboard',
   templateUrl: './dashboard.page.html',
   styleUrls: ['./dashboard.page.scss'],
-  imports: [CommonModule, MatCardModule, MatButtonModule, RouterModule, LocalDatePipe],
+  imports: [CommonModule, MatCardModule, MatButtonModule, MatProgressSpinnerModule, MatSnackBarModule, RouterModule, LocalDatePipe],
 })
 export class DashboardPage implements OnInit, OnDestroy {
   private readonly weddingService = inject(WeddingService);
   private readonly guestsService = inject(GuestsService);
   private readonly http = inject(HttpClient);
+  private readonly snackBar = inject(MatSnackBar);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   wedding$ = this.weddingService.getWedding();
   analytics?: AdminAnalytics;
   guests: Guest[] = [];
+  loadingGuests = true;
+  loadError = '';
+
+  private guestsSub?: Subscription;
+  private analyticsSub?: Subscription;
 
   /** URL de la app PWA para invitados (QR para abrir la app en el celular) */
   pwaAppUrl = environment.guestAppUrl;
@@ -57,6 +67,8 @@ export class DashboardPage implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.guestsSub?.unsubscribe();
+    this.analyticsSub?.unsubscribe();
     if (this.qrInterval) {
       clearInterval(this.qrInterval);
       this.qrInterval = null;
@@ -64,16 +76,47 @@ export class DashboardPage implements OnInit, OnDestroy {
   }
 
   load() {
-    this.http.get<AdminAnalytics>(`${environment.apiBaseUrl}/admin/analytics`).subscribe((data) => {
-      this.analytics = data;
+    this.loadingGuests = true;
+    this.loadError = '';
+    this.guestsSub?.unsubscribe();
+    this.analyticsSub?.unsubscribe();
+
+    this.guestsSub = this.guestsService.list().subscribe({
+      next: (guests) => {
+        this.guests = Array.isArray(guests) ? guests : [];
+        this.loadingGuests = false;
+        this.loadError = '';
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.guests = [];
+        this.loadingGuests = false;
+        this.loadError =
+          err?.error?.error ||
+          'No se pudieron cargar los invitados. El servidor puede estar iniciando; probá de nuevo.';
+        this.cdr.detectChanges();
+        this.snackBar.open(this.loadError, 'Reintentar', { duration: 6000 }).onAction().subscribe(() => this.load());
+      },
     });
-    this.guestsService.list().subscribe((list) => (this.guests = list));
+
+    this.analyticsSub = this.http
+      .get<AdminAnalytics>(`${environment.apiBaseUrl}/admin/analytics`)
+      .subscribe({
+        next: (data) => {
+          this.analytics = data;
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          // Analytics es secundario; no bloqueamos el dashboard si falla.
+        },
+      });
   }
 
   private startQrRefresh() {
     // iOS/Safari a veces cachea imágenes externas de QRServer; forzamos refresh.
     this.qrInterval = setInterval(() => {
       this.qrRefreshTick++;
+      this.cdr.detectChanges();
     }, 60_000);
   }
 
@@ -93,15 +136,15 @@ export class DashboardPage implements OnInit, OnDestroy {
   // Confirmados (según último RSVP)
   get confirmedAdults(): number {
     return this.guests.reduce((sum, g) => {
-      const r = lastRsvp(g);
-      return r?.attending ? sum + (g.adultsCount ?? 0) : sum;
+      const c = confirmedCounts(g);
+      return c ? sum + c.adults : sum;
     }, 0);
   }
 
   get confirmedMinors(): number {
     return this.guests.reduce((sum, g) => {
-      const r = lastRsvp(g);
-      return r?.attending ? sum + (g.minorsCount ?? 0) : sum;
+      const c = confirmedCounts(g);
+      return c ? sum + c.minors : sum;
     }, 0);
   }
 
@@ -131,4 +174,3 @@ export class DashboardPage implements OnInit, OnDestroy {
     return this.presentAdults + this.presentMinors;
   }
 }
-

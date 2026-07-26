@@ -57,6 +57,26 @@
   >
     Presentes
   </button>
+  <div class="guest-search-wrap">
+    <i class="fa-solid fa-magnifying-glass guest-search-icon" aria-hidden="true"></i>
+    <input
+      type="search"
+      class="guest-search-input"
+      placeholder="Buscar por nombre..."
+      [value]="searchQuery"
+      (input)="onSearchChange($event)"
+    />
+    <button
+      *ngIf="searchQuery"
+      type="button"
+      class="guest-search-clear"
+      (click)="clearSearch()"
+      title="Limpiar búsqueda"
+      aria-label="Limpiar búsqueda"
+    >
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+  </div>
   <span class="guest-filter-count">{{ dataSource.data.length }} grupo(s)</span>
 </div>
 
@@ -100,9 +120,9 @@
   </ng-container>
 
   <ng-container matColumnDef="cantidadConfirma">
-    <th mat-header-cell *matHeaderCellDef title="Cantidad confirmada">Cant.</th>
+    <th mat-header-cell *matHeaderCellDef title="Adultos + menores confirmados">Confirman</th>
     <td mat-cell *matCellDef="let row">
-      {{ row.rsvps?.[0] != null ? row.rsvps[0].numberOfGuests : '—' }}
+      {{ confirmedSummary(row) }}
     </td>
   </ng-container>
 

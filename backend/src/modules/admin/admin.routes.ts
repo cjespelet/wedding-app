@@ -2,6 +2,7 @@ import { Router } from 'express';
 import crypto from 'node:crypto';
 import { prisma } from '../../db/prisma.js';
 import { deleteCloudinaryImageByUrl } from '../../lib/cloudinary-images.js';
+import { sumConfirmedGuests } from '../../lib/confirmed-guest-count.js';
 import { generateUniqueUsername } from '../../lib/username.js';
 import { requireAuth, type AuthenticatedRequest } from '../../middleware/auth.js';
 
@@ -312,10 +313,23 @@ adminRouter.get('/analytics', requireAuth(['super_admin', 'wedding_admin']), asy
     return res.status(400).json({ error: 'No weddingId on token' });
   }
 
-  const [confirmedGuests, totalGuests, songRequests, photos] = await Promise.all([
-    prisma.rsvp.aggregate({
-      where: { weddingId, attending: true },
-      _sum: { numberOfGuests: true },
+  const [guests, totalGuests, songRequests, photos] = await Promise.all([
+    prisma.guest.findMany({
+      where: { weddingId },
+      select: {
+        adultsCount: true,
+        minorsCount: true,
+        rsvps: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+          select: {
+            attending: true,
+            numberOfGuests: true,
+            confirmedAdults: true,
+            confirmedMinors: true,
+          },
+        },
+      },
     }),
     prisma.guest.count({ where: { weddingId } }),
     prisma.songRequest.count({ where: { weddingId } }),
@@ -323,7 +337,7 @@ adminRouter.get('/analytics', requireAuth(['super_admin', 'wedding_admin']), asy
   ]);
 
   return res.json({
-    confirmedGuests: confirmedGuests._sum.numberOfGuests ?? 0,
+    confirmedGuests: sumConfirmedGuests(guests),
     totalGuests,
     songRequests,
     photos,

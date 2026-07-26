@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { IonicModule, LoadingController, ToastController } from '@ionic/angular';
@@ -13,11 +13,14 @@ import { AuthService } from '../services/auth.service';
   styleUrls: ['./rsvp-confirm.page.scss'],
   imports: [CommonModule, IonicModule, ReactiveFormsModule],
 })
-export class RsvpConfirmPage {
+export class RsvpConfirmPage implements OnInit {
   form = this.fb.group({
     adults: [1, [Validators.required, Validators.min(0)]],
     minors: [0, [Validators.required, Validators.min(0)]],
   });
+
+  private maxAdults = 99;
+  private maxMinors = 99;
 
   constructor(
     private fb: FormBuilder,
@@ -27,6 +30,27 @@ export class RsvpConfirmPage {
     private loadingCtrl: LoadingController,
     private toastCtrl: ToastController,
   ) {}
+
+  ngOnInit(): void {
+    this.rsvpService.getDefaults().subscribe({
+      next: ({ adults, minors }) => {
+        this.maxAdults = adults;
+        this.maxMinors = minors;
+        this.form.patchValue({ adults, minors });
+        this.form
+          .get('adults')
+          ?.setValidators([Validators.required, Validators.min(0), Validators.max(adults)]);
+        this.form
+          .get('minors')
+          ?.setValidators([Validators.required, Validators.min(0), Validators.max(minors)]);
+        this.form.get('adults')?.updateValueAndValidity({ emitEvent: false });
+        this.form.get('minors')?.updateValueAndValidity({ emitEvent: false });
+      },
+      error: () => {
+        // Sin defaults: el invitado ingresa manualmente.
+      },
+    });
+  }
 
   async onSubmit() {
     if (this.form.invalid) {

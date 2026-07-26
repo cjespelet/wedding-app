@@ -133,6 +133,8 @@ model Rsvp {
 
   attending          Boolean
   numberOfGuests     Int
+  confirmedAdults    Int?     @map("confirmed_adults")
+  confirmedMinors    Int?     @map("confirmed_minors")
   dietaryRestrictions String?
   comments           String?
 

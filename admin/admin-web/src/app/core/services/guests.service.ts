@@ -5,6 +5,8 @@ import { environment } from '../../../environments/environment';
 export interface GuestRsvp {
   attending: boolean;
   numberOfGuests: number;
+  confirmedAdults?: number | null;
+  confirmedMinors?: number | null;
 }
 
 export interface Guest {
@@ -30,6 +32,15 @@ export function lastRsvp(guest: Guest): GuestRsvp | null {
   const list = guest.rsvps;
   if (!list?.length) return null;
   return list[0];
+}
+
+/** Adultos/menores confirmados; usa invitación si el RSVP viejo no tiene desglose. */
+export function confirmedCounts(guest: Guest): { adults: number; minors: number; total: number } | null {
+  const rsvp = lastRsvp(guest);
+  if (!rsvp?.attending) return null;
+  const adults = rsvp.confirmedAdults ?? guest.adultsCount ?? 0;
+  const minors = rsvp.confirmedMinors ?? guest.minorsCount ?? 0;
+  return { adults, minors, total: adults + minors };
 }
 
 @Injectable({

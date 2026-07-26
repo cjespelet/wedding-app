@@ -5,7 +5,7 @@ import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { GuestsService, Guest, CreateGuestPayload, UpdateGuestPayload, lastRsvp } from '../../core/services/guests.service';
+import { GuestsService, Guest, CreateGuestPayload, UpdateGuestPayload, lastRsvp, confirmedCounts } from '../../core/services/guests.service';
 import { GuestDialogComponent } from './guest-dialog.component';
 import { CheckinDialogComponent } from './checkin-dialog.component';
 import { environment } from '../../../environments/environment';
@@ -43,6 +43,7 @@ export class GuestListPage implements OnInit, AfterViewInit {
   ];
   dataSource = new MatTableDataSource<Guest>([]);
   guestFilter: GuestFilter = 'all';
+  searchQuery = '';
   private allGuests: Guest[] = [];
 
   get totalAdults(): number {
@@ -85,6 +86,18 @@ export class GuestListPage implements OnInit, AfterViewInit {
     this.cdr.detectChanges();
   }
 
+  onSearchChange(event: Event): void {
+    this.searchQuery = (event.target as HTMLInputElement).value;
+    this.applyFilter();
+    this.cdr.detectChanges();
+  }
+
+  clearSearch(): void {
+    this.searchQuery = '';
+    this.applyFilter();
+    this.cdr.detectChanges();
+  }
+
   private applyFilter(): void {
     let filtered = this.allGuests;
     switch (this.guestFilter) {
@@ -98,12 +111,35 @@ export class GuestListPage implements OnInit, AfterViewInit {
         filtered = this.allGuests.filter((g) => g.checkedIn);
         break;
     }
+
+    const query = this.searchQuery.trim().toLowerCase();
+    if (query) {
+      filtered = filtered.filter((g) => this.matchesSearch(g, query));
+    }
+
     this.dataSource.data = filtered;
     this.paginator?.firstPage();
   }
 
+  private matchesSearch(guest: Guest, query: string): boolean {
+    const haystack = [guest.fullName, guest.nameGuest, guest.username, guest.familyGroup]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase();
+    return haystack.includes(query);
+  }
+
   private isConfirmed(guest: Guest): boolean {
     return !!lastRsvp(guest)?.attending;
+  }
+
+  confirmedSummary(guest: Guest): string {
+    const counts = confirmedCounts(guest);
+    if (!counts) return '—';
+    if (counts.minors > 0) {
+      return `${counts.total} (${counts.adults}+${counts.minors})`;
+    }
+    return String(counts.total);
   }
 
   inviteLink(guest: Guest): string {

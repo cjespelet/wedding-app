@@ -7,6 +7,13 @@ export interface RsvpInfo {
   id: string;
   attending: boolean;
   numberOfGuests: number;
+  confirmedAdults?: number | null;
+  confirmedMinors?: number | null;
+}
+
+export interface RsvpDefaults {
+  adults: number;
+  minors: number;
 }
 
 @Injectable({
@@ -19,11 +26,15 @@ export class RsvpService {
     return this.http.get<RsvpInfo>(`${environment.apiBaseUrl}/rsvp/current`);
   }
 
+  getDefaults(): Observable<RsvpDefaults> {
+    return this.http.get<RsvpDefaults>(`${environment.apiBaseUrl}/rsvp/defaults`);
+  }
+
   confirmRsvp(adults: number, minors: number): Observable<RsvpInfo> {
     return this.http.post<RsvpInfo>(`${environment.apiBaseUrl}/rsvp`, {
       attending: true,
-      numberOfGuests: adults + minors,
+      adults,
+      minors,
     });
   }
 }
-
