@@ -65,6 +65,7 @@ model Guest {
   wedding         Wedding  @relation(fields: [weddingId], references: [id])
   weddingId       String
   fullName        String   // Nombre: persona o ej. "Flia Rocha"
+  nameGuest       String?  @map("name_guest") // Nombre que cargó el invitado al registrarse
   familyGroup     String?
   email           String?
 

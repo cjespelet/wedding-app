@@ -98,7 +98,7 @@ authRouter.post('/login', async (req, res) => {
     token,
     guest: {
       id: guest.id,
-      name: guest.fullName,
+      name: guest.nameGuest ?? guest.fullName,
       username: guest.username,
       weddingId: guest.weddingId,
     },
@@ -156,7 +156,7 @@ authRouter.post('/invitation', async (req, res) => {
     token,
     guest: {
       id: guest.id,
-      name: guest.fullName,
+      name: guest.nameGuest ?? guest.fullName,
       username: guest.username,
       weddingId: guest.weddingId,
     },
@@ -249,7 +249,7 @@ authRouter.post('/register', async (req, res) => {
   const updated = await prisma.guest.update({
     where: { id: guest.id },
     data: {
-      fullName: name,
+      nameGuest: name.trim(),
       username,
       accessCode: hashedCode,
     },
@@ -269,7 +269,7 @@ authRouter.post('/register', async (req, res) => {
     token,
     user: {
       id: updated.id,
-      name: updated.fullName,
+      name: updated.nameGuest ?? updated.fullName,
       username: updated.username,
       role: 'guest',
       weddingId: updated.weddingId,
