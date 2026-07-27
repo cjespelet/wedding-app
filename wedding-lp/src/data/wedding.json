@@ -45,8 +45,8 @@
     "time": "21:00 hs",
     "venue": "Sueño verde",
     "message": "¡Te esperamos!",
-    "address": "Av. Estrada, B7000 Tandil, Provincia de Buenos Aires",
-    "mapsUrl": "https://www.google.com/maps/search/?api=1&query=Av.+Estrada,+B7000+Tandil,+Provincia+de+Buenos+Aires"
+    "address": "Sueño verde, Av. Estrada, Tandil, Buenos Aires",
+    "mapsUrl": "https://www.google.com/maps?q=-37.344203770971994,-59.15733890278335"
   },
   "ceremony": {
     "name": "Ceremonia civil",
@@ -57,10 +57,10 @@
   },
   "reception": {
     "name": "Sueño verde",
-    "address": "Av. Estrada, B7000 Tandil, Provincia de Buenos Aires",
+    "address": "Sueño verde, Av. Estrada, Tandil, Buenos Aires",
     "time": "21:00 hs",
     "date": "2026-09-26",
-    "mapsUrl": "https://www.google.com/maps/search/?api=1&query=Av.+Estrada,+B7000+Tandil,+Provincia+de+Buenos+Aires"
+    "mapsUrl": "https://www.google.com/maps?q=-37.344203770971994,-59.15733890278335"
   },
   "dressCode": {
     "title": "Código de vestimenta",

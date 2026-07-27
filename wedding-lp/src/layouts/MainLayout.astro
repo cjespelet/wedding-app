@@ -79,6 +79,10 @@ const structuredData = {
           if (localStorage.getItem('wedding-theme') === 'dark') {
             document.documentElement.classList.add('dark');
           }
+          var invite = new URLSearchParams(window.location.search).get('invite');
+          if (invite) {
+            sessionStorage.setItem('wedding_invite_id', invite);
+          }
         } catch (e) {}
       })();
     </script>

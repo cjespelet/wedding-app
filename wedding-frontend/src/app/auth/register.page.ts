@@ -5,6 +5,8 @@ import { ToastController, LoadingController, IonicModule } from '@ionic/angular'
 import { AuthService, GuestGroup } from '../services/auth.service';
 import { CommonModule } from '@angular/common';
 
+const INVITE_STORAGE_KEY = 'wedding_invite_id';
+
 @Component({
   standalone: true,
   selector: 'app-register',
@@ -35,33 +37,66 @@ export class RegisterPage implements OnInit {
   });
 
   ngOnInit(): void {
-    const inviteId = this.route.snapshot.queryParamMap.get('invite');
-    this.hasInviteParam = !!inviteId;
+    this.route.queryParamMap.subscribe((params) => {
+      this.resolveInvite(params.get('invite'));
+    });
+  }
+
+  private resolveInvite(inviteFromUrl: string | null): void {
+    let inviteId = inviteFromUrl?.trim() || null;
 
     if (inviteId) {
-      this.inviteLoading = true;
-      this.auth.getInvitePreview(inviteId).subscribe({
-        next: (invite) => {
-          this.inviteLoading = false;
-          this.lockedGroupName = invite.displayName;
-          this.form.patchValue({ groupId: invite.id });
-          this.form.controls.groupId.disable();
-        },
-        error: (err) => {
-          this.inviteLoading = false;
-          if (err?.status === 409) {
-            this.inviteError = 'Esta invitación ya fue usada. Ingresá con tu usuario y contraseña.';
-          } else {
-            this.inviteError = 'El link de invitación no es válido.';
-          }
-        },
+      try {
+        sessionStorage.setItem(INVITE_STORAGE_KEY, inviteId);
+      } catch {
+        /* ignore */
+      }
+    } else {
+      try {
+        inviteId = sessionStorage.getItem(INVITE_STORAGE_KEY);
+      } catch {
+        inviteId = null;
+      }
+    }
+
+    this.hasInviteParam = !!inviteId;
+    this.lockedGroupName = null;
+    this.inviteError = null;
+    this.form.controls.groupId.enable();
+
+    if (!inviteId) {
+      this.inviteLoading = false;
+      this.auth.getGuestGroups().subscribe((groups) => {
+        this.groups = groups;
       });
       return;
     }
 
-    this.auth.getGuestGroups().subscribe((groups) => {
-      this.groups = groups;
+    this.inviteLoading = true;
+    this.auth.getInvitePreview(inviteId).subscribe({
+      next: (invite) => {
+        this.inviteLoading = false;
+        this.lockedGroupName = invite.displayName;
+        this.form.patchValue({ groupId: invite.id });
+        this.form.controls.groupId.disable();
+      },
+      error: (err) => {
+        this.inviteLoading = false;
+        if (err?.status === 409) {
+          this.inviteError = 'Esta invitación ya fue usada. Ingresá con tu usuario y contraseña.';
+        } else {
+          this.inviteError = 'El link de invitación no es válido.';
+        }
+      },
     });
+  }
+
+  private clearStoredInvite(): void {
+    try {
+      sessionStorage.removeItem(INVITE_STORAGE_KEY);
+    } catch {
+      /* ignore */
+    }
   }
 
   async onSubmit() {
@@ -86,6 +121,7 @@ export class RegisterPage implements OnInit {
 
     this.auth.register(payload).subscribe({
       next: async () => {
+        this.clearStoredInvite();
         await loading.dismiss();
         const toast = await this.toastCtrl.create({
           message: 'Cuenta creada con éxito',

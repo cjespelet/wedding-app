@@ -54,7 +54,7 @@ async function main() {
     location: 'Sueño verde — Tandil',
     description: 'Celebración de la boda de Jesica y Javier',
     instructions:
-      'https://www.google.com/maps/search/?api=1&query=Av.+Estrada,+B7000+Tandil,+Provincia+de+Buenos+Aires',
+      'https://www.google.com/maps?q=-37.344203770971994,-59.15733890278335',
   };
 
   const wedding = await prisma.wedding.upsert({

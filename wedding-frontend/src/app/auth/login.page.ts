@@ -106,7 +106,14 @@ export class LoginPage implements OnInit {
   }
 
   goToRegister() {
-    this.router.navigateByUrl('/auth/register');
+    let invite: string | null = null;
+    try {
+      invite = sessionStorage.getItem('wedding_invite_id');
+    } catch {
+      invite = null;
+    }
+    const url = invite ? `/auth/register?invite=${encodeURIComponent(invite)}` : '/auth/register';
+    this.router.navigateByUrl(url);
   }
 }
 
