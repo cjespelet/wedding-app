@@ -3,9 +3,86 @@ import { Router } from 'express';
 import { prisma } from '../../db/prisma.js';
 import { buildPhotoVariantUrls, uploadImageBufferToCloudinary } from '../../lib/cloudinary-images.js';
 import { multerImage } from '../../lib/multer-image.js';
+import {
+  ensureQrUploadGuest,
+  findWeddingForQrUpload,
+  QR_UPLOAD_DISPLAY_NAME,
+} from '../../lib/qr-upload.js';
 import { requireAuth, type AuthenticatedRequest } from '../../middleware/auth.js';
 
 export const galleryRouter = Router();
+
+const DEFAULT_WEDDING_SLUG = 'demo-wedding';
+
+function readQrUploadQuery(req: { query: Record<string, unknown> }) {
+  const slug =
+    typeof req.query.slug === 'string' && req.query.slug.trim()
+      ? req.query.slug.trim()
+      : DEFAULT_WEDDING_SLUG;
+  const token = typeof req.query.w === 'string' ? req.query.w.trim() : '';
+  return { slug, token };
+}
+
+// Validar link del QR impreso (sin login)
+galleryRouter.get('/qr-upload/status', async (req, res) => {
+  const { slug, token } = readQrUploadQuery(req);
+  const wedding = await findWeddingForQrUpload(slug, token);
+  if (!wedding) {
+    return res.status(403).json({ error: 'Link de subida no válido o deshabilitado' });
+  }
+
+  return res.json({
+    ok: true,
+    brideName: wedding.brideName,
+    groomName: wedding.groomName,
+    uploaderLabel: QR_UPLOAD_DISPLAY_NAME,
+  });
+});
+
+// Subida desde QR del salón (sin login; fotos atribuidas a invitado sistema qrupload)
+galleryRouter.post('/upload-qr', multerImage.array('photos', 5), async (req, res) => {
+  const { slug, token } = readQrUploadQuery(req);
+  const wedding = await findWeddingForQrUpload(slug, token);
+  if (!wedding) {
+    return res.status(403).json({ error: 'Link de subida no válido o deshabilitado' });
+  }
+
+  if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
+    return res.status(400).json({ error: 'No files uploaded' });
+  }
+
+  const qrGuest = await ensureQrUploadGuest(wedding.id);
+  const created: unknown[] = [];
+
+  try {
+    for (const file of req.files as Express.Multer.File[]) {
+      const id = crypto.randomUUID();
+      const result = await uploadImageBufferToCloudinary(file.buffer, wedding.id, id);
+      const urls = buildPhotoVariantUrls(result.public_id);
+
+      const photo = await prisma.photo.create({
+        data: {
+          id,
+          weddingId: wedding.id,
+          originalUrl: urls.originalUrl,
+          largeUrl: urls.largeUrl,
+          mediumUrl: urls.mediumUrl,
+          squareUrl: urls.squareUrl,
+          approved: true,
+          uploadedByGuestId: qrGuest.id,
+        },
+      });
+
+      created.push(photo);
+    }
+
+    return res.status(201).json({ uploaded: created.length, photos: created });
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('Gallery upload (QR) failed', err);
+    return res.status(500).json({ error: 'Upload failed' });
+  }
+});
 
 // Public gallery for logged-in guest (uses weddingId from token)
 galleryRouter.get('/', requireAuth(['guest']), async (req: AuthenticatedRequest, res) => {

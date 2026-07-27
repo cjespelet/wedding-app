@@ -1,0 +1,65 @@
+<ion-content class="qr-upload-content" [fullscreen]="true">
+  <div class="qr-upload-shell">
+    <header class="qr-upload-header">
+      <p class="eyebrow">Galería de la fiesta</p>
+      <h1 *ngIf="!loading && !invalidLink">{{ brideName }} &amp; {{ groomName }}</h1>
+      <h1 *ngIf="loading">Cargando…</h1>
+      <h1 *ngIf="!loading && invalidLink">Link no válido</h1>
+      <p class="subtitle" *ngIf="!loading && !invalidLink">
+        Subí tus fotos al instante. Aparecerán en la galería como
+        <strong>{{ uploaderLabel }}</strong>.
+      </p>
+      <p class="subtitle error" *ngIf="!loading && invalidLink">
+        Este código QR no está activo. Pedile ayuda a los novios.
+      </p>
+    </header>
+
+    <section class="qr-upload-card" *ngIf="loading">
+      <ion-spinner name="crescent"></ion-spinner>
+    </section>
+
+    <section class="qr-upload-card" *ngIf="!loading && !invalidLink">
+      <ng-container *ngIf="uploadSuccess; else uploadForm">
+        <div class="success-block">
+          <div class="success-icon" aria-hidden="true">✓</div>
+          <h2>¡Gracias!</h2>
+          <p>
+            {{ uploadedCount === 1 ? 'Tu foto ya está' : 'Tus ' + uploadedCount + ' fotos ya están' }}
+            en la galería de la fiesta.
+          </p>
+          <ion-button expand="block" class="gold" (click)="resetSuccess()">Subir más fotos</ion-button>
+        </div>
+      </ng-container>
+
+      <ng-template #uploadForm>
+        <input
+          #fileInput
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          multiple
+          hidden
+          (change)="onFilesSelected($event)"
+        />
+
+        <ion-button
+          expand="block"
+          class="gold pick-button"
+          [disabled]="uploading"
+          (click)="fileInput.click()"
+        >
+          <ion-icon slot="start" name="images-outline"></ion-icon>
+          Elegir fotos
+        </ion-button>
+
+        <p class="hint">Podés elegir hasta 5 fotos por vez (JPG, PNG o WebP).</p>
+
+        <div class="uploading" *ngIf="uploading">
+          <ion-spinner name="crescent"></ion-spinner>
+          <p>Subiendo fotos…</p>
+        </div>
+
+        <p class="error-text" *ngIf="uploadError">{{ uploadError }}</p>
+      </ng-template>
+    </section>
+  </div>
+</ion-content>

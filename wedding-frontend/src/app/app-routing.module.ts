@@ -29,6 +29,10 @@ const routes: Routes = [
       ),
   },
   {
+    path: 'subir-fotos',
+    loadComponent: () => import('./qr-upload/qr-upload.page').then((m) => m.QrUploadPage),
+  },
+  {
     path: '',
     redirectTo: '/auth/login',
     pathMatch: 'full',

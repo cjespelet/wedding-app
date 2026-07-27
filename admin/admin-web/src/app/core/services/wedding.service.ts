@@ -15,6 +15,8 @@ export interface WeddingInfo {
   instructions?: string;
   allowPhotoSharing: boolean;
   maxSharesPerGuest: number;
+  allowQrUpload: boolean;
+  qrUploadToken?: string | null;
 }
 
 @Injectable({
@@ -36,6 +38,13 @@ export class WeddingService {
     return this.http
       .put<WeddingInfo | WeddingInfo[]>(`${environment.apiBaseUrl}/wedding`, payload)
       .pipe(map((resp) => (Array.isArray(resp) ? resp[0] : resp)));
+  }
+
+  regenerateQrUploadToken() {
+    return this.http.post<{ qrUploadToken: string; allowQrUpload: boolean }>(
+      `${environment.apiBaseUrl}/admin/qr-upload/regenerate-token`,
+      {},
+    );
   }
 }
 

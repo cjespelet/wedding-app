@@ -80,7 +80,7 @@ authRouter.post('/login', async (req, res) => {
     }
   }
 
-  if (!guest || !validGuest) {
+  if (!guest || !validGuest || guest.isSystemGuest) {
     return res.status(401).json({ error: 'Invalid guest credentials' });
   }
 
@@ -222,6 +222,10 @@ authRouter.post('/register', async (req, res) => {
 
   if (!guest) {
     return res.status(404).json({ error: 'Guest group not found' });
+  }
+
+  if (guest.isSystemGuest) {
+    return res.status(400).json({ error: 'Invitación no válida' });
   }
 
   if (guest.username) {

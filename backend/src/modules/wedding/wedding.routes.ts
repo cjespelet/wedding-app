@@ -47,7 +47,8 @@ weddingRouter.get('/:slug', async (req, res) => {
     return res.status(404).json({ error: 'Wedding not found' });
   }
 
-  return res.json(wedding);
+  const { qrUploadToken: _token, ...publicWedding } = wedding;
+  return res.json(publicWedding);
 });
 
 // Admin: get own wedding by id
@@ -91,6 +92,7 @@ weddingRouter.put('/', requireAuth(['super_admin', 'wedding_admin']), async (req
     instructions,
     allowPhotoSharing,
     maxSharesPerGuest,
+    allowQrUpload,
   } = req.body as {
     brideName?: string;
     groomName?: string;
@@ -102,6 +104,7 @@ weddingRouter.put('/', requireAuth(['super_admin', 'wedding_admin']), async (req
     instructions?: string;
     allowPhotoSharing?: boolean;
     maxSharesPerGuest?: number;
+    allowQrUpload?: boolean;
   };
 
   const wedding = await prisma.wedding.update({
@@ -117,6 +120,7 @@ weddingRouter.put('/', requireAuth(['super_admin', 'wedding_admin']), async (req
       instructions,
       allowPhotoSharing,
       maxSharesPerGuest,
+      allowQrUpload,
     },
   });
 

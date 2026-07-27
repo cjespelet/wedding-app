@@ -1,6 +1,8 @@
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 
+import { ensureWeddingQrUploadSetup } from '../src/lib/qr-upload.js';
+
 const prisma = new PrismaClient();
 
 async function main() {
@@ -105,7 +107,9 @@ async function main() {
     });
   }
 
-  console.log('Seeded roles, admin users, and wedding with id', wedding.id);
+  await ensureWeddingQrUploadSetup(wedding.id);
+
+  console.log('Seeded roles, admin users, wedding with id', wedding.id);
 }
 
 main()

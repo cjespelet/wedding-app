@@ -266,9 +266,11 @@ export class GalleryPage implements OnInit, OnDestroy {
   }
 
   displayHandle(photo: FeedPhoto): string {
-    const u = photo.author?.username;
-    if (u) return `@${u}`;
-    return 'Fotógrafo';
+    const author = photo.author;
+    if (!author) return 'Fotógrafo';
+    if (author.username === 'qrupload') return author.fullName || 'Salón QR';
+    if (author.username) return `@${author.username}`;
+    return author.fullName || 'Invitado';
   }
 
   /** Foto subida por el invitado actual */

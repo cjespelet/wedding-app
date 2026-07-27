@@ -7,6 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { WeddingService } from '../../core/services/wedding.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   standalone: true,
@@ -28,6 +29,8 @@ export class WeddingSettingsPage implements OnInit {
   private readonly weddingService = inject(WeddingService);
   private readonly cdRef = inject(ChangeDetectorRef);
 
+  private readonly snackBar = inject(MatSnackBar);
+
   loading = false;
   saveSuccess = '';
   saveError = '';
@@ -42,7 +45,11 @@ export class WeddingSettingsPage implements OnInit {
     description: [''],
     allowPhotoSharing: [true],
     maxSharesPerGuest: [5],
+    allowQrUpload: [true],
   });
+
+  qrUploadUrl = '';
+  regeneratingQrToken = false;
 
   ngOnInit(): void {
     this.loading = true;
@@ -59,7 +66,9 @@ export class WeddingSettingsPage implements OnInit {
             description: w.description,
             allowPhotoSharing: w.allowPhotoSharing,
             maxSharesPerGuest: w.maxSharesPerGuest,
+            allowQrUpload: w.allowQrUpload ?? true,
           });
+          this.qrUploadUrl = this.buildQrUploadUrl(w.qrUploadToken);
         }
         this.loading = false;
       },
@@ -86,6 +95,7 @@ export class WeddingSettingsPage implements OnInit {
         description: value.description ?? undefined,
         allowPhotoSharing: value.allowPhotoSharing ?? undefined,
         maxSharesPerGuest: value.maxSharesPerGuest ?? undefined,
+        allowQrUpload: value.allowQrUpload ?? undefined,
       })
       .subscribe({
         next: () => {
@@ -106,6 +116,40 @@ export class WeddingSettingsPage implements OnInit {
   clearAlerts() {
     this.saveSuccess = '';
     this.saveError = '';
+  }
+
+  private buildQrUploadUrl(token?: string | null): string {
+    if (!token) {
+      return '';
+    }
+    const base = environment.guestAppUrl.replace(/\/$/, '');
+    return `${base}/subir-fotos?w=${encodeURIComponent(token)}`;
+  }
+
+  copyQrUploadUrl(): void {
+    if (!this.qrUploadUrl) {
+      return;
+    }
+    navigator.clipboard.writeText(this.qrUploadUrl).then(() => {
+      this.snackBar.open('Link copiado', 'OK', { duration: 2500 });
+    });
+  }
+
+  regenerateQrToken(): void {
+    this.regeneratingQrToken = true;
+    this.weddingService.regenerateQrUploadToken().subscribe({
+      next: (res) => {
+        this.qrUploadUrl = this.buildQrUploadUrl(res.qrUploadToken);
+        this.regeneratingQrToken = false;
+        this.saveSuccess = 'Nuevo link de QR generado. Actualizá el código impreso.';
+        this.cdRef.detectChanges();
+      },
+      error: () => {
+        this.regeneratingQrToken = false;
+        this.saveError = 'No se pudo regenerar el link del QR.';
+        this.cdRef.detectChanges();
+      },
+    });
   }
 }
 

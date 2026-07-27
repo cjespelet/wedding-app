@@ -77,6 +77,46 @@
           </mat-form-field>
         </div>
 
+        <!-- Subida de fotos por QR en el salón -->
+        <div class="full qr-upload-section">
+          <h2 class="section-title h6">QR de fotos en el salón</h2>
+          <p class="section-help">
+            Link para imprimir en un QR. Los invitados suben fotos sin login; en la galería aparecen como
+            <strong>Salón QR</strong> (@qrupload).
+          </p>
+
+          <div class="form-check mb-3">
+            <input
+              id="allowQrUpload"
+              type="checkbox"
+              class="form-check-input"
+              formControlName="allowQrUpload"
+            />
+            <label class="form-check-label" for="allowQrUpload">
+              Permitir subida de fotos desde el QR del salón
+            </label>
+          </div>
+
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>Link para el QR impreso</mat-label>
+            <input matInput [value]="qrUploadUrl" readonly />
+          </mat-form-field>
+
+          <div class="qr-upload-actions">
+            <button type="button" class="btn btn-outline-secondary" [disabled]="!qrUploadUrl" (click)="copyQrUploadUrl()">
+              Copiar link
+            </button>
+            <button
+              type="button"
+              class="btn btn-outline-primary"
+              [disabled]="regeneratingQrToken"
+              (click)="regenerateQrToken()"
+            >
+              {{ regeneratingQrToken ? 'Generando…' : 'Regenerar link' }}
+            </button>
+          </div>
+        </div>
+
         <div class="full mt-2">
           <button
             type="submit"

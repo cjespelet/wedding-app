@@ -4,9 +4,8 @@
 
 export const environment = {
   production: false,
-  // Con `ng serve` + proxy.conf.json las peticiones van a /api en el mismo host (ej. :4200)
-  // y el dev server las reenvía a localhost:4000. Así el celular no necesita abrir el puerto 4000.
   apiBaseUrl: '/api',
+  weddingSlug: 'demo-wedding',
 };
 
 /*

@@ -42,6 +42,10 @@ model Wedding {
   allowPhotoSharing  Boolean @default(true)
   maxSharesPerGuest  Int     @default(5)
 
+  // Subida de fotos desde QR impreso en el salón (sin login)
+  allowQrUpload   Boolean @default(true)
+  qrUploadToken   String? @unique
+
   coverImageUrl String?
 
   admins    User[]   @relation("WeddingAdmins")
@@ -95,6 +99,9 @@ model Guest {
   // Reglas y tracking para compartir fotos desde la app
   canSharePhotos    Boolean @default(true)
   photoSharesCount  Int     @default(0)
+
+  // Invitado sistema (ej. qrupload) — no aparece en listados ni registro
+  isSystemGuest     Boolean @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

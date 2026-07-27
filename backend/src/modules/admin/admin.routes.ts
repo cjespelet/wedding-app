@@ -3,10 +3,35 @@ import crypto from 'node:crypto';
 import { prisma } from '../../db/prisma.js';
 import { deleteCloudinaryImageByUrl } from '../../lib/cloudinary-images.js';
 import { sumConfirmedGuests } from '../../lib/confirmed-guest-count.js';
+import {
+  ensureWeddingQrUploadSetup,
+  generateQrUploadToken,
+} from '../../lib/qr-upload.js';
 import { generateUniqueUsername } from '../../lib/username.js';
 import { requireAuth, type AuthenticatedRequest } from '../../middleware/auth.js';
 
 export const adminRouter = Router();
+
+// Regenerar token del QR de subida de fotos en el salón
+adminRouter.post(
+  '/qr-upload/regenerate-token',
+  requireAuth(['super_admin', 'wedding_admin']),
+  async (req: AuthenticatedRequest, res) => {
+    const weddingId = req.user?.weddingId;
+    if (!weddingId) {
+      return res.status(400).json({ error: 'No weddingId on token' });
+    }
+
+    await ensureWeddingQrUploadSetup(weddingId);
+    const wedding = await prisma.wedding.update({
+      where: { id: weddingId },
+      data: { qrUploadToken: generateQrUploadToken() },
+      select: { qrUploadToken: true, allowQrUpload: true },
+    });
+
+    return res.json(wedding);
+  },
+);
 
 // Generate invitation codes
 adminRouter.post(
@@ -45,7 +70,7 @@ adminRouter.get('/guests', requireAuth(['super_admin', 'wedding_admin']), async 
   }
 
   const guests = await prisma.guest.findMany({
-    where: { weddingId },
+    where: { weddingId, isSystemGuest: false },
     include: {
       rsvps: {
         orderBy: { createdAt: 'desc' },
@@ -71,6 +96,7 @@ adminRouter.get('/guests-public', async (_req, res) => {
     where: {
       weddingId: wedding.id,
       username: null,
+      isSystemGuest: false,
     },
     orderBy: { fullName: 'asc' },
   });
