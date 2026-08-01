@@ -1,5 +1,69 @@
 
 <div class="gallery-container">
+  <section class="qr-upload-panel">
+    <div class="qr-upload-panel__copy">
+      <h2 class="qr-upload-panel__title">QR del salón</h2>
+      <p class="qr-upload-panel__text">
+        Escaneá desde el celular para subir fotos sin login. En la galería aparecen como
+        <strong>Salón QR</strong>.
+      </p>
+      <p class="qr-upload-panel__status" *ngIf="allowQrUpload === false">
+        La subida por QR está desactivada en configuración.
+      </p>
+
+      <div class="qr-upload-panel__loader" *ngIf="qrLoading">
+        <mat-spinner diameter="32"></mat-spinner>
+      </div>
+
+      <ng-container *ngIf="!qrLoading">
+        <div class="qr-upload-panel__empty" *ngIf="!qrUploadUrl">
+          <p>Todavía no hay QR generado.</p>
+          <button
+            type="button"
+            class="btn btn-primary"
+            [disabled]="qrRegenerating"
+            (click)="generateQrUploadLink()"
+          >
+            {{ qrRegenerating ? 'Generando…' : 'Generar QR' }}
+          </button>
+        </div>
+
+        <div class="qr-upload-panel__ready" *ngIf="qrUploadUrl">
+          <img
+            *ngIf="qrImageUrl"
+            class="qr-upload-panel__image"
+            [src]="qrImageUrl"
+            alt="QR para subir fotos en el salón"
+            width="280"
+            height="280"
+          />
+          <code class="qr-upload-panel__url">{{ qrUploadUrl }}</code>
+          <div class="qr-upload-panel__actions">
+            <button type="button" class="btn btn-outline-secondary" (click)="copyQrUploadUrl()">
+              Copiar link
+            </button>
+            <button
+              type="button"
+              class="btn btn-outline-primary"
+              [disabled]="qrRegenerating"
+              (click)="generateQrUploadLink()"
+            >
+              {{ qrRegenerating ? 'Regenerando…' : 'Regenerar QR' }}
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              [disabled]="!qrImageUrl || qrPdfDownloading"
+              (click)="downloadQrPdf()"
+            >
+              {{ qrPdfDownloading ? 'Generando PDF…' : 'Descargar PDF para imprimir' }}
+            </button>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+  </section>
+
   <div class="toolbar">
     <button type="button" class="btn btn-primary" (click)="fileInput.click()">
       Subir fotos

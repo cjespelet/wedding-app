@@ -7,7 +7,9 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { PhotosService, Photo } from '../../core/services/photos.service';
+import { WeddingService } from '../../core/services/wedding.service';
 import { PhotoPreviewDialogComponent } from './photo-preview-dialog.component';
+import { downloadSalonQrPdf } from './qr-salon-pdf';
 
 @Component({
   standalone: true,
@@ -18,6 +20,7 @@ import { PhotoPreviewDialogComponent } from './photo-preview-dialog.component';
 })
 export class PhotoGalleryManagerPage implements OnInit {
   private readonly photosService = inject(PhotosService);
+  private readonly weddingService = inject(WeddingService);
   private readonly snackBar = inject(MatSnackBar);
   private readonly dialog = inject(MatDialog);
   private readonly cdRef = inject(ChangeDetectorRef);
@@ -25,8 +28,95 @@ export class PhotoGalleryManagerPage implements OnInit {
   photos: Photo[] = [];
   loading = false;
 
+  qrUploadUrl = '';
+  qrLoading = false;
+  qrRegenerating = false;
+  qrPdfDownloading = false;
+  allowQrUpload = true;
+  coupleTitle = 'Jesica & Javier';
+
   ngOnInit(): void {
     this.load();
+    this.loadQrUpload();
+  }
+
+  get qrImageUrl(): string {
+    if (!this.qrUploadUrl) {
+      return '';
+    }
+    return `https://api.qrserver.com/v1/create-qr-code/?size=280x280&margin=10&data=${encodeURIComponent(this.qrUploadUrl)}`;
+  }
+
+  loadQrUpload(): void {
+    this.qrLoading = true;
+    this.weddingService.getWedding().subscribe({
+      next: (wedding) => {
+        this.qrLoading = false;
+        if (!wedding) {
+          return;
+        }
+        this.allowQrUpload = wedding.allowQrUpload ?? true;
+        this.coupleTitle = `${wedding.brideName} & ${wedding.groomName}`;
+        this.qrUploadUrl = this.weddingService.buildQrUploadUrl(wedding.qrUploadToken);
+        this.cdRef.detectChanges();
+      },
+      error: () => {
+        this.qrLoading = false;
+      },
+    });
+  }
+
+  generateQrUploadLink(): void {
+    this.qrRegenerating = true;
+    this.weddingService.regenerateQrUploadToken().subscribe({
+      next: (res) => {
+        this.qrRegenerating = false;
+        this.allowQrUpload = res.allowQrUpload;
+        this.qrUploadUrl = this.weddingService.buildQrUploadUrl(res.qrUploadToken);
+        this.snackBar.open('QR listo para escanear', 'OK', { duration: 2500 });
+        this.cdRef.detectChanges();
+      },
+      error: () => {
+        this.qrRegenerating = false;
+        this.snackBar.open('No se pudo generar el QR', 'Cerrar', { duration: 3000 });
+      },
+    });
+  }
+
+  copyQrUploadUrl(): void {
+    if (!this.qrUploadUrl) {
+      return;
+    }
+    navigator.clipboard.writeText(this.qrUploadUrl).then(() => {
+      this.snackBar.open('Link copiado', 'OK', { duration: 2500 });
+    });
+  }
+
+  async downloadQrPdf(): Promise<void> {
+    if (!this.qrImageUrl || !this.qrUploadUrl) {
+      return;
+    }
+
+    this.qrPdfDownloading = true;
+    this.cdRef.detectChanges();
+
+    try {
+      const safeName = this.coupleTitle
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '');
+      await downloadSalonQrPdf({
+        coupleTitle: this.coupleTitle,
+        qrImageUrl: `https://api.qrserver.com/v1/create-qr-code/?size=500x500&margin=10&data=${encodeURIComponent(this.qrUploadUrl)}`,
+        fileName: `qr-fotos-salon-${safeName || 'boda'}.pdf`,
+      });
+      this.snackBar.open('PDF descargado', 'OK', { duration: 2500 });
+    } catch {
+      this.snackBar.open('No se pudo generar el PDF', 'Cerrar', { duration: 3000 });
+    } finally {
+      this.qrPdfDownloading = false;
+      this.cdRef.detectChanges();
+    }
   }
 
   load() {
@@ -80,11 +170,9 @@ export class PhotoGalleryManagerPage implements OnInit {
 
   remove(photo: Photo) {
     if (!confirm('¿Eliminar esta foto?')) return;
-    // Actualiza la UI inmediatamente
     this.photos = this.photos.filter((p) => p.id !== photo.id);
     this.cdRef.detectChanges();
 
-    // Sincroniza con el backend y recarga por si cambió algo más
     this.photosService.remove(photo.id).subscribe(() => this.load());
   }
 
@@ -94,6 +182,4 @@ export class PhotoGalleryManagerPage implements OnInit {
       data: photo,
     });
   }
-
 }
-

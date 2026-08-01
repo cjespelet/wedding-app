@@ -117,6 +117,22 @@
           </div>
         </div>
 
+        <!-- Instructivo confirmación de asistencia -->
+        <div class="full qr-upload-section">
+          <h2 class="section-title h6">Instructivo — Confirmar asistencia</h2>
+          <p class="section-help">
+            PDF decorado para compartir o imprimir. Explica en 3 pasos cómo confirmar desde la invitación y la app.
+          </p>
+          <button
+            type="button"
+            class="btn btn-primary"
+            [disabled]="rsvpPdfDownloading"
+            (click)="downloadRsvpInstructionsPdf()"
+          >
+            {{ rsvpPdfDownloading ? 'Generando PDF…' : 'Descargar instructivo (PDF)' }}
+          </button>
+        </div>
+
         <div class="full mt-2">
           <button
             type="submit"

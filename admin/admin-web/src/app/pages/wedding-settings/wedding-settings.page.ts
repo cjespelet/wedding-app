@@ -8,6 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { WeddingService } from '../../core/services/wedding.service';
 import { environment } from '../../../environments/environment';
+import { downloadRsvpInstructionsPdf } from './rsvp-instructions-pdf';
 
 @Component({
   standalone: true,
@@ -50,6 +51,7 @@ export class WeddingSettingsPage implements OnInit {
 
   qrUploadUrl = '';
   regeneratingQrToken = false;
+  rsvpPdfDownloading = false;
 
   ngOnInit(): void {
     this.loading = true;
@@ -119,11 +121,7 @@ export class WeddingSettingsPage implements OnInit {
   }
 
   private buildQrUploadUrl(token?: string | null): string {
-    if (!token) {
-      return '';
-    }
-    const base = environment.guestAppUrl.replace(/\/$/, '');
-    return `${base}/subir-fotos?w=${encodeURIComponent(token)}`;
+    return this.weddingService.buildQrUploadUrl(token);
   }
 
   copyQrUploadUrl(): void {
@@ -150,6 +148,28 @@ export class WeddingSettingsPage implements OnInit {
         this.cdRef.detectChanges();
       },
     });
+  }
+
+  async downloadRsvpInstructionsPdf(): Promise<void> {
+    const bride = this.form.value.brideName?.trim() || 'Jesica';
+    const groom = this.form.value.groomName?.trim() || 'Javier';
+    this.rsvpPdfDownloading = true;
+    this.cdRef.detectChanges();
+
+    try {
+      await downloadRsvpInstructionsPdf({
+        coupleTitle: `${bride} & ${groom}`,
+        invitationUrl: environment.invitationBaseUrl.replace(/\/$/, '') + '/',
+        appUrl: environment.guestAppUrl.replace(/\/$/, ''),
+        fileName: 'como-confirmar-asistencia.pdf',
+      });
+      this.snackBar.open('PDF descargado', 'OK', { duration: 2500 });
+    } catch {
+      this.snackBar.open('No se pudo generar el PDF', 'Cerrar', { duration: 3000 });
+    } finally {
+      this.rsvpPdfDownloading = false;
+      this.cdRef.detectChanges();
+    }
   }
 }
 

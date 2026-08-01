@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -29,6 +29,7 @@ export class LoginPage {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   loading = false;
   backendError = '';
@@ -51,10 +52,15 @@ export class LoginPage {
         this.loading = false;
         this.router.navigateByUrl('/dashboard');
       },
-      error: () => {
+      error: (err) => {
         this.loading = false;
-        this.backendError = 'Credenciales inválidas. Verifica email y contraseña.';
-        this.snackBar.open('Credenciales inválidas', 'Cerrar', { duration: 3000 });
+        const apiError = err?.error?.error;
+        this.backendError =
+          apiError === 'Invalid credentials'
+            ? 'Credenciales inválidas. Verifica email y contraseña.'
+            : 'No se pudo iniciar sesión. Probá de nuevo.';
+        this.cdr.detectChanges();
+        this.snackBar.open(this.backendError, 'Cerrar', { duration: 3000 });
       },
     });
   }

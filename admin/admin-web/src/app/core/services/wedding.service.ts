@@ -46,5 +46,13 @@ export class WeddingService {
       {},
     );
   }
+
+  buildQrUploadUrl(token?: string | null): string {
+    if (!token) {
+      return '';
+    }
+    const base = environment.guestAppUrl.replace(/\/$/, '');
+    return `${base}/subir-fotos?w=${encodeURIComponent(token)}`;
+  }
 }
 

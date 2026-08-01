@@ -32,9 +32,16 @@
 
         <!-- Usuario -->
         <ion-item lines="none" class="input-item">
-          <ion-icon name="at-outline" slot="start"></ion-icon>
-          <ion-input placeholder="Usuario" formControlName="username" autocomplete="username"></ion-input>
+          <ion-icon name="person-outline" slot="start"></ion-icon>
+          <ion-input
+            placeholder="Usuario"
+            formControlName="username"
+            autocomplete="username"
+            maxlength="15"
+          ></ion-input>
         </ion-item>
+
+        <p class="field-hint">No es un email. Elegí un nombre corto (máx. 15 caracteres) para ingresar a la app.</p>
 
         <ion-note color="danger"
           *ngIf="form.get('username')?.touched && form.get('username')?.hasError('required')">
@@ -43,6 +50,10 @@
         <ion-note color="danger"
           *ngIf="form.get('username')?.touched && form.get('username')?.hasError('minlength')">
           El usuario debe tener al menos 2 caracteres.
+        </ion-note>
+        <ion-note color="danger"
+          *ngIf="form.get('username')?.touched && form.get('username')?.hasError('maxlength')">
+          El usuario puede tener como máximo 15 caracteres.
         </ion-note>
 
         <!-- Password -->

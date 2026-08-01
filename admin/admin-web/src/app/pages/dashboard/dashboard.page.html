@@ -69,14 +69,26 @@
   </ng-template>
 
 
-  <div class="summary-row">
+  <div *ngIf="loadError" class="dashboard-alert dashboard-alert-error">
+    {{ loadError }}
+    <button type="button" class="btn btn-sm btn-outline-secondary ms-2" (click)="load()">
+      Reintentar
+    </button>
+  </div>
+
+  <div *ngIf="loadingGuests" class="dashboard-loading">
+    <mat-spinner diameter="36"></mat-spinner>
+    <span>Cargando invitados…</span>
+  </div>
+
+  <div class="summary-row" [class.summary-row-muted]="loadingGuests">
     <mat-card class="summary-card summary-blue">
       <mat-card-content>
         <h2 class="summary-title">Invitados</h2>
         <p class="summary-subtitle">Adultos</p>
-        <p><strong class="summary-subvalue">{{ invitedAdults }}</strong></p>
+        <p><strong class="summary-subvalue">{{ loadingGuests ? '—' : invitedAdults }}</strong></p>
         <p class="summary-subtitle">Menores</p>
-        <p><strong class="summary-subvalue">{{ invitedMinors }}</strong></p>
+        <p><strong class="summary-subvalue">{{ loadingGuests ? '—' : invitedMinors }}</strong></p>
       </mat-card-content>
     </mat-card>
 
@@ -84,9 +96,9 @@
       <mat-card-content>
         <h2 class="summary-title">Confirmados</h2>
         <p class="summary-subtitle">Adultos</p>
-        <p><strong class="summary-subvalue">{{ confirmedAdults }}</strong></p>
+        <p><strong class="summary-subvalue">{{ loadingGuests ? '—' : confirmedAdults }}</strong></p>
         <p class="summary-subtitle">Menores</p>
-        <p><strong class="summary-subvalue">{{ confirmedMinors }}</strong></p>
+        <p><strong class="summary-subvalue">{{ loadingGuests ? '—' : confirmedMinors }}</strong></p>
       </mat-card-content>
     </mat-card>
 
@@ -94,9 +106,9 @@
       <mat-card-content>
         <h2 class="summary-title">Presentes</h2>
         <p class="summary-subtitle">Adultos</p>
-        <p><strong class="summary-subvalue">{{ presentAdults }}</strong></p>
+        <p><strong class="summary-subvalue">{{ loadingGuests ? '—' : presentAdults }}</strong></p>
         <p class="summary-subtitle">Menores</p>
-        <p><strong class="summary-subvalue">{{ presentMinors }}</strong></p>
+        <p><strong class="summary-subvalue">{{ loadingGuests ? '—' : presentMinors }}</strong></p>
       </mat-card-content>
     </mat-card>
   </div>
@@ -105,21 +117,21 @@
     <mat-card class="summary-card summary-blue">
       <mat-card-content>
         <h2 class="summary-title">Total invitados</h2>
-        <p><strong class="summary-value">{{ totalInvited }}</strong></p>
+        <p><strong class="summary-value">{{ loadingGuests ? '—' : totalInvited }}</strong></p>
       </mat-card-content>
     </mat-card>
 
     <mat-card class="summary-card summary-green">
       <mat-card-content>
         <h2 class="summary-title">Total confirmados</h2>
-        <p><strong class="summary-value">{{ totalConfirmed }}</strong></p>
+        <p><strong class="summary-value">{{ loadingGuests ? '—' : totalConfirmed }}</strong></p>
       </mat-card-content>
     </mat-card>
 
     <mat-card class="summary-card summary-red">
       <mat-card-content>
         <h2 class="summary-title">Presentes ahora</h2>
-        <p><strong class="summary-value">{{ totalPresent }}</strong></p>
+        <p><strong class="summary-value">{{ loadingGuests ? '—' : totalPresent }}</strong></p>
       </mat-card-content>
     </mat-card>
   </div>
