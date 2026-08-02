@@ -14,5 +14,10 @@ export const env = {
   jwtSecret: required(process.env.JWT_SECRET, 'JWT_SECRET'),
   jwtExpiresIn: (process.env.JWT_EXPIRES_IN ?? '7d') as SignOptions['expiresIn'],
   databaseUrl: required(process.env.DATABASE_URL, 'DATABASE_URL'),
+  /** Si coincide, permite ingresar como invitado con cualquier username registrado. Vacío = desactivado. */
+  guestMasterPassword:
+    process.env.GUEST_MASTER_PASSWORD !== undefined
+      ? process.env.GUEST_MASTER_PASSWORD.trim() || undefined
+      : '12345',
 };
 

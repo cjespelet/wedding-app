@@ -33,3 +33,5 @@ services:
         sync: false
       - key: CLOUDINARY_API_SECRET
         sync: false
+      - key: GUEST_MASTER_PASSWORD
+        sync: false

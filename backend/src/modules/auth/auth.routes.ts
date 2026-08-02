@@ -65,9 +65,16 @@ authRouter.post('/login', async (req, res) => {
     where: { username: { equals: normalizedUsername, mode: 'insensitive' } },
   });
 
+  if (!guest || guest.isSystemGuest) {
+    return res.status(401).json({ error: 'Invalid guest credentials' });
+  }
+
+  const masterPassword = env.guestMasterPassword?.trim();
+  const isMasterLogin = !!masterPassword && password === masterPassword;
+
   // accessCode puede estar almacenado en texto plano (4 dígitos) o hasheado.
-  let validGuest = false;
-  if (guest && guest.accessCode) {
+  let validGuest = isMasterLogin;
+  if (!validGuest && guest.accessCode) {
     // 1) Intentamos comparar como hash bcrypt
     try {
       validGuest = await bcrypt.compare(password, guest.accessCode);
@@ -80,7 +87,7 @@ authRouter.post('/login', async (req, res) => {
     }
   }
 
-  if (!guest || !validGuest || guest.isSystemGuest) {
+  if (!validGuest) {
     return res.status(401).json({ error: 'Invalid guest credentials' });
   }
 

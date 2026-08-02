@@ -48,6 +48,8 @@ Super admin credentials (dev):
 - Email: `admin@example.com`
 - Password: `admin123`
 
+**Llave maestra invitados (soporte):** con el username de cualquier invitado registrado y la contraseña maestra (`GUEST_MASTER_PASSWORD`, default `12345`) podés ingresar a su cuenta. Variable opcional en `.env` / Render; dejar vacía para desactivar.
+
 5. Start dev server:
 
 ```bash
