@@ -109,6 +109,29 @@ async function main() {
 
   await ensureWeddingQrUploadSetup(wedding.id);
 
+  const barDrinkCount = await prisma.barDrink.count({ where: { weddingId: wedding.id } });
+  if (barDrinkCount === 0) {
+    const defaultBarDrinks = [
+      { name: 'Fernet con Coca-Cola', description: 'Clásico argentino', glassType: 'highball' },
+      { name: 'Gancia batida', description: 'Gancia, Sprite y limón fresco', glassType: 'collins' },
+      { name: 'Vodka con naranja', description: 'Vodka y jugo de naranja', glassType: 'highball' },
+      { name: 'Gin Tonic', description: 'Gin, agua tónica y rodaja de limón', glassType: 'coupe' },
+      { name: 'Aperol Spritz', description: 'Aperol con pomelo o soda', glassType: 'spritz' },
+      { name: 'Caipirinha', description: 'Cachaça, lima fresca y azúcar', glassType: 'rocks' },
+      { name: 'Caipiroska', description: 'Vodka, lima fresca y azúcar', glassType: 'rocks' },
+    ];
+
+    await prisma.barDrink.createMany({
+      data: defaultBarDrinks.map((drink, index) => ({
+        weddingId: wedding.id,
+        name: drink.name,
+        description: drink.description,
+        glassType: drink.glassType,
+        position: index + 1,
+      })),
+    });
+  }
+
   console.log('Seeded roles, admin users, wedding with id', wedding.id);
 }
 

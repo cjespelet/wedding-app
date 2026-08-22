@@ -1,0 +1,48 @@
+<form [formGroup]="form" (ngSubmit)="submit()" class="bar-drink-form card">
+  <div class="card-body">
+    <div class="row g-3 align-items-end">
+      <div class="col-md-3">
+        <label class="form-label">Trago</label>
+        <input
+          type="text"
+          class="form-control form-control-lg rounded-pill"
+          formControlName="name"
+          placeholder="Gin Tonic"
+        />
+      </div>
+
+      <div class="col-md-4">
+        <label class="form-label">Descripción</label>
+        <input
+          type="text"
+          class="form-control form-control-lg rounded-pill"
+          formControlName="description"
+          placeholder="Gin, tónica y limón"
+        />
+      </div>
+
+      <div class="col-md-3">
+        <label class="form-label">Tipo de vaso</label>
+        <select class="form-select form-select-lg rounded-pill" formControlName="glassType">
+          <option *ngFor="let option of glassOptions" [value]="option.value">
+            {{ option.label }}
+          </option>
+        </select>
+      </div>
+
+      <div class="col-md-2 d-flex gap-2 justify-content-end">
+        <button type="submit" class="btn btn-primary btn-lg flex-grow-1">
+          {{ editingDrink ? 'Guardar' : 'Agregar' }}
+        </button>
+        <button
+          *ngIf="editingDrink"
+          type="button"
+          class="btn btn-outline-secondary btn-lg"
+          (click)="onCancel()"
+        >
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+</form>

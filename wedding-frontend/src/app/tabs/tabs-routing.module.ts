@@ -16,6 +16,10 @@ const routes: Routes = [
         loadChildren: () => import('../menu/menu.module').then(m => m.MenuPageModule)
       },
       {
+        path: 'bar',
+        loadChildren: () => import('../bar/bar.module').then(m => m.BarPageModule)
+      },
+      {
         path: 'gallery',
         loadChildren: () => import('../gallery/gallery.module').then(m => m.GalleryPageModule)
       },

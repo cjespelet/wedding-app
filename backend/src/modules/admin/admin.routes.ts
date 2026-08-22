@@ -8,6 +8,7 @@ import {
   generateQrUploadToken,
 } from '../../lib/qr-upload.js';
 import { generateUniqueUsername } from '../../lib/username.js';
+import { deleteGuestWithRelations, GuestDeleteError } from '../../lib/delete-guest.js';
 import { requireAuth, type AuthenticatedRequest } from '../../middleware/auth.js';
 
 export const adminRouter = Router();
@@ -263,11 +264,24 @@ adminRouter.post(
   },
 );
 
-// Delete guest
-adminRouter.delete('/guests/:id', requireAuth(['super_admin', 'wedding_admin']), async (req, res) => {
+// Delete guest (RSVP, registro, likes, etc.)
+adminRouter.delete('/guests/:id', requireAuth(['super_admin', 'wedding_admin']), async (req: AuthenticatedRequest, res) => {
   const { id } = req.params;
-  await prisma.guest.delete({ where: { id } });
-  return res.status(204).end();
+  const weddingId = req.user?.weddingId;
+  if (!weddingId) {
+    return res.status(400).json({ error: 'No weddingId on token' });
+  }
+
+  try {
+    await deleteGuestWithRelations(id, weddingId);
+    return res.status(204).end();
+  } catch (err) {
+    if (err instanceof GuestDeleteError) {
+      return res.status(err.status).json({ error: err.message });
+    }
+    console.error('delete guest failed', err);
+    return res.status(500).json({ error: 'No se pudo eliminar el invitado' });
+  }
 });
 
 // Photo moderation list

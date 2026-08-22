@@ -57,6 +57,7 @@ model Wedding {
   songs     SongRequest[]
   guestbook GuestbookMessage[]
   menuSteps MenuStep[]
+  barDrinks BarDrink[]
   djMessages DjMessage[]
   guestNotifications GuestNotification[]
 
@@ -319,5 +320,20 @@ model MenuStep {
   position    Int
 
   createdAt   DateTime @default(now())
+}
+
+model BarDrink {
+  id          String   @id @default(cuid())
+  wedding     Wedding  @relation(fields: [weddingId], references: [id])
+  weddingId   String
+
+  name        String
+  description String?
+  glassType   String   @default("highball") // highball | collins | coupe | spritz | rocks
+
+  position    Int
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 

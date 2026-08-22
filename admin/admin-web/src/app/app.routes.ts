@@ -8,6 +8,7 @@ import { WeddingSettingsPage } from './pages/wedding-settings/wedding-settings.p
 import { GuestListPage } from './pages/guests/guest-list.page';
 import { PhotoGalleryManagerPage } from './pages/photos/photo-gallery-manager.page';
 import { MenuManagerPage } from './pages/menu/menu-manager/menu-manager.page';
+import { BarDrinksManagerPage } from './pages/bar-drinks/bar-drinks-manager/bar-drinks-manager.page';
 import { DjMessagesPage } from './pages/dj-messages/dj-messages.page';
 
 export const routes: Routes = [
@@ -51,6 +52,12 @@ export const routes: Routes = [
       {
         path: 'menu',
         component: MenuManagerPage,
+        canActivate: [roleGuard],
+        data: { roles: ['super_admin', 'wedding_admin'] },
+      },
+      {
+        path: 'bar-drinks',
+        component: BarDrinksManagerPage,
         canActivate: [roleGuard],
         data: { roles: ['super_admin', 'wedding_admin'] },
       },

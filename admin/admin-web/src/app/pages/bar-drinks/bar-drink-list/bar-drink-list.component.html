@@ -1,0 +1,24 @@
+<div *ngIf="drinks.length === 0" class="text-muted">
+  No hay tragos cargados aún.
+</div>
+
+<div *ngIf="drinks.length > 0" class="bar-drink-list" cdkDropList (cdkDropListDropped)="drop($event)">
+  <div class="bar-drink-item" *ngFor="let drink of drinks" cdkDrag>
+    <div class="bar-drink-drag-handle" cdkDragHandle>
+      <i class="fa fa-grip-vertical"></i>
+    </div>
+    <div class="bar-drink-glass">{{ glassLabel(drink.glassType) }}</div>
+    <div class="bar-drink-main">
+      <div class="bar-drink-name">{{ drink.name }}</div>
+      <div class="bar-drink-description">{{ drink.description || '—' }}</div>
+    </div>
+    <div class="bar-drink-actions">
+      <button type="button" class="btn btn-outline-primary btn-sm me-2" (click)="editDrink.emit(drink)">
+        Editar
+      </button>
+      <button type="button" class="btn btn-outline-danger btn-sm" (click)="deleteDrink.emit(drink)">
+        Eliminar
+      </button>
+    </div>
+  </div>
+</div>

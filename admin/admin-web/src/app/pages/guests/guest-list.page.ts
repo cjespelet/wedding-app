@@ -220,13 +220,19 @@ export class GuestListPage implements OnInit, AfterViewInit {
   }
 
   deleteGuest(guest: Guest) {
-    if (!confirm(`¿Eliminar a ${guest.fullName}?`)) return;
+    const rsvp = lastRsvp(guest);
+    const extra =
+      rsvp || guest.username
+        ? '\n\nSe borrarán también su confirmación y cuenta (si tenía). Podés crear otro invitado con los mismos cupos.'
+        : '';
+    if (!confirm(`¿Eliminar a ${guest.fullName}?${extra}`)) return;
     this.guestsService.remove(guest.id).subscribe({
       next: () => {
         this.snackBar.open('Invitado eliminado', 'Cerrar', { duration: 3000 });
         this.load();
       },
-      error: () => this.snackBar.open('Error al eliminar invitado', 'Cerrar', { duration: 3000 }),
+      error: (err) =>
+        this.snackBar.open(err?.error?.error || 'Error al eliminar invitado', 'Cerrar', { duration: 4000 }),
     });
   }
 

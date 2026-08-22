@@ -1,0 +1,19 @@
+<div class="bar-drinks-manager-container">
+  <h1 class="mb-2">Carta de barra</h1>
+  <p class="text-muted mb-3">
+    Tragos disponibles en la barra. Los invitados los ven en la app con un ícono de vaso.
+  </p>
+
+  <app-bar-drink-form
+    [editingDrink]="editingDrink"
+    (saveDrink)="onSaveDrink($event)"
+    (cancelEdit)="onCancelEdit()"
+  ></app-bar-drink-form>
+
+  <app-bar-drink-list
+    [drinks]="drinks"
+    (editDrink)="onEdit($event)"
+    (deleteDrink)="onDelete($event)"
+    (reorderDrinks)="onReorder($event)"
+  ></app-bar-drink-list>
+</div>

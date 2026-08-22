@@ -1,0 +1,44 @@
+.bar-drink-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.bar-drink-item {
+  display: grid;
+  grid-template-columns: 32px 120px 1fr auto;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.bar-drink-drag-handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  color: #999;
+}
+
+.bar-drink-glass {
+  font-size: 12px;
+  color: #8a6d2b;
+  font-weight: 600;
+}
+
+.bar-drink-name {
+  font-weight: 600;
+}
+
+.bar-drink-description {
+  font-size: 13px;
+  color: #666;
+}
+
+.bar-drink-actions {
+  display: flex;
+  justify-content: flex-end;
+}

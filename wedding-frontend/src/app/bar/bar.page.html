@@ -1,0 +1,69 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Carta de barra</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-refresher slot="fixed" (ionRefresh)="load($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div class="bar-container">
+    <div class="bar-frame">
+      <div class="leaf leaf-top-left"></div>
+      <div class="leaf leaf-top-right"></div>
+      <div class="leaf leaf-bottom-center"></div>
+
+      <div class="bar-logo-wrap">
+        <img src="assets/img/lg-menu.png" alt="Logo boda" class="bar-logo" />
+      </div>
+
+      <div class="bar-header">
+        <h2 class="bar-title">BARRA</h2>
+        <p class="bar-subtitle-line"></p>
+      </div>
+
+      <div *ngIf="loading" class="loading">
+        <ion-spinner name="crescent"></ion-spinner>
+      </div>
+
+      <div *ngIf="loadError && !loading" class="empty empty-error">
+        No pudimos cargar la carta. Verificá que el backend esté activo e iniciá sesión de nuevo.
+      </div>
+
+      <div *ngIf="drinks.length === 0 && !loading && !loadError" class="empty">
+        La carta de barra se publicará pronto.
+      </div>
+
+      <div *ngIf="drinks.length > 0" class="bar-list">
+        <article *ngFor="let drink of drinks" class="bar-item">
+          <div class="bar-item-name-row">
+            <app-bar-drink-icon [name]="drinkIcon(drink)" [size]="iconSize"></app-bar-drink-icon>
+            <h3 class="bar-item-name">{{ drink.name }}</h3>
+            <span class="bar-item-badges" *ngIf="drinkBadges(drink).length">
+              <app-bar-drink-icon
+                *ngFor="let badge of drinkBadges(drink)"
+                class="bar-lucide-icon--badge"
+                [name]="badge"
+                [size]="smallIconSize"
+              ></app-bar-drink-icon>
+            </span>
+          </div>
+
+          <div class="bar-item-description-row" *ngIf="drink.description">
+            <span class="bar-description-icons" *ngIf="ingredientIcons(drink.description).length">
+              <app-bar-drink-icon
+                *ngFor="let ingredient of ingredientIcons(drink.description)"
+                class="bar-lucide-icon--ingredient"
+                [name]="ingredient"
+                [size]="smallIconSize"
+              ></app-bar-drink-icon>
+            </span>
+            <p class="bar-item-description">{{ drink.description }}</p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </div>
+</ion-content>
