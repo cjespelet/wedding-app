@@ -88,7 +88,8 @@
     <aside class="salon-sidebar assign-sidebar">
       <section class="panel stats-panel">
         <h2>Resumen</h2>
-        <p><strong>{{ seating.stats.unassignedGuests }}</strong> grupos sin mesa ({{ seating.stats.unassignedSeats }} personas)</p>
+        <p><strong>{{ seating.stats.unassignedGuests }}</strong> grupos sin mesa ({{ seating.stats.unassignedSeats }} personas confirmadas)</p>
+        <p class="assign-hint">Los cupos usan RSVP confirmado; si no respondió, se cuenta lo invitado.</p>
         <p><strong>{{ seating.stats.assignedGuestGroups }}</strong> / {{ seating.stats.totalGuestGroups }} grupos ya tienen mesa</p>
         <p><strong>{{ seating.stats.assignedSeats }}</strong> / {{ seating.stats.totalSeats }} asientos ocupados</p>
         <p *ngIf="seating.stats.overCapacityTables > 0" class="warn">
@@ -172,6 +173,9 @@
                 <strong>{{ guest.fullName }}</strong>
                 <span class="guest-meta">
                   {{ guest.seatsNeeded }} pers.
+                  <span *ngIf="guest.seatsInvited && guest.seatsInvited !== guest.seatsNeeded">
+                    ({{ guest.seatsInvited }} inv.)
+                  </span>
                   <span *ngIf="guest.familyGroup"> · {{ guest.familyGroup }}</span>
                 </span>
               </div>
@@ -202,7 +206,10 @@
           <li *ngFor="let a of table.assignments" class="guest-item">
             <div class="guest-info">
               <strong>{{ a.fullName }}</strong>
-              <span class="guest-meta">{{ a.seatsUsed }} pers.</span>
+              <span class="guest-meta">
+                {{ a.seatsUsed }} pers.
+                <span *ngIf="a.seatsInvited && a.seatsInvited !== a.seatsUsed">({{ a.seatsInvited }} inv.)</span>
+              </span>
             </div>
             <button type="button" class="btn btn-sm btn-outline-danger" (click)="unassignGuest(a.guestId)">Quitar</button>
           </li>

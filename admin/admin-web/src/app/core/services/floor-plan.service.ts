@@ -11,6 +11,7 @@ export interface TableAssignment {
   fullName: string;
   familyGroup?: string | null;
   seatsUsed: number;
+  seatsInvited?: number;
 }
 
 export interface VenueTable {
@@ -43,6 +44,7 @@ export interface UnassignedGuest {
   adultsCount: number;
   minorsCount: number;
   seatsNeeded: number;
+  seatsInvited?: number;
 }
 
 export interface SeatingStats {

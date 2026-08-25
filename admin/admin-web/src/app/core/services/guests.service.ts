@@ -34,10 +34,29 @@ export function lastRsvp(guest: Guest): GuestRsvp | null {
   return list[0];
 }
 
-/** Adultos/menores confirmados; usa invitación si el RSVP viejo no tiene desglose. */
+/** Adultos/menores confirmados; usa numberOfGuests del RSVP cuando falta desglose. */
 export function confirmedCounts(guest: Guest): { adults: number; minors: number; total: number } | null {
   const rsvp = lastRsvp(guest);
   if (!rsvp?.attending) return null;
+
+  if (rsvp.confirmedAdults != null && rsvp.confirmedMinors != null) {
+    return {
+      adults: rsvp.confirmedAdults,
+      minors: rsvp.confirmedMinors,
+      total: rsvp.confirmedAdults + rsvp.confirmedMinors,
+    };
+  }
+
+  if (rsvp.numberOfGuests != null) {
+    const adults = rsvp.confirmedAdults ?? rsvp.numberOfGuests;
+    const minors = rsvp.confirmedMinors ?? 0;
+    const total =
+      rsvp.confirmedAdults != null || rsvp.confirmedMinors != null
+        ? adults + minors
+        : rsvp.numberOfGuests;
+    return { adults, minors, total };
+  }
+
   const adults = rsvp.confirmedAdults ?? guest.adultsCount ?? 0;
   const minors = rsvp.confirmedMinors ?? guest.minorsCount ?? 0;
   return { adults, minors, total: adults + minors };
