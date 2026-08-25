@@ -345,6 +345,26 @@
   border-color: #c62828;
 }
 
+.btn-outline-secondary {
+  color: #495057;
+  background: #fff;
+  border-color: #adb5bd;
+}
+
+.panel-hint {
+  margin: -4px 0 10px;
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.element-btn-row {
+  flex-direction: column;
+
+  .btn {
+    width: 100%;
+  }
+}
+
 .salon-canvas-wrap {
   background: #fff;
   border: 1px solid #e0e0e0;
@@ -427,6 +447,105 @@
 .table-label-category {
   fill: #444;
   font-weight: 600;
+}
+
+.venue-element {
+  cursor: grab;
+
+  &:active {
+    cursor: grabbing;
+  }
+
+  &.decor-only {
+    cursor: default;
+    pointer-events: none;
+  }
+
+  &.selected .element-shape {
+    stroke: #0d6efd;
+    stroke-width: 5;
+  }
+}
+
+.element-shape {
+  vector-effect: non-scaling-stroke;
+  stroke-width: 3;
+}
+
+.element-bar .element-shape {
+  fill: #fff3e0;
+  stroke: #ef6c00;
+}
+
+.element-chopera .element-shape {
+  fill: #fff8e1;
+  stroke: #f9a825;
+}
+
+.element-dj .element-shape {
+  fill: #ede7f6;
+  stroke: #5e35b1;
+}
+
+.element-food_serving .element-shape {
+  fill: #e8f5e9;
+  stroke: #2e7d32;
+}
+
+.element-label {
+  fill: #222;
+  font-weight: 700;
+  pointer-events: none;
+}
+
+.element-bar .element-label {
+  fill: #e65100;
+}
+
+.element-chopera .element-label {
+  fill: #f57f17;
+}
+
+.element-dj .element-label {
+  fill: #4527a0;
+}
+
+.element-food_serving .element-label {
+  fill: #1b5e20;
+}
+
+.element-icon {
+  fill: none;
+  stroke: #ef6c00;
+  stroke-width: 2;
+  pointer-events: none;
+}
+
+.element-icon-mark {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  pointer-events: none;
+}
+
+.element-chopera .element-icon-mark {
+  color: #f9a825;
+}
+
+.element-dj .element-icon-mark {
+  color: #5e35b1;
+}
+
+.element-icon-dot {
+  fill: #5e35b1;
+  pointer-events: none;
+}
+
+.element-icon-tray {
+  fill: #a5d6a7;
+  stroke: #2e7d32;
+  stroke-width: 2;
+  pointer-events: none;
 }
 
 .canvas-scale {

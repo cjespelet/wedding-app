@@ -11,9 +11,13 @@ import {
 } from '../../lib/confirmed-guest-count.js';
 import {
   clampTablePosition,
+  defaultElementSize,
+  defaultElementLabel,
   defaultTableSize,
+  ELEMENT_KINDS,
   getOrCreateFloorPlan,
   nextTableNumber,
+  normalizeElementKind,
   normalizeTableShape,
   guestMatchesCategory,
   TABLE_SHAPES,
@@ -68,6 +72,7 @@ floorPlanRouter.put('/', requireAuth(['super_admin', 'wedding_admin']), async (r
     data: { widthCm, heightCm },
     include: {
       tables: { orderBy: { number: 'asc' } },
+      elements: { orderBy: { createdAt: 'asc' } },
     },
   });
 
@@ -89,7 +94,29 @@ floorPlanRouter.put('/', requireAuth(['super_admin', 'wedding_admin']), async (r
     }),
   );
 
-  return res.json({ ...updated, tables: clampedTables.sort((a, b) => a.number - b.number) });
+  const clampedElements = await Promise.all(
+    updated.elements.map(async (element) => {
+      const pos = clampTablePosition(
+        element.xCm,
+        element.yCm,
+        element.widthCm,
+        element.heightCm,
+        updated.widthCm,
+        updated.heightCm,
+      );
+      if (pos.xCm === element.xCm && pos.yCm === element.yCm) return element;
+      return prisma.floorPlanElement.update({
+        where: { id: element.id },
+        data: pos,
+      });
+    }),
+  );
+
+  return res.json({
+    ...updated,
+    tables: clampedTables.sort((a, b) => a.number - b.number),
+    elements: clampedElements,
+  });
 });
 
 floorPlanRouter.post('/tables', requireAuth(['super_admin', 'wedding_admin']), async (req: AuthenticatedRequest, res) => {
@@ -254,8 +281,120 @@ floorPlanRouter.delete('/tables/:id', requireAuth(['super_admin', 'wedding_admin
   return res.status(204).end();
 });
 
+floorPlanRouter.post('/elements', requireAuth(['super_admin', 'wedding_admin']), async (req: AuthenticatedRequest, res) => {
+  const weddingId = req.user?.weddingId;
+  if (!weddingId) {
+    return res.status(400).json({ error: 'No weddingId on token' });
+  }
+
+  const { kind, label, xCm, yCm, rotationDeg, widthCm, heightCm } = req.body as {
+    kind?: string;
+    label?: string;
+    xCm?: number;
+    yCm?: number;
+    rotationDeg?: number;
+    widthCm?: number;
+    heightCm?: number;
+  };
+
+  const plan = await getOrCreateFloorPlan(weddingId);
+  const normalizedKind = normalizeElementKind(kind);
+  const defaults = defaultElementSize(normalizedKind);
+  const elementWidth = widthCm ?? defaults.widthCm;
+  const elementHeight = heightCm ?? defaults.heightCm;
+  const centerX = xCm ?? plan.widthCm / 2;
+  const centerY = yCm ?? plan.heightCm / 2;
+  const pos = clampTablePosition(centerX, centerY, elementWidth, elementHeight, plan.widthCm, plan.heightCm);
+
+  const created = await prisma.floorPlanElement.create({
+    data: {
+      floorPlanId: plan.id,
+      kind: normalizedKind,
+      label: label?.trim() || defaultElementLabel(normalizedKind),
+      xCm: pos.xCm,
+      yCm: pos.yCm,
+      rotationDeg: rotationDeg ?? 0,
+      widthCm: elementWidth,
+      heightCm: elementHeight,
+    },
+  });
+
+  return res.status(201).json(created);
+});
+
+floorPlanRouter.put('/elements/:id', requireAuth(['super_admin', 'wedding_admin']), async (req: AuthenticatedRequest, res) => {
+  const weddingId = req.user?.weddingId;
+  if (!weddingId) {
+    return res.status(400).json({ error: 'No weddingId on token' });
+  }
+
+  const { id } = req.params;
+  const plan = await getOrCreateFloorPlan(weddingId);
+  const existing = await prisma.floorPlanElement.findFirst({
+    where: { id, floorPlanId: plan.id },
+  });
+  if (!existing) {
+    return res.status(404).json({ error: 'Elemento no encontrado' });
+  }
+
+  const { kind, label, xCm, yCm, rotationDeg, widthCm, heightCm } = req.body as {
+    kind?: string;
+    label?: string;
+    xCm?: number;
+    yCm?: number;
+    rotationDeg?: number;
+    widthCm?: number;
+    heightCm?: number;
+  };
+
+  const nextKind = kind != null ? normalizeElementKind(kind) : existing.kind;
+  const nextWidth = widthCm ?? existing.widthCm;
+  const nextHeight = heightCm ?? existing.heightCm;
+  const nextX = xCm ?? existing.xCm;
+  const nextY = yCm ?? existing.yCm;
+  const pos = clampTablePosition(nextX, nextY, nextWidth, nextHeight, plan.widthCm, plan.heightCm);
+
+  const updated = await prisma.floorPlanElement.update({
+    where: { id },
+    data: {
+      kind: nextKind,
+      label: label !== undefined ? label.trim() || defaultElementLabel(normalizeElementKind(nextKind)) : existing.label,
+      xCm: pos.xCm,
+      yCm: pos.yCm,
+      rotationDeg: rotationDeg ?? existing.rotationDeg,
+      widthCm: nextWidth,
+      heightCm: nextHeight,
+    },
+  });
+
+  return res.json(updated);
+});
+
+floorPlanRouter.delete('/elements/:id', requireAuth(['super_admin', 'wedding_admin']), async (req: AuthenticatedRequest, res) => {
+  const weddingId = req.user?.weddingId;
+  if (!weddingId) {
+    return res.status(400).json({ error: 'No weddingId on token' });
+  }
+
+  const { id } = req.params;
+  const plan = await getOrCreateFloorPlan(weddingId);
+  const existing = await prisma.floorPlanElement.findFirst({
+    where: { id, floorPlanId: plan.id },
+  });
+  if (!existing) {
+    return res.status(404).json({ error: 'Elemento no encontrado' });
+  }
+
+  await prisma.floorPlanElement.delete({ where: { id } });
+  return res.status(204).end();
+});
+
 floorPlanRouter.get('/meta/shapes', requireAuth(['super_admin', 'wedding_admin']), (_req, res) => {
   return res.json({ shapes: TABLE_SHAPES });
+});
+
+floorPlanRouter.get('/meta/elements', requireAuth(['super_admin', 'wedding_admin']), (_req, res) => {
+  return res.json({ kinds: ELEMENT_KINDS });
 });
 
 floorPlanRouter.get('/seating', requireAuth(['super_admin', 'wedding_admin']), async (req: AuthenticatedRequest, res) => {
@@ -356,6 +495,7 @@ floorPlanRouter.get('/seating', requireAuth(['super_admin', 'wedding_admin']), a
       widthCm: plan.widthCm,
       heightCm: plan.heightCm,
       tables: tablesWithAssignments,
+      elements: plan.elements ?? [],
     },
     unassigned: unassignedForSeating.map((g) => ({
       id: g.id,

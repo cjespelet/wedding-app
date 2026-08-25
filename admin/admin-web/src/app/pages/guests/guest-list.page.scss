@@ -202,6 +202,11 @@ table,
     color: #1976d2;
   }
 
+  &.btn-icon-edit-confirmed:hover {
+    background: #e8f5e9;
+    color: #2e7d32;
+  }
+
   &.btn-icon-delete:hover {
     background: #ffebee;
     color: #c62828;
@@ -210,6 +215,12 @@ table,
 
 mat-paginator {
   background: #fff;
+}
+
+.confirmed-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .guest-filter-row {

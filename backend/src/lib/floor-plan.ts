@@ -3,6 +3,43 @@ import { prisma } from '../db/prisma.js';
 export const TABLE_SHAPES = ['round', 'rect', 'square'] as const;
 export type TableShape = (typeof TABLE_SHAPES)[number];
 
+export const ELEMENT_KINDS = ['bar', 'chopera', 'dj', 'food_serving'] as const;
+export type ElementKind = (typeof ELEMENT_KINDS)[number];
+
+export function normalizeElementKind(value?: string): ElementKind {
+  const normalized = value?.trim().toLowerCase();
+  if (normalized && ELEMENT_KINDS.includes(normalized as ElementKind)) {
+    return normalized as ElementKind;
+  }
+  return 'bar';
+}
+
+export function defaultElementSize(kind: ElementKind): { widthCm: number; heightCm: number } {
+  switch (kind) {
+    case 'chopera':
+      return { widthCm: 120, heightCm: 80 };
+    case 'dj':
+      return { widthCm: 150, heightCm: 120 };
+    case 'food_serving':
+      return { widthCm: 280, heightCm: 100 };
+    default:
+      return { widthCm: 300, heightCm: 80 };
+  }
+}
+
+export function defaultElementLabel(kind: ElementKind): string {
+  switch (kind) {
+    case 'chopera':
+      return 'Chopera';
+    case 'dj':
+      return 'DJ';
+    case 'food_serving':
+      return 'Mesa comida';
+    default:
+      return 'Barra tragos';
+  }
+}
+
 export function normalizeTableShape(value?: string): TableShape {
   const normalized = value?.trim().toLowerCase();
   if (normalized && TABLE_SHAPES.includes(normalized as TableShape)) {
@@ -29,6 +66,9 @@ export async function getOrCreateFloorPlan(weddingId: string) {
       tables: {
         orderBy: { number: 'asc' },
       },
+      elements: {
+        orderBy: { createdAt: 'asc' },
+      },
     },
   });
 
@@ -43,6 +83,9 @@ export async function getOrCreateFloorPlan(weddingId: string) {
     include: {
       tables: {
         orderBy: { number: 'asc' },
+      },
+      elements: {
+        orderBy: { createdAt: 'asc' },
       },
     },
   });

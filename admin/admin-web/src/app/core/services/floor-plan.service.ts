@@ -4,6 +4,19 @@ import { environment } from '../../../environments/environment';
 
 export type TableShape = 'round' | 'rect' | 'square';
 export type TableOccupancy = 'empty' | 'partial' | 'full' | 'over';
+export type ElementKind = 'bar' | 'chopera' | 'dj' | 'food_serving';
+
+export interface FloorPlanElement {
+  id: string;
+  floorPlanId: string;
+  kind: ElementKind;
+  label: string | null;
+  xCm: number;
+  yCm: number;
+  rotationDeg: number;
+  widthCm: number;
+  heightCm: number;
+}
 
 export interface TableAssignment {
   id: string;
@@ -37,6 +50,7 @@ export interface FloorPlan {
   widthCm: number;
   heightCm: number;
   tables: VenueTable[];
+  elements?: FloorPlanElement[];
 }
 
 export interface UnassignedGuest {
@@ -90,11 +104,32 @@ export type CreateTablePayload = {
 
 export type UpdateTablePayload = Partial<CreateTablePayload>;
 
+export type CreateElementPayload = {
+  kind: ElementKind;
+  label?: string;
+  xCm?: number;
+  yCm?: number;
+  rotationDeg?: number;
+  widthCm?: number;
+  heightCm?: number;
+};
+
+export type UpdateElementPayload = Partial<CreateElementPayload>;
+
 export const TABLE_SHAPE_LABELS: Record<TableShape, string> = {
   round: 'Redonda',
   rect: 'Rectangular',
   square: 'Cuadrada',
 };
+
+export const ELEMENT_KIND_LABELS: Record<ElementKind, string> = {
+  bar: 'Barra de tragos',
+  chopera: 'Chopera',
+  dj: 'DJ',
+  food_serving: 'Mesa de comida',
+};
+
+export const ELEMENT_KINDS: ElementKind[] = ['bar', 'chopera', 'dj', 'food_serving'];
 
 export function tableOccupancy(table: VenueTable): TableOccupancy {
   const used = table.seatsUsed ?? 0;
@@ -130,6 +165,18 @@ export class FloorPlanService {
 
   removeTable(id: string) {
     return this.http.delete<void>(`${environment.apiBaseUrl}/admin/floor-plan/tables/${id}`);
+  }
+
+  createElement(payload: CreateElementPayload) {
+    return this.http.post<FloorPlanElement>(`${environment.apiBaseUrl}/admin/floor-plan/elements`, payload);
+  }
+
+  updateElement(id: string, payload: UpdateElementPayload) {
+    return this.http.put<FloorPlanElement>(`${environment.apiBaseUrl}/admin/floor-plan/elements/${id}`, payload);
+  }
+
+  removeElement(id: string) {
+    return this.http.delete<void>(`${environment.apiBaseUrl}/admin/floor-plan/elements/${id}`);
   }
 
   assignGuest(guestId: string, tableId: string) {

@@ -1,0 +1,33 @@
+.guest-name {
+  margin: 0 0 4px;
+  font-weight: 600;
+}
+
+.field-hint {
+  margin: 0 0 12px;
+  font-size: 0.8125rem;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.row-fields {
+  display: flex;
+  gap: 16px;
+
+  mat-form-field {
+    flex: 1;
+  }
+}
+
+.total-line {
+  margin: 8px 0 0;
+  font-size: 0.9375rem;
+
+  &.total-invalid {
+    color: #b42318;
+  }
+}
+
+:host ::ng-deep .mat-mdc-dialog-actions {
+  display: flex;
+  gap: 12px;
+}

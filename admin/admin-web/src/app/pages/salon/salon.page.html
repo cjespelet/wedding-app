@@ -4,7 +4,7 @@
       <h1>Plano del salón</h1>
       <p class="subtitle">
         {{ mode === 'plan'
-          ? 'Definí el salón y ubicá mesas. En el dibujo solo se muestran los números.'
+          ? 'Definí el salón, ubicá mesas y agregá barra, chopera, DJ y mesa de comida.'
           : 'Asigná invitados a cada mesa. El plano muestra número, personas, grupos y categoría.' }}
       </p>
     </div>
@@ -42,6 +42,47 @@
         </div>
       </section>
 
+      <section class="panel">
+        <h2>Agregar elementos</h2>
+        <p class="panel-hint">Barra, chopera, DJ y mesa de comida (solo decoración del plano).</p>
+        <div class="btn-row element-btn-row">
+          <button type="button" class="btn btn-outline-secondary" (click)="addElement('bar')">Barra tragos</button>
+          <button type="button" class="btn btn-outline-secondary" (click)="addElement('chopera')">Chopera</button>
+          <button type="button" class="btn btn-outline-secondary" (click)="addElement('dj')">DJ</button>
+          <button type="button" class="btn btn-outline-secondary" (click)="addElement('food_serving')">Mesa comida</button>
+        </div>
+      </section>
+
+      <section class="panel" *ngIf="selectedElement as element">
+        <h2>{{ elementLabel(element) }}</h2>
+        <label class="field">
+          <span>Tipo</span>
+          <select [(ngModel)]="element.kind" (ngModelChange)="onElementKindChange($event)">
+            <option *ngFor="let kind of elementKinds" [ngValue]="kind">{{ elementKindLabels[kind] }}</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Etiqueta</span>
+          <input type="text" [(ngModel)]="element.label" />
+        </label>
+        <label class="field">
+          <span>Ancho (cm)</span>
+          <input type="number" min="40" [(ngModel)]="element.widthCm" />
+        </label>
+        <label class="field">
+          <span>Largo (cm)</span>
+          <input type="number" min="40" [(ngModel)]="element.heightCm" />
+        </label>
+        <label class="field">
+          <span>Rotación (°)</span>
+          <input type="number" step="15" [(ngModel)]="element.rotationDeg" />
+        </label>
+        <div class="btn-row vertical">
+          <button type="button" class="btn btn-primary btn-block" (click)="saveSelectedElement()">Guardar elemento</button>
+          <button type="button" class="btn btn-outline-danger btn-block" (click)="deleteSelectedElement()">Eliminar elemento</button>
+        </div>
+      </section>
+
       <section class="panel" *ngIf="selectedTable as table">
         <h2>Mesa {{ table.number }}</h2>
         <label class="field">
@@ -76,8 +117,8 @@
         </div>
       </section>
 
-      <section class="panel hint" *ngIf="!selectedTable">
-        <p>Arrastrá una mesa en el plano o agregá una nueva.</p>
+      <section class="panel hint" *ngIf="!selectedTable && !selectedElement">
+        <p>Arrastrá mesas o elementos en el plano, o agregá nuevos desde el panel.</p>
       </section>
     </aside>
 
@@ -248,6 +289,65 @@
     >
       <rect x="0" y="0" [attr.width]="plan.widthCm" [attr.height]="plan.heightCm" class="room-floor" />
       <rect x="0" y="0" [attr.width]="plan.widthCm" [attr.height]="plan.heightCm" class="room-border" />
+
+      <g
+        *ngFor="let element of planElements"
+        [class]="'venue-element element-' + element.kind"
+        [class.selected]="element.id === selectedElementId"
+        [class.decor-only]="mode === 'assign'"
+        [attr.transform]="elementTransform(element)"
+        (pointerdown)="mode === 'plan' && startElementDrag($event, element)"
+        (click)="mode === 'plan' && selectElement(element, $event)"
+      >
+        <rect
+          [attr.x]="-element.widthCm / 2"
+          [attr.y]="-element.heightCm / 2"
+          [attr.width]="element.widthCm"
+          [attr.height]="element.heightCm"
+          class="element-shape"
+          rx="8"
+        />
+        <g class="element-icon" *ngIf="element.kind === 'bar'">
+          <rect [attr.x]="-elementIconScale(element)" [attr.y]="-elementIconScale(element) * 1.4" [attr.width]="elementIconScale(element) * 0.5" [attr.height]="elementIconScale(element) * 1.2" rx="2" />
+          <path [attr.d]="'M ' + (-elementIconScale(element) * 0.1) + ' ' + (-elementIconScale(element) * 1.4) + ' L ' + (-elementIconScale(element) * 0.1) + ' ' + (-elementIconScale(element) * 2.2)" />
+        </g>
+        <circle
+          *ngIf="element.kind === 'chopera'"
+          class="element-icon-mark"
+          [attr.r]="elementIconScale(element) * 0.45"
+          [attr.cy]="-element.heightCm * 0.12"
+        />
+        <circle
+          *ngIf="element.kind === 'dj'"
+          class="element-icon-mark dj-vinyl"
+          [attr.r]="elementIconScale(element) * 0.55"
+          [attr.cy]="-element.heightCm * 0.08"
+        />
+        <circle
+          *ngIf="element.kind === 'dj'"
+          class="element-icon-dot"
+          [attr.r]="elementIconScale(element) * 0.12"
+          [attr.cy]="-element.heightCm * 0.08"
+        />
+        <rect
+          *ngIf="element.kind === 'food_serving'"
+          class="element-icon-tray"
+          [attr.x]="-elementIconScale(element) * 0.8"
+          [attr.y]="-elementIconScale(element) * 0.35"
+          [attr.width]="elementIconScale(element) * 1.6"
+          [attr.height]="elementIconScale(element) * 0.25"
+          rx="4"
+        />
+        <text
+          class="element-label"
+          text-anchor="middle"
+          dominant-baseline="middle"
+          [attr.y]="element.heightCm * 0.18"
+          [attr.font-size]="elementLabelFontSize(element)"
+        >
+          {{ elementLabel(element) }}
+        </text>
+      </g>
 
       <g
         *ngFor="let table of plan.tables"

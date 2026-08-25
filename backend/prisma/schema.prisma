@@ -349,6 +349,7 @@ model FloorPlan {
   heightCm  Float    @default(800)
 
   tables    VenueTable[]
+  elements  FloorPlanElement[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -374,6 +375,23 @@ model VenueTable {
   updatedAt DateTime @updatedAt
 
   @@unique([floorPlanId, number])
+}
+
+model FloorPlanElement {
+  id          String    @id @default(cuid())
+  floorPlan   FloorPlan @relation(fields: [floorPlanId], references: [id], onDelete: Cascade)
+  floorPlanId String
+
+  kind        String    // bar | chopera | dj | food_serving
+  label       String?
+  xCm         Float
+  yCm         Float
+  rotationDeg Float     @default(0)
+  widthCm     Float
+  heightCm    Float
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model TableAssignment {

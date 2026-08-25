@@ -6,11 +6,15 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { finalize } from 'rxjs';
 import {
   FloorPlan,
+  FloorPlanElement,
   FloorPlanService,
   SeatingState,
   TABLE_SHAPE_LABELS,
+  ELEMENT_KIND_LABELS,
+  ELEMENT_KINDS,
   TableOccupancy,
   TableShape,
+  ElementKind,
   UnassignedGuest,
   VenueTable,
   tableOccupancy,
@@ -67,12 +71,16 @@ export class SalonPage implements OnInit {
   widthM = 12;
   heightM = 8;
   selectedTableId: string | null = null;
+  selectedElementId: string | null = null;
   categoryFilter: CategoryFilter = 'all';
   readonly shapeLabels = TABLE_SHAPE_LABELS;
+  readonly elementKindLabels = ELEMENT_KIND_LABELS;
   readonly tableShapes: TableShape[] = ['round', 'rect', 'square'];
+  readonly elementKinds = ELEMENT_KINDS;
   readonly categories = GUEST_CATEGORIES;
 
   private draggingTableId: string | null = null;
+  private draggingElementId: string | null = null;
   private dragOffsetX = 0;
   private dragOffsetY = 0;
 
@@ -87,6 +95,15 @@ export class SalonPage implements OnInit {
   get selectedTable(): VenueTable | null {
     if (!this.plan || !this.selectedTableId) return null;
     return this.plan.tables.find((t) => t.id === this.selectedTableId) ?? null;
+  }
+
+  get selectedElement(): FloorPlanElement | null {
+    if (!this.plan || !this.selectedElementId) return null;
+    return this.planElements.find((e) => e.id === this.selectedElementId) ?? null;
+  }
+
+  get planElements(): FloorPlanElement[] {
+    return this.plan?.elements ?? [];
   }
 
   get filteredUnassigned(): UnassignedGuest[] {
@@ -146,6 +163,7 @@ export class SalonPage implements OnInit {
     if (this.mode === mode) return;
     this.mode = mode;
     this.selectedTableId = null;
+    this.selectedElementId = null;
     if (mode === 'assign') {
       this.loadSeating();
     } else {
@@ -157,7 +175,7 @@ export class SalonPage implements OnInit {
     this.loading = true;
     this.floorPlanService.get().subscribe({
       next: (plan) => {
-        this.plan = plan;
+        this.plan = this.normalizePlan(plan);
         this.widthM = plan.widthCm / 100;
         this.heightM = plan.heightCm / 100;
         this.loading = false;
@@ -175,7 +193,7 @@ export class SalonPage implements OnInit {
     this.floorPlanService.getSeating().subscribe({
       next: (seating) => {
         this.seating = seating;
-        this.plan = seating.plan;
+        this.plan = this.normalizePlan(seating.plan);
         this.widthM = seating.plan.widthCm / 100;
         this.heightM = seating.plan.heightCm / 100;
         this.loading = false;
@@ -201,7 +219,7 @@ export class SalonPage implements OnInit {
     this.savingRoom = true;
     this.floorPlanService.updateRoom(widthCm, heightCm).subscribe({
       next: (plan) => {
-        this.plan = plan;
+        this.plan = this.normalizePlan(plan);
         this.widthM = plan.widthCm / 100;
         this.heightM = plan.heightCm / 100;
         this.savingRoom = false;
@@ -228,13 +246,145 @@ export class SalonPage implements OnInit {
     });
   }
 
+  addElement(kind: ElementKind): void {
+    this.floorPlanService.createElement({ kind }).subscribe({
+      next: (element) => {
+        if (!this.plan) return;
+        this.plan.elements = [...this.planElements, element];
+        this.selectedElementId = element.id;
+        this.selectedTableId = null;
+        this.snackBar.open(`${this.elementKindLabels[kind]} agregada`, 'Cerrar', { duration: 2000 });
+      },
+      error: (err) => {
+        this.snackBar.open(err?.error?.error || 'Error al crear elemento', 'Cerrar', { duration: 4000 });
+      },
+    });
+  }
+
   selectTable(table: VenueTable, event?: Event): void {
     event?.stopPropagation();
     this.selectedTableId = table.id;
+    this.selectedElementId = null;
+  }
+
+  selectElement(element: FloorPlanElement, event?: Event): void {
+    event?.stopPropagation();
+    this.selectedElementId = element.id;
+    this.selectedTableId = null;
   }
 
   clearSelection(): void {
     this.selectedTableId = null;
+    this.selectedElementId = null;
+  }
+
+  startElementDrag(event: PointerEvent, element: FloorPlanElement): void {
+    if (this.mode !== 'plan' || !this.plan) return;
+    event.preventDefault();
+    event.stopPropagation();
+    this.selectElement(element);
+    this.draggingElementId = element.id;
+
+    const svg = this.floorSvgRef?.nativeElement;
+    if (!svg) return;
+
+    const point = this.clientToSvg(svg, event.clientX, event.clientY);
+    this.dragOffsetX = point.x - element.xCm;
+    this.dragOffsetY = point.y - element.yCm;
+    (event.target as Element).setPointerCapture?.(event.pointerId);
+  }
+
+  saveSelectedElement(): void {
+    const element = this.selectedElement;
+    if (!element) return;
+
+    this.floorPlanService
+      .updateElement(element.id, {
+        kind: element.kind,
+        label: element.label ?? undefined,
+        widthCm: element.widthCm,
+        heightCm: element.heightCm,
+        rotationDeg: element.rotationDeg,
+        xCm: element.xCm,
+        yCm: element.yCm,
+      })
+      .subscribe({
+        next: (updated) => {
+          const idx = this.plan?.elements?.findIndex((e) => e.id === updated.id) ?? -1;
+          if (idx >= 0 && this.plan?.elements) {
+            this.plan.elements[idx] = { ...this.plan.elements[idx], ...updated };
+          }
+          this.snackBar.open('Elemento actualizado', 'Cerrar', { duration: 2000 });
+        },
+        error: (err) => {
+          this.snackBar.open(err?.error?.error || 'Error al actualizar elemento', 'Cerrar', { duration: 4000 });
+          this.loadPlan();
+        },
+      });
+  }
+
+  deleteSelectedElement(): void {
+    const element = this.selectedElement;
+    if (!element || !confirm(`¿Eliminar ${element.label || this.elementKindLabels[element.kind]}?`)) return;
+
+    this.floorPlanService.removeElement(element.id).subscribe({
+      next: () => {
+        if (this.plan?.elements) {
+          this.plan.elements = this.plan.elements.filter((e) => e.id !== element.id);
+        }
+        this.selectedElementId = null;
+        this.snackBar.open('Elemento eliminado', 'Cerrar', { duration: 2000 });
+      },
+      error: (err) => {
+        this.snackBar.open(err?.error?.error || 'Error al eliminar elemento', 'Cerrar', { duration: 4000 });
+      },
+    });
+  }
+
+  onElementKindChange(kind: ElementKind): void {
+    const element = this.selectedElement;
+    if (!element) return;
+    element.kind = kind;
+    const sizes = this.defaultElementSize(kind);
+    element.widthCm = sizes.width;
+    element.heightCm = sizes.height;
+    if (!element.label || Object.values(this.elementKindLabels).includes(element.label)) {
+      element.label = this.elementKindLabels[kind];
+    }
+  }
+
+  elementTransform(element: FloorPlanElement): string {
+    return `translate(${element.xCm} ${element.yCm}) rotate(${element.rotationDeg})`;
+  }
+
+  elementLabel(element: FloorPlanElement): string {
+    return element.label?.trim() || this.elementKindLabels[element.kind];
+  }
+
+  elementLabelFontSize(element: FloorPlanElement): number {
+    const base = Math.min(element.widthCm, element.heightCm);
+    return Math.max(12, base * 0.16);
+  }
+
+  elementIconScale(element: FloorPlanElement): number {
+    return Math.min(element.widthCm, element.heightCm) * 0.22;
+  }
+
+  private defaultElementSize(kind: ElementKind): { width: number; height: number } {
+    switch (kind) {
+      case 'chopera':
+        return { width: 120, height: 80 };
+      case 'dj':
+        return { width: 150, height: 120 };
+      case 'food_serving':
+        return { width: 280, height: 100 };
+      default:
+        return { width: 300, height: 80 };
+    }
+  }
+
+  private normalizePlan(plan: FloorPlan): FloorPlan {
+    return { ...plan, elements: plan.elements ?? [] };
   }
 
   startDrag(event: PointerEvent, table: VenueTable): void {
@@ -255,21 +405,48 @@ export class SalonPage implements OnInit {
 
   @HostListener('document:pointermove', ['$event'])
   onPointerMove(event: PointerEvent): void {
-    if (this.mode !== 'plan' || !this.draggingTableId || !this.plan) return;
+    if (this.mode !== 'plan' || !this.plan) return;
     const svg = this.floorSvgRef?.nativeElement;
     if (!svg) return;
+
+    const point = this.clientToSvg(svg, event.clientX, event.clientY);
+
+    if (this.draggingElementId) {
+      const element = this.planElements.find((e) => e.id === this.draggingElementId);
+      if (!element) return;
+      element.xCm = point.x - this.dragOffsetX;
+      element.yCm = point.y - this.dragOffsetY;
+      return;
+    }
+
+    if (!this.draggingTableId) return;
 
     const table = this.plan.tables.find((t) => t.id === this.draggingTableId);
     if (!table) return;
 
-    const point = this.clientToSvg(svg, event.clientX, event.clientY);
     table.xCm = point.x - this.dragOffsetX;
     table.yCm = point.y - this.dragOffsetY;
   }
 
   @HostListener('document:pointerup')
   onPointerUp(): void {
-    if (this.mode !== 'plan' || !this.draggingTableId || !this.plan) return;
+    if (this.mode !== 'plan' || !this.plan) return;
+
+    if (this.draggingElementId) {
+      const element = this.planElements.find((e) => e.id === this.draggingElementId);
+      this.draggingElementId = null;
+      if (!element) return;
+
+      this.floorPlanService.updateElement(element.id, { xCm: element.xCm, yCm: element.yCm }).subscribe({
+        error: () => {
+          this.snackBar.open('Error al guardar posición', 'Cerrar', { duration: 3000 });
+          this.loadPlan();
+        },
+      });
+      return;
+    }
+
+    if (!this.draggingTableId) return;
     const table = this.plan.tables.find((t) => t.id === this.draggingTableId);
     this.draggingTableId = null;
     if (!table) return;

@@ -1,0 +1,31 @@
+<h2 mat-dialog-title>Editar confirmados</h2>
+<div mat-dialog-content>
+  <p class="guest-name">{{ data.fullName }}</p>
+  <p class="field-hint">
+    Invitación: {{ data.adultsCount }} mayores + {{ data.minorsCount }} menores
+  </p>
+
+  <form [formGroup]="form">
+    <div class="row-fields">
+      <mat-form-field appearance="outline">
+        <mat-label>Adultos confirmados</mat-label>
+        <input matInput type="number" formControlName="confirmedAdults" min="0" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Menores confirmados</mat-label>
+        <input matInput type="number" formControlName="confirmedMinors" min="0" />
+      </mat-form-field>
+    </div>
+  </form>
+
+  <p class="total-line" [class.total-invalid]="total < 1">
+    Total confirmados: <strong>{{ total }}</strong>
+  </p>
+  <p class="field-hint" *ngIf="total < 1">Debe haber al menos 1 persona confirmada.</p>
+</div>
+<div mat-dialog-actions align="end">
+  <button type="button" class="btn btn-secondary" mat-dialog-close>Cancelar</button>
+  <button type="button" class="btn btn-primary" (click)="save()" [disabled]="form.invalid || total < 1">
+    Guardar
+  </button>
+</div>

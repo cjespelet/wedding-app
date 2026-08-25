@@ -5,6 +5,7 @@ export const GUEST_CATEGORIES = [
   'FLIA JESI',
   'FLIA JAVI',
   'MESA PRINCIPAL',
+  'PRIMOS',
 ] as const;
 
 export type GuestCategory = (typeof GUEST_CATEGORIES)[number];

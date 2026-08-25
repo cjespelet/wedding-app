@@ -9,6 +9,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { GuestsService, Guest, CreateGuestPayload, GuestDialogResult, lastRsvp, confirmedCounts } from '../../core/services/guests.service';
 import { GuestDialogComponent } from './guest-dialog.component';
 import { CheckinDialogComponent } from './checkin-dialog.component';
+import { ConfirmedCountDialogComponent } from './confirmed-count-dialog.component';
 import { environment } from '../../../environments/environment';
 import { GUEST_CATEGORIES } from '../../core/guest-categories';
 import { switchMap } from 'rxjs/operators';
@@ -167,7 +168,7 @@ export class GuestListPage implements OnInit, AfterViewInit {
     return haystack.includes(query);
   }
 
-  private isConfirmed(guest: Guest): boolean {
+  isConfirmed(guest: Guest): boolean {
     return !!lastRsvp(guest)?.attending;
   }
 
@@ -228,6 +229,34 @@ export class GuestListPage implements OnInit, AfterViewInit {
           error: () => this.snackBar.open('Error al crear invitado', 'Cerrar', { duration: 3000 }),
         });
       }
+    });
+  }
+
+  editConfirmedCount(guest: Guest): void {
+    const counts = confirmedCounts(guest);
+    if (!counts) return;
+
+    const ref = this.dialog.open(ConfirmedCountDialogComponent, {
+      width: '420px',
+      data: {
+        fullName: guest.fullName,
+        adultsCount: guest.adultsCount,
+        minorsCount: guest.minorsCount,
+        confirmedAdults: counts.adults,
+        confirmedMinors: counts.minors,
+      },
+    });
+
+    ref.afterClosed().subscribe((result) => {
+      if (!result) return;
+      this.guestsService.updateRsvp(guest.id, result).subscribe({
+        next: () => {
+          this.snackBar.open('Cantidad confirmada actualizada', 'Cerrar', { duration: 3000 });
+          this.load();
+        },
+        error: (err) =>
+          this.snackBar.open(err?.error?.error || 'Error al actualizar confirmados', 'Cerrar', { duration: 4000 }),
+      });
     });
   }
 
