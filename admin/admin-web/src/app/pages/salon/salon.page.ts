@@ -15,7 +15,14 @@ import {
   VenueTable,
   tableOccupancy,
 } from '../../core/services/floor-plan.service';
-import { GUEST_CATEGORIES, collectAssignableCategoryLabels, normalizeGuestCategory, UNCATEGORIZED_CATEGORY } from '../../core/guest-categories';
+import {
+  GUEST_CATEGORIES,
+  categoriesMatch,
+  collectAssignableCategoryLabels,
+  normalizeGuestCategory,
+  UNCATEGORIZED_CATEGORY,
+} from '../../core/guest-categories';
+import { CategorySeatSummary } from '../../core/services/floor-plan.service';
 
 type SalonMode = 'plan' | 'assign';
 type AssignMethod = 'category' | 'guest';
@@ -26,6 +33,7 @@ export interface CategorySummary {
   label: string;
   groups: number;
   seats: number;
+  confirmedSeats: number;
 }
 
 export interface TableCanvasSummary {
@@ -87,7 +95,7 @@ export class SalonPage implements OnInit {
     if (this.categoryFilter === 'uncategorized') {
       return list.filter((g) => !normalizeGuestCategory(g.familyGroup));
     }
-    return list.filter((g) => normalizeGuestCategory(g.familyGroup) === this.categoryFilter);
+    return list.filter((g) => categoriesMatch(g.familyGroup, this.categoryFilter));
   }
 
   get assignableCategoryLabels(): string[] {
@@ -95,31 +103,40 @@ export class SalonPage implements OnInit {
   }
 
   get categorySummaries(): CategorySummary[] {
-    const list = this.seating?.unassigned ?? [];
-    const summaries: CategorySummary[] = [];
+    return this.mapCategorySummaries(this.seating?.unassignedByCategory ?? {}, true);
+  }
 
-    for (const category of this.assignableCategoryLabels) {
-      const guests = list.filter((g) => normalizeGuestCategory(g.familyGroup) === category);
-      if (guests.length === 0) continue;
-      summaries.push({
-        key: category,
-        label: category,
-        groups: guests.length,
-        seats: guests.reduce((sum, g) => sum + g.seatsNeeded, 0),
+  get assignedCategorySummaries(): CategorySummary[] {
+    return this.mapCategorySummaries(this.seating?.assignedByCategory ?? {}, false);
+  }
+
+  private mapCategorySummaries(
+    source: Record<string, CategorySeatSummary>,
+    pendingOnly: boolean,
+  ): CategorySummary[] {
+    return Object.entries(source)
+      .filter(([, data]) => data.groups > 0)
+      .map(([label, data]) => ({
+        key: label === 'Sin categoría' ? UNCATEGORIZED_CATEGORY : label,
+        label,
+        groups: data.groups,
+        seats: data.operationalSeats,
+        confirmedSeats: data.confirmedSeats,
+      }))
+      .sort((a, b) => {
+        if (pendingOnly) return b.confirmedSeats - a.confirmedSeats || a.label.localeCompare(b.label, 'es');
+        return a.label.localeCompare(b.label, 'es');
       });
-    }
+  }
 
-    const uncategorized = list.filter((g) => !normalizeGuestCategory(g.familyGroup));
-    if (uncategorized.length > 0) {
-      summaries.push({
-        key: UNCATEGORIZED_CATEGORY,
-        label: 'Sin categoría',
-        groups: uncategorized.length,
-        seats: uncategorized.reduce((sum, g) => sum + g.seatsNeeded, 0),
-      });
+  categorySeatsLabel(summary: CategorySummary): string {
+    if (summary.confirmedSeats > 0 && summary.confirmedSeats !== summary.seats) {
+      return `${summary.groups} grp · ${summary.confirmedSeats} conf. (${summary.seats} cupos)`;
     }
-
-    return summaries;
+    if (summary.confirmedSeats > 0) {
+      return `${summary.groups} grp · ${summary.confirmedSeats} confirmados`;
+    }
+    return `${summary.groups} grp · ${summary.seats} invitados (sin confirmar)`;
   }
 
   get onlyUncategorizedPending(): boolean {
@@ -445,7 +462,9 @@ export class SalonPage implements OnInit {
     ].sort();
 
     const seats =
-      table.seatsUsed ?? assignments.reduce((sum, assignment) => sum + assignment.seatsUsed, 0);
+      table.seatsConfirmed && table.seatsConfirmed > 0
+        ? table.seatsConfirmed
+        : (table.seatsUsed ?? assignments.reduce((sum, assignment) => sum + assignment.seatsUsed, 0));
 
     return {
       groups: assignments.length,

@@ -1,7 +1,13 @@
 import { Router } from 'express';
 import { prisma } from '../../db/prisma.js';
 import { requireAuth, type AuthenticatedRequest } from '../../middleware/auth.js';
-import { guestSeatsForSeating, guestSeatsInvited } from '../../lib/confirmed-guest-count.js';
+import {
+  guestConfirmedSeats,
+  guestOperationalSeats,
+  guestSeatsInvited,
+  summarizeGuestsByCategory,
+  sumConfirmedGuests,
+} from '../../lib/confirmed-guest-count.js';
 import {
   clampTablePosition,
   defaultTableSize,
@@ -283,10 +289,12 @@ floorPlanRouter.get('/seating', requireAuth(['super_admin', 'wedding_admin']), a
       guestId: a.guestId,
       fullName: a.guest.fullName,
       familyGroup: a.guest.familyGroup,
-      seatsUsed: guestSeatsForSeating(a.guest),
+      seatsUsed: guestOperationalSeats(a.guest),
+      seatsConfirmed: guestConfirmedSeats(a.guest),
       seatsInvited: guestSeatsInvited(a.guest),
     }));
     const seatsUsed = assignmentRows.reduce((sum, a) => sum + a.seatsUsed, 0);
+    const seatsConfirmed = assignmentRows.reduce((sum, a) => sum + (a.seatsConfirmed ?? 0), 0);
     assignedSeats += seatsUsed;
     if (seatsUsed > table.seatCount) overCapacityTables += 1;
     table.assignments.forEach((a) => assignedGuestIds.add(a.guestId));
@@ -303,6 +311,7 @@ floorPlanRouter.get('/seating', requireAuth(['super_admin', 'wedding_admin']), a
       heightCm: table.heightCm,
       seatCount: table.seatCount,
       seatsUsed,
+      seatsConfirmed,
       assignments: assignmentRows,
     };
   });
@@ -317,12 +326,26 @@ floorPlanRouter.get('/seating', requireAuth(['super_admin', 'wedding_admin']), a
     select: guestSeatingSelect,
   });
 
-  const unassignedForSeating = unassignedGuests.filter((g) => guestSeatsForSeating(g) > 0);
-  const totalSeats = tables.reduce((sum, t) => sum + t.seatCount, 0);
-  const unassignedSeats = unassignedForSeating.reduce((sum, g) => sum + guestSeatsForSeating(g), 0);
-  const totalGuestGroups = await prisma.guest.count({
+  const unassignedForSeating = unassignedGuests.filter((g) => guestOperationalSeats(g) > 0);
+  const allGuests = await prisma.guest.findMany({
     where: { weddingId, isSystemGuest: false },
+    select: guestSeatingSelect,
   });
+
+  const assignedGuests = allGuests.filter((g) => assignedGuestIds.has(g.id));
+  const totalTableSeats = tables.reduce((sum, t) => sum + t.seatCount, 0);
+  const operationalAssignedSeats = assignedSeats;
+  const operationalUnassignedSeats = unassignedForSeating.reduce(
+    (sum, g) => sum + guestOperationalSeats(g),
+    0,
+  );
+  const confirmedTotal = sumConfirmedGuests(allGuests);
+  const confirmedAssignedSeats = assignedGuests.reduce((sum, g) => sum + guestConfirmedSeats(g), 0);
+  const confirmedUnassignedSeats = unassignedForSeating.reduce(
+    (sum, g) => sum + guestConfirmedSeats(g),
+    0,
+  );
+  const totalGuestGroups = allGuests.length;
 
   return res.json({
     plan: {
@@ -338,14 +361,20 @@ floorPlanRouter.get('/seating', requireAuth(['super_admin', 'wedding_admin']), a
       familyGroup: g.familyGroup,
       adultsCount: g.adultsCount,
       minorsCount: g.minorsCount,
-      seatsNeeded: guestSeatsForSeating(g),
+      seatsNeeded: guestOperationalSeats(g),
+      seatsConfirmed: guestConfirmedSeats(g),
       seatsInvited: guestSeatsInvited(g),
     })),
+    assignedByCategory: summarizeGuestsByCategory(assignedGuests),
+    unassignedByCategory: summarizeGuestsByCategory(unassignedForSeating),
     stats: {
-      totalSeats,
-      assignedSeats,
+      totalTableSeats,
+      assignedSeats: operationalAssignedSeats,
       unassignedGuests: unassignedForSeating.length,
-      unassignedSeats,
+      unassignedSeats: operationalUnassignedSeats,
+      confirmedTotal,
+      confirmedAssignedSeats,
+      confirmedUnassignedSeats,
       assignedGuestGroups: assignedGuestIds.size,
       totalGuestGroups,
       overCapacityTables,
@@ -387,14 +416,14 @@ floorPlanRouter.post('/assign', requireAuth(['super_admin', 'wedding_admin']), a
     return res.status(404).json({ error: 'Mesa no encontrada' });
   }
 
-  const seatsUsed = guestSeatsForSeating(guest);
+  const seatsUsed = guestOperationalSeats(guest);
   if (seatsUsed < 1) {
-    return res.status(400).json({ error: 'El grupo no tiene cupos confirmados para asignar' });
+    return res.status(400).json({ error: 'El grupo no tiene cupos para asignar' });
   }
 
   const otherSeats = table.assignments
     .filter((a) => a.guestId !== guestId)
-    .reduce((sum, a) => sum + guestSeatsForSeating(a.guest), 0);
+    .reduce((sum, a) => sum + guestOperationalSeats(a.guest), 0);
 
   if (otherSeats + seatsUsed > table.seatCount) {
     return res.status(409).json({
@@ -493,14 +522,14 @@ floorPlanRouter.post(
     }
 
     const seatsUsedOnTable = table.assignments.reduce(
-      (sum, a) => sum + guestSeatsForSeating(a.guest),
+      (sum, a) => sum + guestOperationalSeats(a.guest),
       0,
     );
     let seatsAvailable = table.seatCount - seatsUsedOnTable;
     const toAssign: typeof guests = [];
 
     for (const guest of guests) {
-      const need = guestSeatsForSeating(guest);
+      const need = guestOperationalSeats(guest);
       if (need <= seatsAvailable) {
         toAssign.push(guest);
         seatsAvailable -= need;
@@ -513,7 +542,7 @@ floorPlanRouter.post(
       });
     }
 
-    const assignedSeats = toAssign.reduce((sum, g) => sum + guestSeatsForSeating(g), 0);
+    const assignedSeatsCount = toAssign.reduce((sum, g) => sum + guestOperationalSeats(g), 0);
 
     await prisma.$transaction(
       toAssign.map((guest) =>
@@ -521,7 +550,7 @@ floorPlanRouter.post(
           data: {
             guestId: guest.id,
             tableId,
-            seatsUsed: guestSeatsForSeating(guest),
+            seatsUsed: guestOperationalSeats(guest),
           },
         }),
       ),
@@ -533,7 +562,7 @@ floorPlanRouter.post(
       tableId,
       category,
       assignedGroups: toAssign.length,
-      assignedSeats,
+      assignedSeats: assignedSeatsCount,
       skippedGroups,
       partial: skippedGroups > 0,
     });

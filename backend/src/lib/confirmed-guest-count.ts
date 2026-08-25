@@ -40,28 +40,52 @@ export function confirmedCountsFromGuest(guest: GuestWithLatestRsvp): {
   return { adults, minors, total: adults + minors };
 }
 
-/** Cupos para mesas: confirmados si RSVP; invitados si aún no respondió; 0 si declinó. */
-export function guestSeatsForSeating(guest: GuestWithLatestRsvp): number {
-  const rsvp = guest.rsvps[0];
-  if (!rsvp) {
-    return (guest.adultsCount ?? 0) + (guest.minorsCount ?? 0);
-  }
-  if (!rsvp.attending) return 0;
-
-  if (rsvp.confirmedAdults != null && rsvp.confirmedMinors != null) {
-    return rsvp.confirmedAdults + rsvp.confirmedMinors;
-  }
-  if (rsvp.numberOfGuests != null) {
-    return rsvp.numberOfGuests;
-  }
-
-  const adults = rsvp.confirmedAdults ?? guest.adultsCount ?? 0;
-  const minors = rsvp.confirmedMinors ?? guest.minorsCount ?? 0;
-  return adults + minors;
-}
-
 export function guestSeatsInvited(guest: { adultsCount: number; minorsCount: number }): number {
   return (guest.adultsCount ?? 0) + (guest.minorsCount ?? 0);
+}
+
+/** Personas confirmadas por RSVP (0 si no confirmó o declinó). */
+export function guestConfirmedSeats(guest: GuestWithLatestRsvp): number {
+  return confirmedCountsFromGuest(guest)?.total ?? 0;
+}
+
+/** Cupos para asignar mesa: confirmados, o invitados si aún no respondió RSVP. */
+export function guestOperationalSeats(guest: GuestWithLatestRsvp): number {
+  const confirmed = guestConfirmedSeats(guest);
+  if (confirmed > 0) return confirmed;
+  if (!guest.rsvps[0]) return guestSeatsInvited(guest);
+  return 0;
+}
+
+/** @deprecated Use guestOperationalSeats or guestConfirmedSeats explicitly */
+export function guestSeatsForSeating(guest: GuestWithLatestRsvp): number {
+  return guestOperationalSeats(guest);
+}
+
+export type CategorySeatSummary = {
+  groups: number;
+  confirmedSeats: number;
+  operationalSeats: number;
+};
+
+export function summarizeGuestsByCategory(
+  guests: Array<GuestWithLatestRsvp & { familyGroup?: string | null }>,
+): Record<string, CategorySeatSummary> {
+  const summary: Record<string, CategorySeatSummary> = {};
+  for (const guest of guests) {
+    const label = normalizeGuestCategory(guest.familyGroup) ?? 'Sin categoría';
+    const bucket = summary[label] ?? { groups: 0, confirmedSeats: 0, operationalSeats: 0 };
+    bucket.groups += 1;
+    bucket.confirmedSeats += guestConfirmedSeats(guest);
+    bucket.operationalSeats += guestOperationalSeats(guest);
+    summary[label] = bucket;
+  }
+  return summary;
+}
+
+function normalizeGuestCategory(familyGroup: string | null | undefined): string | null {
+  const value = familyGroup?.trim();
+  return value || null;
 }
 
 export function sumConfirmedGuests(guests: GuestWithLatestRsvp[]): number {

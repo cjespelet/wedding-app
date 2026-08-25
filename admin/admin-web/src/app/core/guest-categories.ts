@@ -17,6 +17,16 @@ export function normalizeGuestCategory(familyGroup: string | null | undefined): 
   return value || null;
 }
 
+export function categoriesMatch(
+  familyGroup: string | null | undefined,
+  category: string,
+): boolean {
+  const normalized = normalizeGuestCategory(familyGroup);
+  if (category === UNCATEGORIZED_CATEGORY) return !normalized;
+  if (!normalized) return false;
+  return normalized.localeCompare(category, 'es', { sensitivity: 'accent' }) === 0;
+}
+
 /** Categorías predefinidas + las que existen en invitados sin mesa. */
 export function collectAssignableCategoryLabels(
   guests: { familyGroup?: string | null }[],

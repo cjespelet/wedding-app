@@ -146,6 +146,14 @@
   font-size: 0.88rem;
 }
 
+.compact-list .category-item {
+  padding: 6px 0;
+}
+
+.assigned-category-item strong {
+  color: #2e7d32;
+}
+
 .guest-list {
   list-style: none;
   margin: 0;

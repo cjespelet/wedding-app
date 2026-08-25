@@ -88,13 +88,28 @@
     <aside class="salon-sidebar assign-sidebar">
       <section class="panel stats-panel">
         <h2>Resumen</h2>
-        <p><strong>{{ seating.stats.unassignedGuests }}</strong> grupos sin mesa ({{ seating.stats.unassignedSeats }} personas confirmadas)</p>
-        <p class="assign-hint">Los cupos usan RSVP confirmado; si no respondió, se cuenta lo invitado.</p>
-        <p><strong>{{ seating.stats.assignedGuestGroups }}</strong> / {{ seating.stats.totalGuestGroups }} grupos ya tienen mesa</p>
-        <p><strong>{{ seating.stats.assignedSeats }}</strong> / {{ seating.stats.totalSeats }} asientos ocupados</p>
+        <p><strong>{{ seating.stats.confirmedTotal }}</strong> confirmados en total</p>
+        <p>
+          <strong>{{ seating.stats.confirmedAssignedSeats }}</strong> en mesas ·
+          <strong>{{ seating.stats.confirmedUnassignedSeats }}</strong> sin mesa
+        </p>
+        <p><strong>{{ seating.stats.assignedGuestGroups }}</strong> / {{ seating.stats.totalGuestGroups }} grupos con mesa</p>
+        <p>Capacidad del salón: <strong>{{ seating.stats.totalTableSeats }}</strong> lugares</p>
         <p *ngIf="seating.stats.overCapacityTables > 0" class="warn">
           {{ seating.stats.overCapacityTables }} mesa(s) sobrecupo
         </p>
+      </section>
+
+      <section class="panel" *ngIf="assignedCategorySummaries.length">
+        <h2>Ya en mesas</h2>
+        <ul class="guest-list category-list compact-list">
+          <li *ngFor="let cat of assignedCategorySummaries" class="guest-item category-item assigned-category-item">
+            <div class="guest-info">
+              <strong>{{ cat.label }}</strong>
+              <span class="guest-meta">{{ categorySeatsLabel(cat) }}</span>
+            </div>
+          </li>
+        </ul>
       </section>
 
       <section class="panel">
@@ -145,7 +160,7 @@
             <li *ngFor="let cat of categorySummaries" class="guest-item category-item">
               <div class="guest-info">
                 <strong>{{ cat.label }}</strong>
-                <span class="guest-meta">{{ cat.groups }} grupo(s) · {{ cat.seats }} personas</span>
+                <span class="guest-meta">{{ categorySeatsLabel(cat) }}</span>
                 <span class="guest-meta capacity-hint" *ngIf="categoryAssignHint(cat) as hint">{{ hint }}</span>
               </div>
               <button
@@ -172,8 +187,11 @@
               <div class="guest-info">
                 <strong>{{ guest.fullName }}</strong>
                 <span class="guest-meta">
-                  {{ guest.seatsNeeded }} pers.
-                  <span *ngIf="guest.seatsInvited && guest.seatsInvited !== guest.seatsNeeded">
+                  <ng-container *ngIf="guest.seatsConfirmed && guest.seatsConfirmed > 0; else pendingGuest">
+                    {{ guest.seatsConfirmed }} conf.
+                  </ng-container>
+                  <ng-template #pendingGuest>{{ guest.seatsNeeded }} inv.</ng-template>
+                  <span *ngIf="guest.seatsInvited && guest.seatsConfirmed !== guest.seatsInvited">
                     ({{ guest.seatsInvited }} inv.)
                   </span>
                   <span *ngIf="guest.familyGroup"> · {{ guest.familyGroup }}</span>
@@ -207,8 +225,11 @@
             <div class="guest-info">
               <strong>{{ a.fullName }}</strong>
               <span class="guest-meta">
-                {{ a.seatsUsed }} pers.
-                <span *ngIf="a.seatsInvited && a.seatsInvited !== a.seatsUsed">({{ a.seatsInvited }} inv.)</span>
+                <ng-container *ngIf="a.seatsConfirmed && a.seatsConfirmed > 0; else assignedOperational">
+                  {{ a.seatsConfirmed }} conf.
+                </ng-container>
+                <ng-template #assignedOperational>{{ a.seatsUsed }} cupos</ng-template>
+                <span *ngIf="a.seatsInvited && a.seatsConfirmed !== a.seatsInvited"> ({{ a.seatsInvited }} inv.)</span>
               </span>
             </div>
             <button type="button" class="btn btn-sm btn-outline-danger" (click)="unassignGuest(a.guestId)">Quitar</button>

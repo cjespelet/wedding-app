@@ -11,6 +11,7 @@ export interface TableAssignment {
   fullName: string;
   familyGroup?: string | null;
   seatsUsed: number;
+  seatsConfirmed?: number;
   seatsInvited?: number;
 }
 
@@ -26,6 +27,7 @@ export interface VenueTable {
   heightCm: number;
   seatCount: number;
   seatsUsed?: number;
+  seatsConfirmed?: number;
   assignments?: TableAssignment[];
 }
 
@@ -44,14 +46,24 @@ export interface UnassignedGuest {
   adultsCount: number;
   minorsCount: number;
   seatsNeeded: number;
+  seatsConfirmed?: number;
   seatsInvited?: number;
 }
 
+export interface CategorySeatSummary {
+  groups: number;
+  confirmedSeats: number;
+  operationalSeats: number;
+}
+
 export interface SeatingStats {
-  totalSeats: number;
+  totalTableSeats: number;
   assignedSeats: number;
   unassignedGuests: number;
   unassignedSeats: number;
+  confirmedTotal: number;
+  confirmedAssignedSeats: number;
+  confirmedUnassignedSeats: number;
   assignedGuestGroups: number;
   totalGuestGroups: number;
   overCapacityTables: number;
@@ -60,6 +72,8 @@ export interface SeatingStats {
 export interface SeatingState {
   plan: FloorPlan;
   unassigned: UnassignedGuest[];
+  assignedByCategory: Record<string, CategorySeatSummary>;
+  unassignedByCategory: Record<string, CategorySeatSummary>;
   stats: SeatingStats;
 }
 
