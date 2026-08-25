@@ -89,6 +89,7 @@
       <section class="panel stats-panel">
         <h2>Resumen</h2>
         <p><strong>{{ seating.stats.unassignedGuests }}</strong> grupos sin mesa ({{ seating.stats.unassignedSeats }} personas)</p>
+        <p><strong>{{ seating.stats.assignedGuestGroups }}</strong> / {{ seating.stats.totalGuestGroups }} grupos ya tienen mesa</p>
         <p><strong>{{ seating.stats.assignedSeats }}</strong> / {{ seating.stats.totalSeats }} asientos ocupados</p>
         <p *ngIf="seating.stats.overCapacityTables > 0" class="warn">
           {{ seating.stats.overCapacityTables }} mesa(s) sobrecupo
@@ -163,7 +164,7 @@
           <select class="category-filter" [(ngModel)]="categoryFilter">
             <option value="all">Todas las categorías</option>
             <option value="uncategorized">Sin categoría</option>
-            <option *ngFor="let c of categories" [ngValue]="c">{{ c }}</option>
+            <option *ngFor="let c of assignableCategoryLabels" [ngValue]="c">{{ c }}</option>
           </select>
           <ul class="guest-list">
             <li *ngFor="let guest of filteredUnassigned" class="guest-item">

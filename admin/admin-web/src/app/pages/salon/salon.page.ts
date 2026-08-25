@@ -15,11 +15,11 @@ import {
   VenueTable,
   tableOccupancy,
 } from '../../core/services/floor-plan.service';
-import { GUEST_CATEGORIES, normalizeGuestCategory, UNCATEGORIZED_CATEGORY } from '../../core/guest-categories';
+import { GUEST_CATEGORIES, collectAssignableCategoryLabels, normalizeGuestCategory, UNCATEGORIZED_CATEGORY } from '../../core/guest-categories';
 
 type SalonMode = 'plan' | 'assign';
 type AssignMethod = 'category' | 'guest';
-type CategoryFilter = 'all' | 'uncategorized' | (typeof GUEST_CATEGORIES)[number];
+type CategoryFilter = 'all' | 'uncategorized' | string;
 
 export interface CategorySummary {
   key: string;
@@ -90,11 +90,15 @@ export class SalonPage implements OnInit {
     return list.filter((g) => normalizeGuestCategory(g.familyGroup) === this.categoryFilter);
   }
 
+  get assignableCategoryLabels(): string[] {
+    return collectAssignableCategoryLabels(this.seating?.unassigned ?? [], this.categories);
+  }
+
   get categorySummaries(): CategorySummary[] {
     const list = this.seating?.unassigned ?? [];
     const summaries: CategorySummary[] = [];
 
-    for (const category of this.categories) {
+    for (const category of this.assignableCategoryLabels) {
       const guests = list.filter((g) => normalizeGuestCategory(g.familyGroup) === category);
       if (guests.length === 0) continue;
       summaries.push({

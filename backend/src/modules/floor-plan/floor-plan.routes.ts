@@ -8,7 +8,7 @@ import {
   guestSeatsNeeded,
   nextTableNumber,
   normalizeTableShape,
-  uncategorizedGuestFilter,
+  guestMatchesCategory,
   TABLE_SHAPES,
 } from '../../lib/floor-plan.js';
 
@@ -309,6 +309,9 @@ floorPlanRouter.get('/seating', requireAuth(['super_admin', 'wedding_admin']), a
 
   const totalSeats = tables.reduce((sum, t) => sum + t.seatCount, 0);
   const unassignedSeats = unassignedGuests.reduce((sum, g) => sum + guestSeatsNeeded(g), 0);
+  const totalGuestGroups = await prisma.guest.count({
+    where: { weddingId, isSystemGuest: false },
+  });
 
   return res.json({
     plan: {
@@ -331,6 +334,8 @@ floorPlanRouter.get('/seating', requireAuth(['super_admin', 'wedding_admin']), a
       assignedSeats,
       unassignedGuests: unassignedGuests.length,
       unassignedSeats,
+      assignedGuestGroups: assignedGuestIds.size,
+      totalGuestGroups,
       overCapacityTables,
     },
   });
@@ -445,15 +450,17 @@ floorPlanRouter.post(
     }
 
     const isUncategorized = category === '__uncategorized__';
-    const guests = await prisma.guest.findMany({
+    const unassignedPool = await prisma.guest.findMany({
       where: {
         weddingId,
         isSystemGuest: false,
         tableAssignment: null,
-        ...(isUncategorized ? uncategorizedGuestFilter() : { familyGroup: category }),
       },
       orderBy: { fullName: 'asc' },
     });
+    const guests = unassignedPool.filter((guest) =>
+      guestMatchesCategory(guest.familyGroup, isUncategorized ? '__uncategorized__' : category),
+    );
 
     if (guests.length === 0) {
       return res.status(404).json({ error: 'No hay invitados sin mesa en esa categoría' });

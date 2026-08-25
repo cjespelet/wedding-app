@@ -50,6 +50,8 @@ export interface SeatingStats {
   assignedSeats: number;
   unassignedGuests: number;
   unassignedSeats: number;
+  assignedGuestGroups: number;
+  totalGuestGroups: number;
   overCapacityTables: number;
 }
 

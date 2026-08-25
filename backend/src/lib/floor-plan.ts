@@ -86,6 +86,16 @@ export function uncategorizedGuestFilter() {
   return { OR: [{ familyGroup: null }, { familyGroup: '' }] };
 }
 
+export function guestMatchesCategory(
+  familyGroup: string | null | undefined,
+  category: string,
+): boolean {
+  if (category === '__uncategorized__') {
+    return !normalizeGuestCategory(familyGroup);
+  }
+  return normalizeGuestCategory(familyGroup) === category;
+}
+
 export type TableOccupancy = 'empty' | 'partial' | 'full' | 'over';
 
 export function tableOccupancy(seatsUsed: number, seatCount: number): TableOccupancy {
