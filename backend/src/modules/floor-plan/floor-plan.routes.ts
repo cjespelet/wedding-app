@@ -5,6 +5,7 @@ import {
   guestConfirmedSeats,
   guestOperationalSeats,
   guestSeatsInvited,
+  isGuestEligibleForSeating,
   summarizeGuestsByCategory,
   sumConfirmedGuests,
 } from '../../lib/confirmed-guest-count.js';
@@ -284,20 +285,23 @@ floorPlanRouter.get('/seating', requireAuth(['super_admin', 'wedding_admin']), a
   let overCapacityTables = 0;
 
   const tablesWithAssignments = tables.map((table) => {
-    const assignmentRows = table.assignments.map((a) => ({
+    const confirmedAssignments = table.assignments.filter((a) =>
+      isGuestEligibleForSeating(a.guest),
+    );
+    const assignmentRows = confirmedAssignments.map((a) => ({
       id: a.id,
       guestId: a.guestId,
       fullName: a.guest.fullName,
       familyGroup: a.guest.familyGroup,
-      seatsUsed: guestOperationalSeats(a.guest),
+      seatsUsed: guestConfirmedSeats(a.guest),
       seatsConfirmed: guestConfirmedSeats(a.guest),
       seatsInvited: guestSeatsInvited(a.guest),
     }));
     const seatsUsed = assignmentRows.reduce((sum, a) => sum + a.seatsUsed, 0);
-    const seatsConfirmed = assignmentRows.reduce((sum, a) => sum + (a.seatsConfirmed ?? 0), 0);
+    const seatsConfirmed = seatsUsed;
     assignedSeats += seatsUsed;
     if (seatsUsed > table.seatCount) overCapacityTables += 1;
-    table.assignments.forEach((a) => assignedGuestIds.add(a.guestId));
+    confirmedAssignments.forEach((a) => assignedGuestIds.add(a.guestId));
 
     return {
       id: table.id,
@@ -326,26 +330,24 @@ floorPlanRouter.get('/seating', requireAuth(['super_admin', 'wedding_admin']), a
     select: guestSeatingSelect,
   });
 
-  const unassignedForSeating = unassignedGuests.filter((g) => guestOperationalSeats(g) > 0);
+  const unassignedForSeating = unassignedGuests.filter((g) => isGuestEligibleForSeating(g));
   const allGuests = await prisma.guest.findMany({
     where: { weddingId, isSystemGuest: false },
     select: guestSeatingSelect,
   });
 
-  const assignedGuests = allGuests.filter((g) => assignedGuestIds.has(g.id));
+  const confirmedGuests = allGuests.filter((g) => isGuestEligibleForSeating(g));
+  const assignedGuests = confirmedGuests.filter((g) => assignedGuestIds.has(g.id));
   const totalTableSeats = tables.reduce((sum, t) => sum + t.seatCount, 0);
   const operationalAssignedSeats = assignedSeats;
   const operationalUnassignedSeats = unassignedForSeating.reduce(
-    (sum, g) => sum + guestOperationalSeats(g),
+    (sum, g) => sum + guestConfirmedSeats(g),
     0,
   );
   const confirmedTotal = sumConfirmedGuests(allGuests);
   const confirmedAssignedSeats = assignedGuests.reduce((sum, g) => sum + guestConfirmedSeats(g), 0);
-  const confirmedUnassignedSeats = unassignedForSeating.reduce(
-    (sum, g) => sum + guestConfirmedSeats(g),
-    0,
-  );
-  const totalGuestGroups = allGuests.length;
+  const confirmedUnassignedSeats = operationalUnassignedSeats;
+  const totalGuestGroups = confirmedGuests.length;
 
   return res.json({
     plan: {
@@ -361,7 +363,7 @@ floorPlanRouter.get('/seating', requireAuth(['super_admin', 'wedding_admin']), a
       familyGroup: g.familyGroup,
       adultsCount: g.adultsCount,
       minorsCount: g.minorsCount,
-      seatsNeeded: guestOperationalSeats(g),
+      seatsNeeded: guestConfirmedSeats(g),
       seatsConfirmed: guestConfirmedSeats(g),
       seatsInvited: guestSeatsInvited(g),
     })),
@@ -416,14 +418,14 @@ floorPlanRouter.post('/assign', requireAuth(['super_admin', 'wedding_admin']), a
     return res.status(404).json({ error: 'Mesa no encontrada' });
   }
 
-  const seatsUsed = guestOperationalSeats(guest);
+  const seatsUsed = guestConfirmedSeats(guest);
   if (seatsUsed < 1) {
-    return res.status(400).json({ error: 'El grupo no tiene cupos para asignar' });
+    return res.status(400).json({ error: 'Solo se pueden asignar invitados con RSVP confirmado' });
   }
 
   const otherSeats = table.assignments
-    .filter((a) => a.guestId !== guestId)
-    .reduce((sum, a) => sum + guestOperationalSeats(a.guest), 0);
+    .filter((a) => a.guestId !== guestId && isGuestEligibleForSeating(a.guest))
+    .reduce((sum, a) => sum + guestConfirmedSeats(a.guest), 0);
 
   if (otherSeats + seatsUsed > table.seatCount) {
     return res.status(409).json({
@@ -513,23 +515,24 @@ floorPlanRouter.post(
       orderBy: { fullName: 'asc' },
       select: guestSeatingSelect,
     });
-    const guests = unassignedPool.filter((guest) =>
-      guestMatchesCategory(guest.familyGroup, isUncategorized ? '__uncategorized__' : category),
+    const guests = unassignedPool.filter(
+      (guest) =>
+        isGuestEligibleForSeating(guest) &&
+        guestMatchesCategory(guest.familyGroup, isUncategorized ? '__uncategorized__' : category),
     );
 
     if (guests.length === 0) {
       return res.status(404).json({ error: 'No hay invitados sin mesa en esa categoría' });
     }
 
-    const seatsUsedOnTable = table.assignments.reduce(
-      (sum, a) => sum + guestOperationalSeats(a.guest),
-      0,
-    );
+    const seatsUsedOnTable = table.assignments
+      .filter((a) => isGuestEligibleForSeating(a.guest))
+      .reduce((sum, a) => sum + guestConfirmedSeats(a.guest), 0);
     let seatsAvailable = table.seatCount - seatsUsedOnTable;
     const toAssign: typeof guests = [];
 
     for (const guest of guests) {
-      const need = guestOperationalSeats(guest);
+      const need = guestConfirmedSeats(guest);
       if (need <= seatsAvailable) {
         toAssign.push(guest);
         seatsAvailable -= need;
@@ -542,7 +545,7 @@ floorPlanRouter.post(
       });
     }
 
-    const assignedSeatsCount = toAssign.reduce((sum, g) => sum + guestOperationalSeats(g), 0);
+    const assignedSeatsCount = toAssign.reduce((sum, g) => sum + guestConfirmedSeats(g), 0);
 
     await prisma.$transaction(
       toAssign.map((guest) =>
@@ -550,7 +553,7 @@ floorPlanRouter.post(
           data: {
             guestId: guest.id,
             tableId,
-            seatsUsed: guestOperationalSeats(guest),
+            seatsUsed: guestConfirmedSeats(guest),
           },
         }),
       ),

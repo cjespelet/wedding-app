@@ -93,6 +93,7 @@
           <strong>{{ seating.stats.confirmedAssignedSeats }}</strong> en mesas ·
           <strong>{{ seating.stats.confirmedUnassignedSeats }}</strong> sin mesa
         </p>
+        <p class="assign-hint">Solo aparecen invitados con RSVP confirmado.</p>
         <p><strong>{{ seating.stats.assignedGuestGroups }}</strong> / {{ seating.stats.totalGuestGroups }} grupos con mesa</p>
         <p>Capacidad del salón: <strong>{{ seating.stats.totalTableSeats }}</strong> lugares</p>
         <p *ngIf="seating.stats.overCapacityTables > 0" class="warn">
@@ -187,13 +188,7 @@
               <div class="guest-info">
                 <strong>{{ guest.fullName }}</strong>
                 <span class="guest-meta">
-                  <ng-container *ngIf="guest.seatsConfirmed && guest.seatsConfirmed > 0; else pendingGuest">
-                    {{ guest.seatsConfirmed }} conf.
-                  </ng-container>
-                  <ng-template #pendingGuest>{{ guest.seatsNeeded }} inv.</ng-template>
-                  <span *ngIf="guest.seatsInvited && guest.seatsConfirmed !== guest.seatsInvited">
-                    ({{ guest.seatsInvited }} inv.)
-                  </span>
+                  {{ guest.seatsConfirmed ?? guest.seatsNeeded }} conf.
                   <span *ngIf="guest.familyGroup"> · {{ guest.familyGroup }}</span>
                 </span>
               </div>
@@ -224,13 +219,7 @@
           <li *ngFor="let a of table.assignments" class="guest-item">
             <div class="guest-info">
               <strong>{{ a.fullName }}</strong>
-              <span class="guest-meta">
-                <ng-container *ngIf="a.seatsConfirmed && a.seatsConfirmed > 0; else assignedOperational">
-                  {{ a.seatsConfirmed }} conf.
-                </ng-container>
-                <ng-template #assignedOperational>{{ a.seatsUsed }} cupos</ng-template>
-                <span *ngIf="a.seatsInvited && a.seatsConfirmed !== a.seatsInvited"> ({{ a.seatsInvited }} inv.)</span>
-              </span>
+              <span class="guest-meta">{{ a.seatsConfirmed ?? a.seatsUsed }} conf.</span>
             </div>
             <button type="button" class="btn btn-sm btn-outline-danger" (click)="unassignGuest(a.guestId)">Quitar</button>
           </li>

@@ -49,12 +49,13 @@ export function guestConfirmedSeats(guest: GuestWithLatestRsvp): number {
   return confirmedCountsFromGuest(guest)?.total ?? 0;
 }
 
-/** Cupos para asignar mesa: confirmados, o invitados si aún no respondió RSVP. */
+/** Cupos en el salón: solo invitados con RSVP confirmado. */
 export function guestOperationalSeats(guest: GuestWithLatestRsvp): number {
-  const confirmed = guestConfirmedSeats(guest);
-  if (confirmed > 0) return confirmed;
-  if (!guest.rsvps[0]) return guestSeatsInvited(guest);
-  return 0;
+  return guestConfirmedSeats(guest);
+}
+
+export function isGuestEligibleForSeating(guest: GuestWithLatestRsvp): boolean {
+  return guestConfirmedSeats(guest) > 0;
 }
 
 /** @deprecated Use guestOperationalSeats or guestConfirmedSeats explicitly */

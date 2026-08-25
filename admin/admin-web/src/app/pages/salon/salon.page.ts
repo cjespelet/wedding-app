@@ -130,13 +130,7 @@ export class SalonPage implements OnInit {
   }
 
   categorySeatsLabel(summary: CategorySummary): string {
-    if (summary.confirmedSeats > 0 && summary.confirmedSeats !== summary.seats) {
-      return `${summary.groups} grp · ${summary.confirmedSeats} conf. (${summary.seats} cupos)`;
-    }
-    if (summary.confirmedSeats > 0) {
-      return `${summary.groups} grp · ${summary.confirmedSeats} confirmados`;
-    }
-    return `${summary.groups} grp · ${summary.seats} invitados (sin confirmar)`;
+    return `${summary.groups} grp · ${summary.confirmedSeats} confirmados`;
   }
 
   get onlyUncategorizedPending(): boolean {
