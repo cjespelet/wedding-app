@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { finalize } from 'rxjs';
 import {
   FloorPlan,
   FloorPlanService,
@@ -51,7 +52,10 @@ export class SalonPage implements OnInit {
   plan: FloorPlan | null = null;
   seating: SeatingState | null = null;
   loading = true;
+  refreshingSeating = false;
   savingRoom = false;
+  assigningCategoryKey: string | null = null;
+  assigningGuestId: string | null = null;
   widthM = 12;
   heightM = 8;
   selectedTableId: string | null = null;
@@ -66,6 +70,10 @@ export class SalonPage implements OnInit {
 
   ngOnInit(): void {
     this.loadPlan();
+  }
+
+  get isAssigning(): boolean {
+    return this.assigningCategoryKey !== null || this.assigningGuestId !== null;
   }
 
   get selectedTable(): VenueTable | null {
@@ -143,8 +151,12 @@ export class SalonPage implements OnInit {
     });
   }
 
-  loadSeating(): void {
-    this.loading = true;
+  loadSeating(silent = false): void {
+    if (silent) {
+      this.refreshingSeating = true;
+    } else {
+      this.loading = true;
+    }
     this.floorPlanService.getSeating().subscribe({
       next: (seating) => {
         this.seating = seating;
@@ -152,8 +164,13 @@ export class SalonPage implements OnInit {
         this.widthM = seating.plan.widthCm / 100;
         this.heightM = seating.plan.heightCm / 100;
         this.loading = false;
+        this.refreshingSeating = false;
       },
-      error: (err) => this.handleLoadError(err),
+      error: (err) => {
+        this.loading = false;
+        this.refreshingSeating = false;
+        this.handleLoadError(err);
+      },
     });
   }
 
@@ -307,16 +324,21 @@ export class SalonPage implements OnInit {
       this.snackBar.open('Seleccioná una mesa en el plano', 'Cerrar', { duration: 2500 });
       return;
     }
+    if (this.isAssigning) return;
 
-    this.floorPlanService.assignGuest(guest.id, table.id).subscribe({
-      next: () => {
-        this.snackBar.open(`${guest.fullName} → mesa ${table.number}`, 'Cerrar', { duration: 2000 });
-        this.loadSeating();
-      },
-      error: (err) => {
-        this.snackBar.open(err?.error?.error || 'No se pudo asignar', 'Cerrar', { duration: 4000 });
-      },
-    });
+    this.assigningGuestId = guest.id;
+    this.floorPlanService
+      .assignGuest(guest.id, table.id)
+      .pipe(finalize(() => (this.assigningGuestId = null)))
+      .subscribe({
+        next: () => {
+          this.snackBar.open(`${guest.fullName} → mesa ${table.number}`, 'Cerrar', { duration: 2000 });
+          this.loadSeating(true);
+        },
+        error: (err) => {
+          this.snackBar.open(err?.error?.error || 'No se pudo asignar', 'Cerrar', { duration: 4000 });
+        },
+      });
   }
 
   assignCategory(summary: CategorySummary): void {
@@ -325,20 +347,25 @@ export class SalonPage implements OnInit {
       this.snackBar.open('Seleccioná una mesa en el plano', 'Cerrar', { duration: 2500 });
       return;
     }
+    if (this.isAssigning) return;
 
-    this.floorPlanService.assignCategory(summary.key, table.id).subscribe({
-      next: (result) => {
-        let message = `${summary.label}: ${result.assignedGroups} grupo(s) → mesa ${table.number}`;
-        if (result.partial && result.skippedGroups) {
-          message += `. Quedan ${result.skippedGroups} grupo(s) sin mesa (mesa llena)`;
-        }
-        this.snackBar.open(message, 'Cerrar', { duration: 4000 });
-        this.loadSeating();
-      },
-      error: (err) => {
-        this.snackBar.open(err?.error?.error || 'No se pudo asignar la categoría', 'Cerrar', { duration: 4500 });
-      },
-    });
+    this.assigningCategoryKey = summary.key;
+    this.floorPlanService
+      .assignCategory(summary.key, table.id)
+      .pipe(finalize(() => (this.assigningCategoryKey = null)))
+      .subscribe({
+        next: (result) => {
+          let message = `${summary.label}: ${result.assignedGroups} grupo(s) → mesa ${table.number}`;
+          if (result.partial && result.skippedGroups) {
+            message += `. Quedan ${result.skippedGroups} grupo(s) sin mesa (mesa llena)`;
+          }
+          this.snackBar.open(message, 'Cerrar', { duration: 4000 });
+          this.loadSeating(true);
+        },
+        error: (err) => {
+          this.snackBar.open(err?.error?.error || 'No se pudo asignar la categoría', 'Cerrar', { duration: 4500 });
+        },
+      });
   }
 
   unassignGuest(guestId: string): void {

@@ -109,6 +109,10 @@
           </ng-template>
         </div>
 
+        <p class="assign-loading" *ngIf="isAssigning || refreshingSeating">
+          {{ assigningCategoryKey ? 'Asignando categoría…' : assigningGuestId ? 'Asignando invitado…' : 'Actualizando plano…' }}
+        </p>
+
         <div class="assign-method-tabs">
           <button
             type="button"
@@ -145,9 +149,10 @@
               <button
                 type="button"
                 class="btn btn-sm btn-outline-primary"
+                [disabled]="isAssigning || refreshingSeating"
                 (click)="assignCategory(cat)"
               >
-                Asignar
+                {{ assigningCategoryKey === cat.key ? 'Asignando…' : 'Asignar' }}
               </button>
             </li>
             <li *ngIf="categorySummaries.length === 0" class="guest-empty">No hay categorías pendientes</li>
@@ -172,9 +177,10 @@
               <button
                 type="button"
                 class="btn btn-sm btn-outline-primary"
+                [disabled]="isAssigning || refreshingSeating"
                 (click)="assignGuest(guest)"
               >
-                Asignar
+                {{ assigningGuestId === guest.id ? 'Asignando…' : 'Asignar' }}
               </button>
             </li>
             <li *ngIf="filteredUnassigned.length === 0" class="guest-empty">No hay invitados sin mesa</li>
@@ -213,7 +219,7 @@
 </div>
 
 <ng-template #canvasTpl>
-  <div class="salon-canvas-wrap" *ngIf="plan">
+  <div class="salon-canvas-wrap" *ngIf="plan" [class.is-refreshing]="refreshingSeating">
     <svg
       #floorSvg
       class="floor-svg"
