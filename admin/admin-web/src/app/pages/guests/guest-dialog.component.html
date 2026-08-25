@@ -6,6 +6,7 @@
       <input matInput formControlName="fullName" placeholder="Ej. Flia Rocha o Juan Pérez" />
     </mat-form-field>
 
+    <p class="field-hint">Cupos invitados (en la invitación)</p>
     <div class="row-fields">
       <mat-form-field appearance="outline">
         <mat-label>Mayores de 17</mat-label>
@@ -16,6 +17,20 @@
         <input matInput type="number" formControlName="minorsCount" min="0" />
       </mat-form-field>
     </div>
+
+    <ng-container *ngIf="hasConfirmedRsvp">
+      <p class="field-hint rsvp-section">Confirmados RSVP (personas que asisten)</p>
+      <div class="row-fields">
+        <mat-form-field appearance="outline">
+          <mat-label>Adultos confirmados</mat-label>
+          <input matInput type="number" formControlName="confirmedAdults" min="0" />
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Menores confirmados</mat-label>
+          <input matInput type="number" formControlName="confirmedMinors" min="0" />
+        </mat-form-field>
+      </div>
+    </ng-container>
 
     <mat-form-field appearance="outline" class="full">
       <mat-label>Usuario (para @ en fotos)</mat-label>

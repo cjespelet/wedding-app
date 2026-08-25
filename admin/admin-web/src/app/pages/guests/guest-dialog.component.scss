@@ -2,6 +2,18 @@
   width: 100%;
 }
 
+.field-hint {
+  margin: 0 0 4px;
+  font-size: 0.8125rem;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.rsvp-section {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
 .row-fields {
   display: flex;
   gap: 16px;

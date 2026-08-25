@@ -243,6 +243,74 @@ adminRouter.put('/guests/:id', requireAuth(['super_admin', 'wedding_admin']), as
   return res.json(updated);
 });
 
+// Update latest RSVP confirmed headcount (admin correction)
+adminRouter.patch('/guests/:id/rsvp', requireAuth(['super_admin', 'wedding_admin']), async (req: AuthenticatedRequest, res) => {
+  const { id } = req.params;
+  const weddingId = req.user?.weddingId;
+  if (!weddingId) {
+    return res.status(400).json({ error: 'No weddingId on token' });
+  }
+
+  const { confirmedAdults, confirmedMinors } = req.body as {
+    confirmedAdults?: number;
+    confirmedMinors?: number;
+  };
+
+  if (confirmedAdults == null || confirmedMinors == null) {
+    return res.status(400).json({ error: 'confirmedAdults y confirmedMinors son requeridos' });
+  }
+  if (confirmedAdults < 0 || confirmedMinors < 0) {
+    return res.status(400).json({ error: 'Las cantidades no pueden ser negativas' });
+  }
+
+  const numberOfGuests = confirmedAdults + confirmedMinors;
+  if (numberOfGuests < 1) {
+    return res.status(400).json({ error: 'Debe haber al menos 1 persona confirmada' });
+  }
+
+  const guest = await prisma.guest.findFirst({
+    where: { id, weddingId, isSystemGuest: false },
+    include: {
+      rsvps: { orderBy: { createdAt: 'desc' }, take: 1 },
+    },
+  });
+  if (!guest) {
+    return res.status(404).json({ error: 'Guest not found' });
+  }
+
+  const rsvp = guest.rsvps[0];
+  if (!rsvp) {
+    return res.status(400).json({ error: 'Este invitado no tiene confirmación RSVP' });
+  }
+  if (!rsvp.attending) {
+    return res.status(400).json({ error: 'El invitado no confirmó asistencia' });
+  }
+
+  await prisma.$transaction(async (tx) => {
+    await tx.rsvp.update({
+      where: { id: rsvp.id },
+      data: { confirmedAdults, confirmedMinors, numberOfGuests },
+    });
+
+    const assignment = await tx.tableAssignment.findUnique({ where: { guestId: id } });
+    if (assignment) {
+      await tx.tableAssignment.update({
+        where: { guestId: id },
+        data: { seatsUsed: numberOfGuests },
+      });
+    }
+  });
+
+  const updated = await prisma.guest.findFirst({
+    where: { id },
+    include: {
+      rsvps: { orderBy: { createdAt: 'desc' }, take: 1 },
+    },
+  });
+
+  return res.json(updated);
+});
+
 // Clear guest app credentials and RSVP so the invitation link can be used again
 adminRouter.post(
   '/guests/:id/reset-registration',

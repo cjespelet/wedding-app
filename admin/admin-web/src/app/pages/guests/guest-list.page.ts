@@ -6,11 +6,13 @@ import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { GuestsService, Guest, CreateGuestPayload, UpdateGuestPayload, lastRsvp, confirmedCounts } from '../../core/services/guests.service';
+import { GuestsService, Guest, CreateGuestPayload, GuestDialogResult, lastRsvp, confirmedCounts } from '../../core/services/guests.service';
 import { GuestDialogComponent } from './guest-dialog.component';
 import { CheckinDialogComponent } from './checkin-dialog.component';
 import { environment } from '../../../environments/environment';
 import { GUEST_CATEGORIES } from '../../core/guest-categories';
+import { switchMap } from 'rxjs/operators';
+import { of } from 'rxjs';
 
 type GuestFilter = 'all' | 'confirmed' | 'not_confirmed' | 'present';
 type CategoryFilter = 'all' | 'uncategorized' | (typeof GUEST_CATEGORIES)[number];
@@ -230,6 +232,8 @@ export class GuestListPage implements OnInit, AfterViewInit {
   }
 
   editGuest(guest: Guest) {
+    const rsvp = lastRsvp(guest);
+    const counts = confirmedCounts(guest);
     const ref = this.dialog.open(GuestDialogComponent, {
       width: '480px',
       data: {
@@ -240,18 +244,31 @@ export class GuestListPage implements OnInit, AfterViewInit {
         minorsCount: guest.minorsCount,
         username: guest.username,
         accessCode: guest.accessCode,
+        hasConfirmedRsvp: !!rsvp?.attending,
+        confirmedAdults: counts?.adults ?? guest.adultsCount,
+        confirmedMinors: counts?.minors ?? guest.minorsCount,
       },
     });
-    ref.afterClosed().subscribe((result: UpdateGuestPayload | undefined) => {
-      if (result) {
-        this.guestsService.update(guest.id, result).subscribe({
+    ref.afterClosed().subscribe((result: GuestDialogResult | undefined) => {
+      if (!result) return;
+      const { confirmedAdults, confirmedMinors, ...guestPayload } = result;
+      this.guestsService
+        .update(guest.id, guestPayload)
+        .pipe(
+          switchMap(() =>
+            confirmedAdults != null && confirmedMinors != null
+              ? this.guestsService.updateRsvp(guest.id, { confirmedAdults, confirmedMinors })
+              : of(null),
+          ),
+        )
+        .subscribe({
           next: () => {
             this.snackBar.open('Invitado actualizado', 'Cerrar', { duration: 3000 });
             this.load();
           },
-          error: () => this.snackBar.open('Error al actualizar invitado', 'Cerrar', { duration: 3000 }),
+          error: (err) =>
+            this.snackBar.open(err?.error?.error || 'Error al actualizar invitado', 'Cerrar', { duration: 4000 }),
         });
-      }
     });
   }
 

@@ -80,6 +80,10 @@ export class GuestsService {
     return this.http.put<Guest>(`${environment.apiBaseUrl}/admin/guests/${id}`, payload);
   }
 
+  updateRsvp(id: string, payload: UpdateRsvpPayload) {
+    return this.http.patch<Guest>(`${environment.apiBaseUrl}/admin/guests/${id}/rsvp`, payload);
+  }
+
   resetRegistration(id: string) {
     return this.http.post<Guest>(`${environment.apiBaseUrl}/admin/guests/${id}/reset-registration`, {});
   }
@@ -113,4 +117,14 @@ export interface UpdateGuestPayload {
   accessCode?: string;
   canSharePhotos?: boolean;
 }
+
+export interface UpdateRsvpPayload {
+  confirmedAdults: number;
+  confirmedMinors: number;
+}
+
+export type GuestDialogResult = UpdateGuestPayload & {
+  confirmedAdults?: number;
+  confirmedMinors?: number;
+};
 

@@ -6,7 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
-import type { CreateGuestPayload, UpdateGuestPayload } from '../../core/services/guests.service';
+import type { CreateGuestPayload, GuestDialogResult } from '../../core/services/guests.service';
 import { GUEST_CATEGORIES } from '../../core/guest-categories';
 
 export interface GuestDialogData {
@@ -17,6 +17,9 @@ export interface GuestDialogData {
   minorsCount?: number;
   username?: string;
   accessCode?: string;
+  hasConfirmedRsvp?: boolean;
+  confirmedAdults?: number;
+  confirmedMinors?: number;
 }
 
 @Component({
@@ -37,6 +40,7 @@ export interface GuestDialogData {
 export class GuestDialogComponent {
   form!: FormGroup;
   readonly categories = GUEST_CATEGORIES;
+  readonly hasConfirmedRsvp: boolean;
 
   constructor(
     private fb: FormBuilder,
@@ -44,6 +48,7 @@ export class GuestDialogComponent {
     @Inject(MAT_DIALOG_DATA) public data: GuestDialogData | null,
   ) {
     const d = this.data;
+    this.hasConfirmedRsvp = !!d?.hasConfirmedRsvp;
     this.form = this.fb.group({
       fullName: [d?.fullName ?? '', Validators.required],
       email: [d?.email ?? ''],
@@ -52,13 +57,15 @@ export class GuestDialogComponent {
       minorsCount: [d?.minorsCount ?? 0, [Validators.required, Validators.min(0)]],
       username: [d?.username ?? ''],
       accessCode: [d?.accessCode ?? '', [Validators.maxLength(4), Validators.pattern(/^\d*$/)]],
+      confirmedAdults: [d?.confirmedAdults ?? 0, [Validators.required, Validators.min(0)]],
+      confirmedMinors: [d?.confirmedMinors ?? 0, [Validators.required, Validators.min(0)]],
     });
   }
 
   save(): void {
     if (this.form.invalid) return;
     const v = this.form.value;
-    const payload: CreateGuestPayload & UpdateGuestPayload = {
+    const payload: CreateGuestPayload & GuestDialogResult = {
       fullName: v.fullName ?? '',
       email: v.email || undefined,
       familyGroup: v.familyGroup ? v.familyGroup : null,
@@ -67,6 +74,10 @@ export class GuestDialogComponent {
       username: v.username?.trim() || undefined,
       accessCode: v.accessCode?.replace(/\D/g, '').slice(0, 4) || undefined,
     };
+    if (this.hasConfirmedRsvp) {
+      payload.confirmedAdults = v.confirmedAdults ?? 0;
+      payload.confirmedMinors = v.confirmedMinors ?? 0;
+    }
     this.dialogRef.close(payload);
   }
 }
