@@ -5,7 +5,9 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
+import { MatSelectModule } from '@angular/material/select';
 import type { CreateGuestPayload, UpdateGuestPayload } from '../../core/services/guests.service';
+import { GUEST_CATEGORIES } from '../../core/guest-categories';
 
 export interface GuestDialogData {
   fullName?: string;
@@ -29,10 +31,12 @@ export interface GuestDialogData {
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
+    MatSelectModule,
   ],
 })
 export class GuestDialogComponent {
   form!: FormGroup;
+  readonly categories = GUEST_CATEGORIES;
 
   constructor(
     private fb: FormBuilder,
@@ -57,7 +61,7 @@ export class GuestDialogComponent {
     const payload: CreateGuestPayload & UpdateGuestPayload = {
       fullName: v.fullName ?? '',
       email: v.email || undefined,
-      familyGroup: v.familyGroup || undefined,
+      familyGroup: v.familyGroup ? v.familyGroup : null,
       adultsCount: v.adultsCount ?? 1,
       minorsCount: v.minorsCount ?? 0,
       username: v.username?.trim() || undefined,

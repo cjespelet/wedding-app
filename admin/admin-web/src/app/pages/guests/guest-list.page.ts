@@ -1,5 +1,6 @@
 import { Component, OnInit, AfterViewInit, ViewChild, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatButtonModule } from '@angular/material/button';
@@ -9,15 +10,17 @@ import { GuestsService, Guest, CreateGuestPayload, UpdateGuestPayload, lastRsvp,
 import { GuestDialogComponent } from './guest-dialog.component';
 import { CheckinDialogComponent } from './checkin-dialog.component';
 import { environment } from '../../../environments/environment';
+import { GUEST_CATEGORIES } from '../../core/guest-categories';
 
 type GuestFilter = 'all' | 'confirmed' | 'not_confirmed' | 'present';
+type CategoryFilter = 'all' | 'uncategorized' | (typeof GUEST_CATEGORIES)[number];
 
 @Component({
   standalone: true,
   selector: 'app-guest-list',
   templateUrl: './guest-list.page.html',
   styleUrls: ['./guest-list.page.scss'],
-  imports: [CommonModule, MatTableModule, MatPaginatorModule, MatButtonModule, MatDialogModule, MatSnackBarModule],
+  imports: [CommonModule, FormsModule, MatTableModule, MatPaginatorModule, MatButtonModule, MatDialogModule, MatSnackBarModule],
 })
 export class GuestListPage implements OnInit, AfterViewInit {
   private readonly guestsService = inject(GuestsService);
@@ -30,6 +33,7 @@ export class GuestListPage implements OnInit, AfterViewInit {
   displayedColumns = [
     'nameGuest',
     'fullName',
+    'familyGroup',
     'adultsCount',
     'minorsCount',
     'username',
@@ -43,17 +47,33 @@ export class GuestListPage implements OnInit, AfterViewInit {
   ];
   dataSource = new MatTableDataSource<Guest>([]);
   guestFilter: GuestFilter = 'all';
+  categoryFilter: CategoryFilter = 'all';
   searchQuery = '';
+  readonly categories = GUEST_CATEGORIES;
   private allGuests: Guest[] = [];
 
   get totalAdults(): number {
-    return this.dataSource.data.reduce((sum, g) => sum + (g.adultsCount ?? 0), 0);
+    return this.dataSource.data.reduce((sum, g) => sum + this.adultsForTotals(g), 0);
   }
   get totalMinors(): number {
-    return this.dataSource.data.reduce((sum, g) => sum + (g.minorsCount ?? 0), 0);
+    return this.dataSource.data.reduce((sum, g) => sum + this.minorsForTotals(g), 0);
   }
   get totalGuests(): number {
     return this.totalAdults + this.totalMinors;
+  }
+
+  private adultsForTotals(guest: Guest): number {
+    if (this.guestFilter === 'confirmed') {
+      return confirmedCounts(guest)?.adults ?? 0;
+    }
+    return guest.adultsCount ?? 0;
+  }
+
+  private minorsForTotals(guest: Guest): number {
+    if (this.guestFilter === 'confirmed') {
+      return confirmedCounts(guest)?.minors ?? 0;
+    }
+    return guest.minorsCount ?? 0;
   }
 
   ngOnInit(): void {
@@ -86,6 +106,16 @@ export class GuestListPage implements OnInit, AfterViewInit {
     this.cdr.detectChanges();
   }
 
+  setCategoryFilter(filter: CategoryFilter): void {
+    this.categoryFilter = filter;
+    this.applyFilter();
+    this.cdr.detectChanges();
+  }
+
+  onCategoryFilterChange(event: Event): void {
+    this.setCategoryFilter((event.target as HTMLSelectElement).value as CategoryFilter);
+  }
+
   onSearchChange(event: Event): void {
     this.searchQuery = (event.target as HTMLInputElement).value;
     this.applyFilter();
@@ -110,6 +140,12 @@ export class GuestListPage implements OnInit, AfterViewInit {
       case 'present':
         filtered = this.allGuests.filter((g) => g.checkedIn);
         break;
+    }
+
+    if (this.categoryFilter === 'uncategorized') {
+      filtered = filtered.filter((g) => !g.familyGroup);
+    } else if (this.categoryFilter !== 'all') {
+      filtered = filtered.filter((g) => g.familyGroup === this.categoryFilter);
     }
 
     const query = this.searchQuery.trim().toLowerCase();
@@ -160,7 +196,7 @@ export class GuestListPage implements OnInit, AfterViewInit {
     const label = guest.nameGuest || guest.fullName;
     if (
       !confirm(
-        `¿Resetear la cuenta de "${label}"?\n\nPodrá volver a registrarse con el link de invitación. RSVP y fotos se mantienen.`,
+        `¿Resetear la cuenta de "${label}"?\n\nSe borrará la confirmación (RSVP) y el check-in. Podrá volver a registrarse y confirmar con el link de invitación. Las fotos se mantienen.`,
       )
     ) {
       return;
@@ -260,6 +296,27 @@ export class GuestListPage implements OnInit, AfterViewInit {
         this.snackBar.open('Error al actualizar permisos de compartir fotos', 'Cerrar', {
           duration: 3000,
         }),
+    });
+  }
+
+  updateCategory(guest: Guest, value: string): void {
+    const familyGroup = value || null;
+    if ((guest.familyGroup || null) === familyGroup) return;
+
+    this.guestsService.update(guest.id, { familyGroup }).subscribe({
+      next: (updated) => {
+        guest.familyGroup = updated.familyGroup ?? undefined;
+        this.snackBar.open('Categoría actualizada', 'Cerrar', { duration: 2000 });
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.snackBar.open(
+          err?.error?.error || 'Error al actualizar categoría',
+          'Cerrar',
+          { duration: 4000 },
+        );
+        this.load();
+      },
     });
   }
 }

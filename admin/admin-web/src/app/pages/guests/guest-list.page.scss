@@ -89,7 +89,36 @@
 }
 
 .guests-table .mat-column-fullName {
-  width: 12%;
+  width: 11%;
+}
+
+.guests-table .mat-column-familyGroup {
+  width: 11%;
+}
+
+.guest-category-select,
+.guest-category-filter {
+  width: 100%;
+  max-width: 100%;
+  padding: 0.25rem 0.35rem;
+  font-size: 0.75rem;
+  border: 1px solid #ced4da;
+  border-radius: 0.375rem;
+  background: #fff;
+  color: #333;
+
+  &:focus {
+    outline: none;
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.15rem rgba(13, 110, 253, 0.15);
+  }
+}
+
+.guest-category-filter {
+  flex: 0 1 180px;
+  min-width: 160px;
+  font-size: 0.85rem;
+  padding: 0.35rem 0.5rem;
 }
 
 .guests-table .mat-column-adultsCount,

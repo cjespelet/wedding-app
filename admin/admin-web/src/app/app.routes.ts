@@ -10,6 +10,7 @@ import { PhotoGalleryManagerPage } from './pages/photos/photo-gallery-manager.pa
 import { MenuManagerPage } from './pages/menu/menu-manager/menu-manager.page';
 import { BarDrinksManagerPage } from './pages/bar-drinks/bar-drinks-manager/bar-drinks-manager.page';
 import { DjMessagesPage } from './pages/dj-messages/dj-messages.page';
+import { SalonPage } from './pages/salon/salon.page';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
@@ -58,6 +59,12 @@ export const routes: Routes = [
       {
         path: 'bar-drinks',
         component: BarDrinksManagerPage,
+        canActivate: [roleGuard],
+        data: { roles: ['super_admin', 'wedding_admin'] },
+      },
+      {
+        path: 'salon',
+        component: SalonPage,
         canActivate: [roleGuard],
         data: { roles: ['super_admin', 'wedding_admin'] },
       },

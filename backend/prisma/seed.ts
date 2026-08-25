@@ -27,6 +27,7 @@ async function main() {
   const admins = [
     { email: 'admin@example.com', name: 'Super Admin', password: 'admin123' },
     { email: 'aesudo@wedding.com', name: 'Aesudo', password: '2345' },
+    { email: 'admin@boda.com', name: 'Admin Boda', password: '123456' },
   ];
 
   for (const admin of admins) {

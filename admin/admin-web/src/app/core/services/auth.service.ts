@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
+import { clearStoredSession } from '../auth-session';
 
 export interface AuthUser {
   id: string;
@@ -45,8 +46,7 @@ export class AuthService {
   }
 
   logout() {
-    localStorage.removeItem(this.storageKey);
-    localStorage.removeItem(this.userKey);
+    clearStoredSession();
     this.router.navigateByUrl('/login');
   }
 }

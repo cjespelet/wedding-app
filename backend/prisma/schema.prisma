@@ -60,6 +60,7 @@ model Wedding {
   barDrinks BarDrink[]
   djMessages DjMessage[]
   guestNotifications GuestNotification[]
+  floorPlan FloorPlan?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -103,6 +104,8 @@ model Guest {
 
   // Invitado sistema (ej. qrupload) — no aparece en listados ni registro
   isSystemGuest     Boolean @default(false)
+
+  tableAssignment TableAssignment?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -335,5 +338,53 @@ model BarDrink {
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model FloorPlan {
+  id        String   @id @default(cuid())
+  wedding   Wedding  @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  weddingId String   @unique
+
+  widthCm   Float    @default(1200)
+  heightCm  Float    @default(800)
+
+  tables    VenueTable[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model VenueTable {
+  id          String    @id @default(cuid())
+  floorPlan   FloorPlan @relation(fields: [floorPlanId], references: [id], onDelete: Cascade)
+  floorPlanId String
+
+  number      Int
+  shape       String    @default("round") // round | rect | square
+  xCm         Float
+  yCm         Float
+  rotationDeg Float     @default(0)
+  widthCm     Float
+  heightCm    Float
+  seatCount   Int       @default(8)
+
+  assignments TableAssignment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([floorPlanId, number])
+}
+
+model TableAssignment {
+  id        String     @id @default(cuid())
+  table     VenueTable @relation(fields: [tableId], references: [id], onDelete: Cascade)
+  tableId   String
+  guest     Guest      @relation(fields: [guestId], references: [id], onDelete: Cascade)
+  guestId   String     @unique
+  seatsUsed Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 

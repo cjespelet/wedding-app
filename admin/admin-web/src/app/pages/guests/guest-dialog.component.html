@@ -33,8 +33,13 @@
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="full">
-      <mat-label>Grupo / familia</mat-label>
-      <input matInput formControlName="familyGroup" />
+      <mat-label>Categoría</mat-label>
+      <mat-select formControlName="familyGroup">
+        <mat-option value="">Sin categoría</mat-option>
+        <mat-option *ngFor="let category of categories" [value]="category">
+          {{ category }}
+        </mat-option>
+      </mat-select>
     </mat-form-field>
   </form>
 </div>

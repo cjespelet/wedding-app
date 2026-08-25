@@ -76,7 +76,7 @@ export class GuestsService {
 
 export interface CreateGuestPayload {
   fullName: string;
-  familyGroup?: string;
+  familyGroup?: string | null;
   email?: string;
   adultsCount?: number;
   minorsCount?: number;
@@ -86,7 +86,7 @@ export interface CreateGuestPayload {
 
 export interface UpdateGuestPayload {
   fullName?: string;
-  familyGroup?: string;
+  familyGroup?: string | null;
   email?: string;
   adultsCount?: number;
   minorsCount?: number;

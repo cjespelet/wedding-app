@@ -77,6 +77,16 @@
       <i class="fa-solid fa-xmark"></i>
     </button>
   </div>
+  <select
+    class="guest-category-filter"
+    [value]="categoryFilter"
+    (change)="onCategoryFilterChange($event)"
+    aria-label="Filtrar por categoría"
+  >
+    <option value="all">Todas las categorías</option>
+    <option value="uncategorized">Sin categoría</option>
+    <option *ngFor="let category of categories" [value]="category">{{ category }}</option>
+  </select>
   <span class="guest-filter-count">{{ dataSource.data.length }} grupo(s)</span>
 </div>
 
@@ -90,6 +100,22 @@
   <ng-container matColumnDef="fullName">
     <th mat-header-cell *matHeaderCellDef>Nombre</th>
     <td mat-cell *matCellDef="let row">{{ row.fullName }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="familyGroup">
+    <th mat-header-cell *matHeaderCellDef>Categoría</th>
+    <td mat-cell *matCellDef="let row">
+      <select
+        class="guest-category-select"
+        [ngModel]="row.familyGroup || ''"
+        (ngModelChange)="updateCategory(row, $event)"
+        (click)="$event.stopPropagation()"
+        [attr.aria-label]="'Categoría de ' + row.fullName"
+      >
+        <option value="">—</option>
+        <option *ngFor="let category of categories" [value]="category">{{ category }}</option>
+      </select>
+    </td>
   </ng-container>
 
   <ng-container matColumnDef="adultsCount">

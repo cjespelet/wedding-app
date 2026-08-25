@@ -1,0 +1,259 @@
+<div class="salon-page">
+  <header class="salon-header">
+    <div>
+      <h1>Plano del salón</h1>
+      <p class="subtitle">
+        {{ mode === 'plan'
+          ? 'Definí el salón y ubicá mesas. En el dibujo solo se muestran los números.'
+          : 'Asigná invitados a cada mesa. En el dibujo solo se ven números y colores de ocupación.' }}
+      </p>
+    </div>
+    <div class="mode-tabs">
+      <button type="button" class="mode-tab" [class.active]="mode === 'plan'" (click)="setMode('plan')">Plano</button>
+      <button type="button" class="mode-tab" [class.active]="mode === 'assign'" (click)="setMode('assign')">Asignación</button>
+    </div>
+  </header>
+
+  <div *ngIf="loading" class="salon-loading">Cargando plano…</div>
+
+  <div *ngIf="!loading && plan && mode === 'plan'" class="salon-layout">
+    <aside class="salon-sidebar">
+      <section class="panel">
+        <h2>Salón</h2>
+        <label class="field">
+          <span>Ancho (m)</span>
+          <input type="number" min="1" step="0.1" [(ngModel)]="widthM" />
+        </label>
+        <label class="field">
+          <span>Largo (m)</span>
+          <input type="number" min="1" step="0.1" [(ngModel)]="heightM" />
+        </label>
+        <button type="button" class="btn btn-primary btn-block" [disabled]="savingRoom" (click)="saveRoom()">
+          Guardar salón
+        </button>
+      </section>
+
+      <section class="panel">
+        <h2>Agregar mesa</h2>
+        <div class="btn-row">
+          <button type="button" class="btn btn-outline-primary" (click)="addTable('round')">Redonda</button>
+          <button type="button" class="btn btn-outline-primary" (click)="addTable('square')">Cuadrada</button>
+          <button type="button" class="btn btn-outline-primary" (click)="addTable('rect')">Rectangular</button>
+        </div>
+      </section>
+
+      <section class="panel" *ngIf="selectedTable as table">
+        <h2>Mesa {{ table.number }}</h2>
+        <label class="field">
+          <span>Número</span>
+          <input type="number" min="1" [(ngModel)]="table.number" />
+        </label>
+        <label class="field">
+          <span>Forma</span>
+          <select [(ngModel)]="table.shape" (ngModelChange)="onShapeChange($event)">
+            <option *ngFor="let shape of tableShapes" [ngValue]="shape">{{ shapeLabels[shape] }}</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Asientos</span>
+          <input type="number" min="1" [(ngModel)]="table.seatCount" />
+        </label>
+        <label class="field">
+          <span>Ancho (cm)</span>
+          <input type="number" min="40" [(ngModel)]="table.widthCm" />
+        </label>
+        <label class="field">
+          <span>Largo (cm)</span>
+          <input type="number" min="40" [(ngModel)]="table.heightCm" />
+        </label>
+        <label class="field">
+          <span>Rotación (°)</span>
+          <input type="number" step="15" [(ngModel)]="table.rotationDeg" />
+        </label>
+        <div class="btn-row vertical">
+          <button type="button" class="btn btn-primary btn-block" (click)="saveSelectedTable()">Guardar mesa</button>
+          <button type="button" class="btn btn-outline-danger btn-block" (click)="deleteSelectedTable()">Eliminar mesa</button>
+        </div>
+      </section>
+
+      <section class="panel hint" *ngIf="!selectedTable">
+        <p>Arrastrá una mesa en el plano o agregá una nueva.</p>
+      </section>
+    </aside>
+
+    <ng-container *ngTemplateOutlet="canvasTpl"></ng-container>
+  </div>
+
+  <div *ngIf="!loading && plan && mode === 'assign' && seating" class="salon-layout assign-layout">
+    <aside class="salon-sidebar assign-sidebar">
+      <section class="panel stats-panel">
+        <h2>Resumen</h2>
+        <p><strong>{{ seating.stats.unassignedGuests }}</strong> grupos sin mesa ({{ seating.stats.unassignedSeats }} personas)</p>
+        <p><strong>{{ seating.stats.assignedSeats }}</strong> / {{ seating.stats.totalSeats }} asientos ocupados</p>
+        <p *ngIf="seating.stats.overCapacityTables > 0" class="warn">
+          {{ seating.stats.overCapacityTables }} mesa(s) sobrecupo
+        </p>
+      </section>
+
+      <section class="panel">
+        <h2>Asignar</h2>
+        <div
+          class="selected-table-banner"
+          [class.missing]="!selectedTable"
+        >
+          <ng-container *ngIf="selectedTable as table; else pickTable">
+            Mesa <strong>{{ table.number }}</strong> · {{ tableFreeSeats(table) }} lugar(es) libre(s)
+          </ng-container>
+          <ng-template #pickTable>
+            Tocá una mesa en el plano para asignar
+          </ng-template>
+        </div>
+
+        <div class="assign-method-tabs">
+          <button
+            type="button"
+            class="assign-method-tab"
+            [class.active]="assignMethod === 'category'"
+            (click)="setAssignMethod('category')"
+          >
+            Por categoría
+          </button>
+          <button
+            type="button"
+            class="assign-method-tab"
+            [class.active]="assignMethod === 'guest'"
+            (click)="setAssignMethod('guest')"
+          >
+            Por invitado
+          </button>
+        </div>
+
+        <ng-container *ngIf="assignMethod === 'category'">
+          <p class="assign-hint">
+            Asigná grupos de invitados según su categoría (la misma de la lista de Invitados).
+          </p>
+          <p class="assign-hint warn" *ngIf="onlyUncategorizedPending">
+            Todos están sin categoría. Asigná categorías en Invitados para usar FLIA JESI, AMIGOS JAVI, etc.
+          </p>
+          <ul class="guest-list category-list">
+            <li *ngFor="let cat of categorySummaries" class="guest-item category-item">
+              <div class="guest-info">
+                <strong>{{ cat.label }}</strong>
+                <span class="guest-meta">{{ cat.groups }} grupo(s) · {{ cat.seats }} personas</span>
+                <span class="guest-meta capacity-hint" *ngIf="categoryAssignHint(cat) as hint">{{ hint }}</span>
+              </div>
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-primary"
+                (click)="assignCategory(cat)"
+              >
+                Asignar
+              </button>
+            </li>
+            <li *ngIf="categorySummaries.length === 0" class="guest-empty">No hay categorías pendientes</li>
+          </ul>
+        </ng-container>
+
+        <ng-container *ngIf="assignMethod === 'guest'">
+          <select class="category-filter" [(ngModel)]="categoryFilter">
+            <option value="all">Todas las categorías</option>
+            <option value="uncategorized">Sin categoría</option>
+            <option *ngFor="let c of categories" [ngValue]="c">{{ c }}</option>
+          </select>
+          <ul class="guest-list">
+            <li *ngFor="let guest of filteredUnassigned" class="guest-item">
+              <div class="guest-info">
+                <strong>{{ guest.fullName }}</strong>
+                <span class="guest-meta">
+                  {{ guest.seatsNeeded }} pers.
+                  <span *ngIf="guest.familyGroup"> · {{ guest.familyGroup }}</span>
+                </span>
+              </div>
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-primary"
+                (click)="assignGuest(guest)"
+              >
+                Asignar
+              </button>
+            </li>
+            <li *ngIf="filteredUnassigned.length === 0" class="guest-empty">No hay invitados sin mesa</li>
+          </ul>
+        </ng-container>
+      </section>
+    </aside>
+
+    <ng-container *ngTemplateOutlet="canvasTpl"></ng-container>
+
+    <aside class="salon-sidebar table-assign-sidebar" *ngIf="selectedTable as table">
+      <section class="panel">
+        <h2>Mesa {{ table.number }}</h2>
+        <p class="seats-summary" [class.over]="occupancy(table) === 'over'">
+          {{ tableSeatsLabel(table) }} asientos
+        </p>
+        <ul class="guest-list assigned-list">
+          <li *ngFor="let a of table.assignments" class="guest-item">
+            <div class="guest-info">
+              <strong>{{ a.fullName }}</strong>
+              <span class="guest-meta">{{ a.seatsUsed }} pers.</span>
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-danger" (click)="unassignGuest(a.guestId)">Quitar</button>
+          </li>
+          <li *ngIf="!table.assignments?.length" class="guest-empty">Sin invitados asignados</li>
+        </ul>
+        <p class="hint-inline" *ngIf="assignMethod === 'category'">
+          Elegí mesa en el plano → tocá Asignar en la categoría.
+        </p>
+        <p class="hint-inline" *ngIf="assignMethod === 'guest'">
+          Seleccioná invitados de la lista izquierda y tocá Asignar.
+        </p>
+      </section>
+    </aside>
+  </div>
+</div>
+
+<ng-template #canvasTpl>
+  <div class="salon-canvas-wrap" *ngIf="plan">
+    <svg
+      #floorSvg
+      class="floor-svg"
+      [class.assign-mode]="mode === 'assign'"
+      [attr.viewBox]="viewBox(plan)"
+      preserveAspectRatio="xMidYMid meet"
+      (click)="clearSelection()"
+    >
+      <rect x="0" y="0" [attr.width]="plan.widthCm" [attr.height]="plan.heightCm" class="room-floor" />
+      <rect x="0" y="0" [attr.width]="plan.widthCm" [attr.height]="plan.heightCm" class="room-border" />
+
+      <g
+        *ngFor="let table of plan.tables"
+        class="venue-table"
+        [class.selected]="table.id === selectedTableId"
+        [class.occupancy-empty]="mode === 'assign' && occupancy(table) === 'empty'"
+        [class.occupancy-partial]="mode === 'assign' && occupancy(table) === 'partial'"
+        [class.occupancy-full]="mode === 'assign' && occupancy(table) === 'full'"
+        [class.occupancy-over]="mode === 'assign' && occupancy(table) === 'over'"
+        [attr.transform]="tableTransform(table)"
+        (pointerdown)="startDrag($event, table)"
+        (click)="selectTable(table, $event)"
+      >
+        <circle *ngIf="isRound(table)" [attr.r]="table.widthCm / 2" class="table-shape" />
+        <rect
+          *ngIf="!isRound(table)"
+          [attr.x]="-table.widthCm / 2"
+          [attr.y]="-table.heightCm / 2"
+          [attr.width]="table.widthCm"
+          [attr.height]="table.heightCm"
+          class="table-shape"
+        />
+        <text class="table-label" text-anchor="middle" dominant-baseline="middle">{{ table.number }}</text>
+      </g>
+    </svg>
+    <div class="canvas-scale">
+      Escala: {{ widthM | number:'1.0-1' }} m × {{ heightM | number:'1.0-1' }} m
+      <span *ngIf="mode === 'assign'" class="legend">
+        · vacía · parcial · completa · sobrecupo
+      </span>
+    </div>
+  </div>
+</ng-template>

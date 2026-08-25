@@ -10,8 +10,11 @@ import {
 import { generateUniqueUsername } from '../../lib/username.js';
 import { deleteGuestWithRelations, GuestDeleteError } from '../../lib/delete-guest.js';
 import { requireAuth, type AuthenticatedRequest } from '../../middleware/auth.js';
+import { floorPlanRouter } from '../floor-plan/floor-plan.routes.js';
 
 export const adminRouter = Router();
+
+adminRouter.use('/floor-plan', floorPlanRouter);
 
 // Regenerar token del QR de subida de fotos en el salón
 adminRouter.post(
@@ -178,8 +181,20 @@ adminRouter.post('/guests', requireAuth(['super_admin', 'wedding_admin']), async
 });
 
 // Update guest
-adminRouter.put('/guests/:id', requireAuth(['super_admin', 'wedding_admin']), async (req, res) => {
+adminRouter.put('/guests/:id', requireAuth(['super_admin', 'wedding_admin']), async (req: AuthenticatedRequest, res) => {
   const { id } = req.params;
+  const weddingId = req.user?.weddingId;
+  if (!weddingId) {
+    return res.status(400).json({ error: 'No weddingId on token' });
+  }
+
+  const existing = await prisma.guest.findFirst({
+    where: { id, weddingId, isSystemGuest: false },
+  });
+  if (!existing) {
+    return res.status(404).json({ error: 'Guest not found' });
+  }
+
   const {
     fullName,
     name,
@@ -228,7 +243,7 @@ adminRouter.put('/guests/:id', requireAuth(['super_admin', 'wedding_admin']), as
   return res.json(updated);
 });
 
-// Clear guest app credentials so the invitation link can be used again
+// Clear guest app credentials and RSVP so the invitation link can be used again
 adminRouter.post(
   '/guests/:id/reset-registration',
   requireAuth(['super_admin', 'wedding_admin']),
@@ -251,13 +266,19 @@ adminRouter.post(
       return res.status(400).json({ error: 'Este invitado no tiene cuenta registrada' });
     }
 
-    const updated = await prisma.guest.update({
-      where: { id },
-      data: {
-        username: null,
-        accessCode: null,
-        nameGuest: null,
-      },
+    const updated = await prisma.$transaction(async (tx) => {
+      await tx.rsvp.deleteMany({ where: { guestId: id } });
+
+      return tx.guest.update({
+        where: { id },
+        data: {
+          username: null,
+          accessCode: null,
+          nameGuest: null,
+          checkedIn: false,
+          checkedInTime: null,
+        },
+      });
     });
 
     return res.json(updated);
