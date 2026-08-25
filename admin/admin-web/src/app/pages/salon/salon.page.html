@@ -5,7 +5,7 @@
       <p class="subtitle">
         {{ mode === 'plan'
           ? 'Definí el salón y ubicá mesas. En el dibujo solo se muestran los números.'
-          : 'Asigná invitados a cada mesa. En el dibujo solo se ven números y colores de ocupación.' }}
+          : 'Asigná invitados a cada mesa. El plano muestra número, personas, grupos y categoría.' }}
       </p>
     </div>
     <div class="mode-tabs">
@@ -246,7 +246,36 @@
           [attr.height]="table.heightCm"
           class="table-shape"
         />
-        <text class="table-label" text-anchor="middle" dominant-baseline="middle">{{ table.number }}</text>
+        <ng-container *ngIf="mode === 'assign' && tableCanvasSummary(table) as summary; else tableNumberOnly">
+          <text class="table-label-stack" text-anchor="middle" [attr.y]="-tableLabelStackOffset(table)">
+            <tspan
+              x="0"
+              [attr.font-size]="labelFontSize(table, 'number')"
+              font-weight="700"
+            >
+              {{ table.number }}
+            </tspan>
+            <tspan
+              x="0"
+              [attr.dy]="labelFontSize(table, 'sub') * 1.35"
+              [attr.font-size]="labelFontSize(table, 'sub')"
+            >
+              {{ summary.seats }} pers · {{ summary.groups }} grp
+            </tspan>
+            <tspan
+              *ngIf="summary.categoryLabels.length"
+              x="0"
+              [attr.dy]="labelFontSize(table, 'sub') * 1.15"
+              [attr.font-size]="labelFontSize(table, 'sub') * 0.92"
+              class="table-label-category"
+            >
+              {{ formatTableCategories(summary) }}
+            </tspan>
+          </text>
+        </ng-container>
+        <ng-template #tableNumberOnly>
+          <text class="table-label" text-anchor="middle" dominant-baseline="middle">{{ table.number }}</text>
+        </ng-template>
       </g>
     </svg>
     <div class="canvas-scale">

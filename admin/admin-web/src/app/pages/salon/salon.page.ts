@@ -27,6 +27,12 @@ export interface CategorySummary {
   seats: number;
 }
 
+export interface TableCanvasSummary {
+  groups: number;
+  seats: number;
+  categoryLabels: string[];
+}
+
 @Component({
   standalone: true,
   selector: 'app-salon-page',
@@ -395,6 +401,40 @@ export class SalonPage implements OnInit {
       return `Se asignan grupos hasta llenar la mesa (${free} lugares libres)`;
     }
     return null;
+  }
+
+  tableCanvasSummary(table: VenueTable): TableCanvasSummary | null {
+    const assignments = table.assignments ?? [];
+    if (assignments.length === 0) return null;
+
+    const categoryLabels = [
+      ...new Set(
+        assignments.map((a) => normalizeGuestCategory(a.familyGroup) ?? 'Sin categoría'),
+      ),
+    ].sort();
+
+    const seats =
+      table.seatsUsed ?? assignments.reduce((sum, assignment) => sum + assignment.seatsUsed, 0);
+
+    return {
+      groups: assignments.length,
+      seats,
+      categoryLabels,
+    };
+  }
+
+  formatTableCategories(summary: TableCanvasSummary): string {
+    const text = summary.categoryLabels.join(', ');
+    return text.length > 28 ? `${text.slice(0, 26)}…` : text;
+  }
+
+  labelFontSize(table: VenueTable, kind: 'number' | 'sub'): number {
+    const base = Math.min(table.widthCm, table.heightCm);
+    return kind === 'number' ? Math.max(16, base * 0.18) : Math.max(10, base * 0.1);
+  }
+
+  tableLabelStackOffset(table: VenueTable): number {
+    return this.labelFontSize(table, 'sub') * 1.1;
   }
 
   private handleLoadError(err: { error?: { error?: string } }): void {

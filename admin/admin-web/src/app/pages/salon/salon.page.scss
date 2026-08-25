@@ -375,6 +375,16 @@
   pointer-events: none;
 }
 
+.table-label-stack {
+  fill: #222;
+  pointer-events: none;
+}
+
+.table-label-category {
+  fill: #444;
+  font-weight: 600;
+}
+
 .canvas-scale {
   margin-top: 8px;
   font-size: 0.85rem;
