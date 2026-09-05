@@ -311,6 +311,40 @@ adminRouter.patch('/guests/:id/rsvp', requireAuth(['super_admin', 'wedding_admin
   return res.json(updated);
 });
 
+// Remove RSVP without requiring a registered account (orphan confirmations)
+adminRouter.post(
+  '/guests/:id/clear-rsvp',
+  requireAuth(['super_admin', 'wedding_admin']),
+  async (req: AuthenticatedRequest, res) => {
+    const { id } = req.params;
+    const weddingId = req.user?.weddingId;
+    if (!weddingId) {
+      return res.status(400).json({ error: 'No weddingId on token' });
+    }
+
+    const guest = await prisma.guest.findFirst({
+      where: { id, weddingId, isSystemGuest: false },
+    });
+    if (!guest) {
+      return res.status(404).json({ error: 'Guest not found' });
+    }
+
+    const deleted = await prisma.rsvp.deleteMany({ where: { guestId: id } });
+    if (deleted.count === 0) {
+      return res.status(404).json({ error: 'Este invitado no tiene confirmación RSVP' });
+    }
+
+    const updated = await prisma.guest.findFirst({
+      where: { id },
+      include: {
+        rsvps: { orderBy: { createdAt: 'desc' }, take: 1 },
+      },
+    });
+
+    return res.json(updated);
+  },
+);
+
 // Clear guest app credentials and RSVP so the invitation link can be used again
 adminRouter.post(
   '/guests/:id/reset-registration',
