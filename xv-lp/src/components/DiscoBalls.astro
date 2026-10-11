@@ -1,0 +1,30 @@
+---
+interface Props { compact?: boolean; }
+const { compact = false } = Astro.props;
+
+const heroBalls = [
+  { hang: 'a', size: 92, seed: 3, string: 72 },
+  { hang: 'c', size: 46, seed: 11, string: 22 },
+  { hang: 'b', size: 72, seed: 7, string: 36 },
+] as const;
+
+const compactBalls = [
+  { hang: 'a', size: 56, seed: 5, string: 28 },
+  { hang: 'b', size: 36, seed: 9, string: 18 },
+] as const;
+
+const balls = compact ? compactBalls : heroBalls;
+---
+
+<div class:list={['balls', compact && 'is-compact']} aria-hidden="true">
+  {
+    balls.map((ball) => (
+      <div class={`hang ${ball.hang}`}>
+        <div class="sway">
+          <span class="str" style={`height:${ball.string}px`}></span>
+          <canvas class="js-disco" data-size={ball.size} data-seed={ball.seed}></canvas>
+        </div>
+      </div>
+    ))
+  }
+</div>

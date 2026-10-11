@@ -1,0 +1,84 @@
+{
+  "site": {
+    "title": "Mis XV — Delfi",
+    "description": "Te invito a celebrar los 15 de Delfi. Sábado 7 de noviembre, 21 hs.",
+    "url": "https://example.com"
+  },
+  "honoree": "Delfi",
+  "hashtag": "#MisXV",
+  "eventDate": "2026-11-07T21:00:00-03:00",
+  "hero": {
+    "eyebrow": "Estás invitada",
+    "title": "Mis XV",
+    "subtitle": "Una noche para brillar"
+  },
+  "countdown": {
+    "title": "Falta muy poco",
+    "days": "Días",
+    "hours": "Horas",
+    "minutes": "Min",
+    "seconds": "Seg"
+  },
+  "agenda": {
+    "title": "Agendá la fecha",
+    "dateLabel": "Sábado 7 de noviembre",
+    "timeLabel": "21:00 hs",
+    "google": "Google Calendar",
+    "apple": "Apple / iPhone"
+  },
+  "party": {
+    "title": "La fiesta",
+    "venue": "Salón a confirmar",
+    "address": "Dirección a confirmar",
+    "mapsUrl": "https://www.google.com/maps",
+    "mapsLabel": "Cómo llegar",
+    "timeNote": "Desde las 21:00"
+  },
+  "dressCode": {
+    "title": "Dress code",
+    "label": "Elegante",
+    "text": "Vení con tu mejor look. ¡Queremos verte brillar!"
+  },
+  "gifts": {
+    "title": "Regalos",
+    "text": "Lo más lindo es que estés. Si querés hacerle un regalo, podés transferir al alias:",
+    "alias": "misxv.demo",
+    "holder": "A confirmar",
+    "copy": "Tocá el alias para copiarlo",
+    "copied": "¡Copiado!"
+  },
+  "urna": {
+    "title": "La urna",
+    "text": "En la fiesta va a haber una urna. Escribile una palabra, una frase o algo que quieras que recuerde de esta noche."
+  },
+  "playlist": {
+    "title": "¿Qué no puede faltar?",
+    "text": "Armemos juntos la playlist de la noche. Buscá un tema y pedilo acá mismo.",
+    "search": "Buscá un tema o artista",
+    "ask": "Pedir",
+    "asking": "Pidiendo…",
+    "asked": "Pedido",
+    "empty": "No encontramos ese tema.",
+    "spotify": "Ver la playlist en Spotify",
+    "url": ""
+  },
+  "rsvp": {
+    "email": "cjespelet@gmail.com",
+    "title": "¿Nos acompañás?",
+    "subtitle": "Confirmá tu asistencia.",
+    "name": "Tu nombre y apellido",
+    "coming": "¿Venís?",
+    "yes": "¡Sí, voy!",
+    "no": "No puedo ir",
+    "count": "¿Cuántos son en total?",
+    "phrase": "Una palabra o frase para ella (opcional)",
+    "submit": "Confirmar asistencia",
+    "thanks": "¡Gracias! Ya tenemos tu respuesta.",
+    "required": "Completá tu nombre y si venís.",
+    "sendError": "No se pudo enviar. Probá de nuevo en un momento.",
+    "activateHint": "Revisá el mail (también spam) y tocá el link «Activate Form». Después volvé a confirmar."
+  },
+  "footer": {
+    "thanks": "Te esperamos para celebrar juntos."
+  }
+}

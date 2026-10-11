@@ -1,0 +1,131 @@
+---
+import type { EventData } from '../types/event';
+
+interface Props { data: EventData; }
+const { data } = Astro.props;
+const { playlist, rsvp } = data;
+---
+
+<section id="playlist" class="section-pad reveal text-center" aria-labelledby="playlist-title">
+  <div
+    class="pl-card"
+    id="playlist-box"
+    data-email={rsvp.email}
+    data-ask={playlist.ask}
+    data-asking={playlist.asking}
+    data-asked={playlist.asked}
+    data-empty={playlist.empty}
+  >
+    <div class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+    <h2 id="playlist-title" class="script-title">{playlist.title}</h2>
+    <p class="mx-auto mt-4 max-w-md text-sm leading-relaxed text-ink/60">{playlist.text}</p>
+
+    <div class="pl-search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+        <circle cx="11" cy="11" r="7"></circle>
+        <path d="M20 20l-4-4"></path>
+      </svg>
+      <label class="sr-only" for="pl-q">{playlist.search}</label>
+      <input id="pl-q" type="search" placeholder={playlist.search} autocomplete="off" maxlength="80" enterkeyhint="search" />
+    </div>
+
+    <p id="pl-status" class="pl-status" aria-live="polite"></p>
+    <ul id="pl-results" class="pl-results"></ul>
+
+    {
+      playlist.url ? (
+        <a class="btn-ghost mt-6" href={playlist.url} target="_blank" rel="noopener noreferrer">
+          {playlist.spotify}
+        </a>
+      ) : null
+    }
+  </div>
+</section>
+
+<style>
+  .pl-card {
+    max-width: 36rem;
+    margin-inline: auto;
+    padding: 2.5rem 1.4rem 2.2rem;
+    border-radius: 28px;
+    background: #fff;
+    border: 1px solid rgba(26, 26, 26, 0.08);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.05);
+  }
+
+  .eq {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 3px;
+    height: 16px;
+    margin-bottom: 1.1rem;
+  }
+
+  .eq i {
+    display: block;
+    width: 3px;
+    border-radius: 2px;
+    background: #1a1a1a;
+    transform-origin: center bottom;
+    animation: eq 1s ease-in-out infinite;
+  }
+
+  .eq i:nth-child(1) { height: 55%; }
+  .eq i:nth-child(2) { height: 100%; animation-delay: -0.35s; }
+  .eq i:nth-child(3) { height: 70%; animation-delay: -0.15s; }
+  .eq i:nth-child(4) { height: 90%; animation-delay: -0.5s; }
+  .eq i:nth-child(5) { height: 45%; animation-delay: -0.2s; }
+
+  .pl-search {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 1.5rem auto 0;
+    max-width: 26rem;
+    min-height: 52px;
+    padding: 0 16px;
+    border-radius: 999px;
+    background: #f4f2ef;
+    color: rgba(26, 26, 26, 0.4);
+  }
+
+  .pl-search:focus-within {
+    outline: 1px solid #1a1a1a;
+  }
+
+  .pl-search input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    background: transparent;
+    font: inherit;
+    font-size: 0.95rem;
+    color: #1a1a1a;
+    outline: none;
+    min-height: 48px;
+  }
+
+  .pl-status {
+    min-height: 1.25rem;
+    margin: 0.75rem 0 0;
+    font-size: 0.8rem;
+    color: rgba(26, 26, 26, 0.45);
+  }
+
+  .pl-results {
+    list-style: none;
+    margin: 0.4rem 0 0;
+    padding: 0;
+    text-align: left;
+  }
+
+  @keyframes eq {
+    0%, 100% { transform: scaleY(0.45); }
+    50% { transform: scaleY(1); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .eq i { animation: none; }
+  }
+</style>

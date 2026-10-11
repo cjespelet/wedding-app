@@ -1,0 +1,53 @@
+---
+interface Props {
+  count?: number;
+  seed?: number;
+}
+
+function rng(state: { n: number }): number {
+  state.n = (state.n * 9301 + 49297) % 233280;
+  return state.n / 233280;
+}
+
+const { count = 38, seed = 5 } = Astro.props;
+const state = { n: seed };
+const items = Array.from({ length: count }, () => {
+  const isStar = rng(state) > 0.42;
+  const size = isStar ? Math.round(6 + rng(state) * 15) : Number((2 + rng(state) * 2.4).toFixed(1));
+  return {
+    isStar,
+    left: (rng(state) * 96).toFixed(2),
+    top: (rng(state) * 94).toFixed(2),
+    o: (0.38 + rng(state) * 0.52).toFixed(2),
+    delay: (-rng(state) * 4).toFixed(2),
+    dur: (2.2 + rng(state) * 2.9).toFixed(2),
+    size,
+  };
+});
+
+const starPath =
+  'M12 0c.6 6.6 5.4 11.4 12 12-6.6.6-11.4 5.4-12 12-.6-6.6-5.4-11.4-12-12C6.6 11.4 11.4 6.6 12 0z';
+---
+
+<div class="sparkles" aria-hidden="true">
+  {
+    items.map((item) =>
+      item.isStar ? (
+        <svg
+          class="sparkle-star"
+          width={item.size}
+          height={item.size}
+          viewBox="0 0 24 24"
+          style={`left:${item.left}%;top:${item.top}%;--o:${item.o};animation-delay:${item.delay}s;animation-duration:${item.dur}s`}
+        >
+          <path d={starPath}></path>
+        </svg>
+      ) : (
+        <span
+          class="sparkle-dot"
+          style={`width:${item.size}px;height:${item.size}px;left:${item.left}%;top:${item.top}%;--o:${item.o};animation-delay:${item.delay}s;animation-duration:${item.dur}s`}
+        ></span>
+      ),
+    )
+  }
+</div>

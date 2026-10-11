@@ -1,0 +1,39 @@
+---
+import MainLayout from '../layouts/MainLayout.astro';
+import Hero from '../components/Hero.astro';
+import Countdown from '../components/Countdown.astro';
+import Agenda from '../components/Agenda.astro';
+import Fiesta from '../components/Fiesta.astro';
+import DressCode from '../components/DressCode.astro';
+import Gifts from '../components/Gifts.astro';
+import Urna from '../components/Urna.astro';
+import Playlist from '../components/Playlist.astro';
+import Rsvp from '../components/Rsvp.astro';
+import Footer from '../components/Footer.astro';
+import ModuleRule from '../components/ModuleRule.astro';
+import eventData from '../data/event.json';
+import type { EventData } from '../types/event';
+
+const data = eventData as EventData;
+---
+
+<MainLayout>
+  <main>
+    <Hero data={data} />
+    <Countdown data={data} />
+    <ModuleRule />
+    <Agenda data={data} />
+    <ModuleRule />
+    <Fiesta data={data} />
+    <ModuleRule />
+    <DressCode data={data} />
+    <ModuleRule />
+    <Gifts data={data} />
+    <ModuleRule />
+    <Urna data={data} />
+    <ModuleRule />
+    <Playlist data={data} />
+    <Rsvp data={data} />
+  </main>
+  <Footer data={data} />
+</MainLayout>

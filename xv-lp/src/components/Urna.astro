@@ -1,0 +1,13 @@
+---
+import type { EventData } from '../types/event';
+
+interface Props { data: EventData; }
+const { data } = Astro.props;
+---
+
+<section id="urna" class="section-pad reveal text-center" aria-labelledby="urna-title">
+  <p class="eyebrow">Para ella</p>
+  <h2 id="urna-title" class="script-title mt-4">{data.urna.title}</h2>
+  <div class="silver-line"></div>
+  <p class="mx-auto max-w-md text-sm leading-relaxed text-ink/65">{data.urna.text}</p>
+</section>

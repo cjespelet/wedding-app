@@ -1,0 +1,29 @@
+---
+import type { EventData } from '../types/event';
+import DiscoBalls from './DiscoBalls.astro';
+import Sparkles from './Sparkles.astro';
+import { heroDateParts } from '../utils/format';
+
+interface Props { data: EventData; }
+const { data } = Astro.props;
+const date = heroDateParts(data.eventDate);
+---
+
+<section id="hero" class="on-ink relative overflow-hidden px-5 pb-16 pt-8 text-center sm:pb-20 sm:pt-10">
+  <Sparkles count={40} seed={5} />
+  <div class="relative z-10 flex flex-col items-center">
+    <DiscoBalls />
+    <div class="names relative mt-2">
+      <span class="xv-mark" aria-hidden="true">XV</span>
+      <h1 class="script-title relative">{data.hero.title}</h1>
+      <p class="relative mt-1 font-script text-4xl text-white/90 sm:text-5xl">{data.honoree}</p>
+    </div>
+    <div class="dateline">
+      <span class="dateline-side">{date.dow}</span>
+      <span class="dateline-rule"></span>
+      <span class="dateline-day">{date.day}</span>
+      <span class="dateline-rule"></span>
+      <span class="dateline-side">{date.month}</span>
+    </div>
+  </div>
+</section>

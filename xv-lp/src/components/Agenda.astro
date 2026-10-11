@@ -1,0 +1,21 @@
+---
+import type { EventData } from '../types/event';
+import { appleCalendarUrl, googleCalendarUrl } from '../utils/format';
+
+interface Props { data: EventData; }
+const { data } = Astro.props;
+const title = `XV de ${data.honoree}`;
+const google = googleCalendarUrl(title, data.eventDate, data.party.address, data.site.description);
+const apple = appleCalendarUrl(title, data.eventDate, data.party.address, data.site.description);
+---
+
+<section id="agenda" class="section-pad reveal text-center" aria-labelledby="agenda-title">
+  <p class="eyebrow">{data.agenda.title}</p>
+  <h2 id="agenda-title" class="script-title mt-4">{data.agenda.dateLabel}</h2>
+  <p class="mt-3 text-sm tracking-[0.25em] text-ink/45 uppercase">{data.agenda.timeLabel}</p>
+  <div class="silver-line"></div>
+  <div class="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+    <a class="btn-ghost" href={google} target="_blank" rel="noopener noreferrer">{data.agenda.google}</a>
+    <a class="btn-ghost" href={apple} download="mis-xv.ics">{data.agenda.apple}</a>
+  </div>
+</section>

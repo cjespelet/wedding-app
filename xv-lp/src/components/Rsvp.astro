@@ -1,0 +1,72 @@
+---
+import type { EventData } from '../types/event';
+import DiscoBalls from './DiscoBalls.astro';
+import Sparkles from './Sparkles.astro';
+
+interface Props { data: EventData; }
+const { data } = Astro.props;
+---
+
+<section id="confirmar" class="on-ink relative overflow-hidden section-pad reveal text-center" aria-labelledby="rsvp-title">
+  <Sparkles count={22} seed={2} />
+  <DiscoBalls compact />
+  <p class="eyebrow relative z-10">Confirmá</p>
+  <h2 id="rsvp-title" class="script-title relative z-10 mt-4">{data.rsvp.title}</h2>
+  <p class="relative z-10 mt-3 text-sm text-silver">{data.rsvp.subtitle}</p>
+  <div class="silver-line"></div>
+
+  <form
+    id="rsvp-form"
+    class="relative z-10 mx-auto mt-10 max-w-md space-y-8 text-left"
+    data-email={data.rsvp.email}
+    data-send-error={data.rsvp.sendError}
+    data-activate-hint={data.rsvp.activateHint}
+  >
+    <label class="block">
+      <span class="sr-only">{data.rsvp.name}</span>
+      <input class="field" type="text" name="name" required placeholder={data.rsvp.name} autocomplete="name" />
+    </label>
+
+    <fieldset>
+      <legend class="eyebrow mb-4">{data.rsvp.coming}</legend>
+      <div class="flex gap-3">
+        <label class="btn-ghost flex-1 cursor-pointer text-center">
+          <input class="sr-only" type="radio" name="coming" value="si" required />
+          {data.rsvp.yes}
+        </label>
+        <label class="btn-ghost flex-1 cursor-pointer text-center">
+          <input class="sr-only" type="radio" name="coming" value="no" />
+          {data.rsvp.no}
+        </label>
+      </div>
+    </fieldset>
+
+    <label class="block">
+      <span class="eyebrow">{data.rsvp.count}</span>
+      <select class="field mt-2" name="count">
+        <option value="1">Solo yo</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+        <option value="6">6</option>
+        <option value="7">7</option>
+        <option value="8">8</option>
+      </select>
+    </label>
+
+    <label class="block">
+      <span class="sr-only">{data.rsvp.phrase}</span>
+      <textarea class="field min-h-24 resize-none" name="phrase" placeholder={data.rsvp.phrase}></textarea>
+    </label>
+
+    <p id="rsvp-error" class="hidden text-center text-xs text-red-300" data-required={data.rsvp.required}>
+      {data.rsvp.required}
+    </p>
+    <button type="submit" class="btn-solid">{data.rsvp.submit}</button>
+  </form>
+
+  <p id="rsvp-thanks" class="relative z-10 mx-auto mt-10 hidden max-w-md font-script text-3xl text-white">
+    {data.rsvp.thanks}
+  </p>
+</section>

@@ -1,0 +1,76 @@
+---
+import type { EventData } from '../types/event';
+import Sparkles from './Sparkles.astro';
+
+interface Props { data: EventData; }
+const { data } = Astro.props;
+---
+
+<section id="fiesta" class="section-pad reveal text-center" aria-labelledby="fiesta-title">
+  <div class="venue-card">
+    <Sparkles count={16} seed={8} />
+    <div class="venue-inner">
+      <svg class="venue-pin" width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M12 21s-7-6.2-7-12a7 7 0 0 1 14 0c0 5.8-7 12-7 12z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path>
+        <circle cx="12" cy="9" r="2.4" stroke="currentColor" stroke-width="1.2"></circle>
+      </svg>
+      <p class="eyebrow venue-kicker">{data.party.title}</p>
+      <h2 id="fiesta-title" class="script-title venue-name mt-4">{data.party.venue}</h2>
+      <p class="mt-4 text-sm text-silver">{data.party.address}</p>
+      <p class="mt-2 text-xs tracking-[0.2em] text-white/40 uppercase">{data.party.timeNote}</p>
+      <a class="btn-ghost venue-btn mt-8" href={data.party.mapsUrl} target="_blank" rel="noopener noreferrer">
+        {data.party.mapsLabel}
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .venue-card {
+    position: relative;
+    overflow: hidden;
+    max-width: 34rem;
+    margin-inline: auto;
+    padding: 3.5rem 1.5rem 3rem;
+    border-radius: 28px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background:
+      radial-gradient(90% 70% at 50% -10%, rgba(255, 255, 255, 0.16), transparent 48%),
+      repeating-linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.04) 0 8px,
+        transparent 8px 16px
+      ),
+      #111;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.1);
+  }
+
+  .venue-inner {
+    position: relative;
+    z-index: 1;
+  }
+
+  .venue-pin {
+    display: block;
+    margin: 0 auto 1.1rem;
+    color: #e8e4dc;
+  }
+
+  .venue-card :global(.venue-kicker) {
+    color: #c8c8c8;
+  }
+
+  .venue-card :global(.venue-name) {
+    color: #fff;
+  }
+
+  .venue-card :global(.venue-btn) {
+    border-color: rgba(255, 255, 255, 0.28);
+    color: #fff;
+  }
+
+  .venue-card :global(.venue-btn:hover) {
+    border-color: #fff;
+    background: rgba(255, 255, 255, 0.08);
+  }
+</style>
