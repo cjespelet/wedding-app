@@ -3,6 +3,7 @@ type Track = {
   name: string;
   artists: string;
   image: string;
+  uri?: string;
 };
 
 const ASKED_KEY = 'xv-playlist-asked';
@@ -20,7 +21,7 @@ function saveAsked(ids: Set<string>): void {
   localStorage.setItem(ASKED_KEY, JSON.stringify([...ids]));
 }
 
-async function searchSongs(query: string): Promise<Track[]> {
+async function searchItunes(query: string): Promise<Track[]> {
   const url = new URL('https://itunes.apple.com/search');
   url.searchParams.set('term', query);
   url.searchParams.set('media', 'music');
@@ -39,6 +40,42 @@ async function searchSongs(query: string): Promise<Track[]> {
   }));
 }
 
+async function searchSpotify(api: string, query: string): Promise<Track[]> {
+  const url = new URL('search', api.endsWith('/') ? api : `${api}/`);
+  url.searchParams.set('q', query);
+  const res = await fetch(url);
+  const data = (await res.json()) as { tracks?: Track[] };
+  return data.tracks ?? [];
+}
+
+async function addSpotify(api: string, uri: string): Promise<void> {
+  const url = new URL('add', api.endsWith('/') ? api : `${api}/`);
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ uri }),
+  });
+  if (!res.ok) throw new Error('spotify add');
+}
+
+async function mailRequest(email: string, track: Track): Promise<void> {
+  const res = await fetch(`https://formsubmit.co/ajax/${encodeURIComponent(email)}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    body: JSON.stringify({
+      tipo: 'Pedido de canción',
+      tema: track.name,
+      artista: track.artists,
+      _subject: `Canción XV — ${track.name}`,
+      _template: 'table',
+      _captcha: 'false',
+    }),
+  });
+  const payload = (await res.json()) as { success?: string | boolean };
+  const ok = payload.success === true || payload.success === 'true';
+  if (!ok) throw new Error('send');
+}
+
 export function initPlaylist(): void {
   const box = document.getElementById('playlist-box');
   const input = document.getElementById('pl-q');
@@ -47,6 +84,7 @@ export function initPlaylist(): void {
   if (!(box && input instanceof HTMLInputElement && list && status)) return;
 
   const email = box.dataset.email?.trim() ?? '';
+  const api = box.dataset.api?.trim() ?? '';
   const labels = {
     ask: box.dataset.ask ?? 'Pedir',
     asking: box.dataset.asking ?? 'Pidiendo…',
@@ -94,23 +132,8 @@ export function initPlaylist(): void {
         btn.disabled = true;
         btn.textContent = labels.asking;
         try {
-          if (email) {
-            const res = await fetch(`https://formsubmit.co/ajax/${encodeURIComponent(email)}`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-              body: JSON.stringify({
-                tipo: 'Pedido de canción',
-                tema: track.name,
-                artista: track.artists,
-                _subject: `Canción XV — ${track.name}`,
-                _template: 'table',
-                _captcha: 'false',
-              }),
-            });
-            const payload = (await res.json()) as { success?: string | boolean };
-            const ok = payload.success === true || payload.success === 'true';
-            if (!ok) throw new Error('send');
-          }
+          if (api && track.uri) await addSpotify(api, track.uri);
+          else if (email) await mailRequest(email, track);
           asked.add(track.id);
           saveAsked(asked);
           markAsked();
@@ -136,7 +159,7 @@ export function initPlaylist(): void {
     timer = window.setTimeout(async () => {
       status.textContent = 'Buscando…';
       try {
-        const tracks = await searchSongs(q);
+        const tracks = api ? await searchSpotify(api, q) : await searchItunes(q);
         status.textContent = tracks.length ? '' : labels.empty;
         render(tracks);
       } catch {

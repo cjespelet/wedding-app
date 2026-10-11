@@ -49,24 +49,14 @@ jobs:
           SITE_URL: ${{ env.SITE_URL }}
           ASTRO_BASE: ${{ env.ASTRO_BASE }}
 
-      - name: Build XV (xv-lp)
-        working-directory: xv-lp
-        run: |
-          npm ci
-          npm run build
-        env:
-          SITE_URL: https://${{ env.SITE_DOMAIN }}/xv/
-          ASTRO_BASE: /xv/
-
       - name: Assemble site
         run: |
-          mkdir -p site/invitacion site/xv
+          mkdir -p site/invitacion
           cp -r wedding-frontend/www/. site/
           cp site/index.html site/404.html
           cp -r wedding-lp/dist/. site/invitacion/
-          cp -r xv-lp/dist/. site/xv/
           echo "${{ env.SITE_DOMAIN }}" > site/CNAME
-          touch site/.nojekyll site/invitacion/.nojekyll site/xv/.nojekyll
+          touch site/.nojekyll site/invitacion/.nojekyll
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

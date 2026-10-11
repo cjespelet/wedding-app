@@ -4,6 +4,7 @@ import type { EventData } from '../types/event';
 interface Props { data: EventData; }
 const { data } = Astro.props;
 const { playlist, rsvp } = data;
+const playlistId = playlist.url.match(/playlist\/([A-Za-z0-9]+)/)?.[1] ?? '';
 ---
 
 <section id="playlist" class="section-pad reveal text-center" aria-labelledby="playlist-title">
@@ -11,6 +12,7 @@ const { playlist, rsvp } = data;
     class="pl-card"
     id="playlist-box"
     data-email={rsvp.email}
+    data-api={playlist.api}
     data-ask={playlist.ask}
     data-asking={playlist.asking}
     data-asked={playlist.asked}
@@ -32,6 +34,18 @@ const { playlist, rsvp } = data;
     <p id="pl-status" class="pl-status" aria-live="polite"></p>
     <ul id="pl-results" class="pl-results"></ul>
 
+    {
+      playlistId ? (
+        <div class="pl-embed">
+          <iframe
+            title={playlist.spotify}
+            src={`https://open.spotify.com/embed/playlist/${playlistId}?utm_source=generator&theme=0`}
+            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+            loading="lazy"
+          ></iframe>
+        </div>
+      ) : null
+    }
     {
       playlist.url ? (
         <a class="btn-ghost mt-6" href={playlist.url} target="_blank" rel="noopener noreferrer">
@@ -118,6 +132,20 @@ const { playlist, rsvp } = data;
     margin: 0.4rem 0 0;
     padding: 0;
     text-align: left;
+  }
+
+  .pl-embed {
+    margin: 1.6rem auto 0;
+    max-width: 26rem;
+    overflow: hidden;
+    border-radius: 16px;
+  }
+
+  .pl-embed iframe {
+    display: block;
+    width: 100%;
+    height: 152px;
+    border: 0;
   }
 
   @keyframes eq {

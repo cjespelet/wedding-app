@@ -2,7 +2,7 @@
   "site": {
     "title": "Mis XV — Delfi",
     "description": "Te invito a celebrar los 15 de Delfi. Sábado 7 de noviembre, 21 hs.",
-    "url": "https://example.com"
+    "url": "https://cjespelet.github.io/xv-delfi/"
   },
   "honoree": "Delfi",
   "hashtag": "#MisXV",
@@ -60,7 +60,8 @@
     "asked": "Pedido",
     "empty": "No encontramos ese tema.",
     "spotify": "Ver la playlist en Spotify",
-    "url": ""
+    "url": "",
+    "api": ""
   },
   "rsvp": {
     "email": "cjespelet@gmail.com",

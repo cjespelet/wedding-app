@@ -34,6 +34,7 @@ export interface EventData {
     empty: string;
     spotify: string;
     url: string;
+    api: string;
   };
   rsvp: {
     email: string;
